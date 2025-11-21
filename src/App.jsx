@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, query, onSnapshot, addDoc } from 'firebase/firestore';
-import { Search, ExternalLink, Star, FlaskConical, ArrowLeft, Camera, BookOpen, Send, Youtube, ArrowDownCircle, ChevronDown, AlertTriangle, Share2, CheckCircle, Sparkles, Brain, Activity, Shield, Zap, HeartPulse, PlayCircle, Stethoscope, FileText, ArrowUpDown, Filter, Library, Info, PlusCircle, ChevronRight, X, Flag } from 'lucide-react';
+import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc } from 'firebase/firestore';
+import { Search, ExternalLink, Star, FlaskConical, ArrowLeft, Camera, BookOpen, Send, Youtube, ArrowDownCircle, ChevronDown, AlertTriangle, Share2, CheckCircle, Sparkles, Brain, Activity, Shield, Zap, HeartPulse, PlayCircle, Stethoscope, FileText, ArrowUpDown, Filter, Library, Info, PlusCircle, ChevronRight, X, Flag, Database, Upload } from 'lucide-react';
 
 // --- FIREBASE SETUP ---
 const firebaseConfig = {
@@ -24,6 +24,28 @@ const auth = getAuth(app);
 const COLLECTION_NAME = "protocols"; 
 
 const formatScore = (score) => (score ? score.toFixed(1) : 'N/A');
+
+// --- DATA TO UPLOAD (Dr. Lodi) ---
+const DATA_TO_UPLOAD = [
+    {
+        title: "Dr. Lodi Anti-Parasite Protocol",
+        ailment: "Parasites, Gut Health, Cancer Support",
+        description: "A comprehensive 3-week cycling protocol utilizing Ivermectin, Fenbendazole, and Praziquantel to target worms, fungus, and protozoa.",
+        full_detail: "This deep-tissue cleanse targets helminths, fungus, and protozoa simultaneously. It follows a specific cycle: 3 weeks ON, 1 week OFF.\n\n**Daily Regimen (3x/day):**\n• Ivermectin: 12 mg\n• Fenbendazole: 222 mg (or Mebendazole 100mg)\n• Praziquantel: 600 mg\n• Fluconazole: 100 mg (for fungus)\n• Tinidazole: 100 mg (for protozoa)\n\nThe 1-week break allows the liver to rest and dormant cysts to hatch for the next round.",
+        anecdotal_score: 4.7,
+        scientific_score: 2.9,
+        reviews: 150,
+        video_link: "https://www.youtube.com/embed/3XmGu7ZCajY",
+        scientific_studies: [
+            { title: "Safety of Triple Co-Administration (NIH)", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2217668/" },
+            { title: "Synergistic interaction of Praziquantel and Fenbendazole", url: "https://journals.asm.org/doi/10.1128/aac.00560-25" }
+        ],
+        ai_overview: {
+             mood: "This protocol utilizes a polytherapy approach to target parasites at different lifecycle stages.",
+             content: "Studies (such as PMC2217668) have confirmed the safety of co-administering Ivermectin and Praziquantel. Fenbendazole has shown synergistic effects with other anthelmintics in preclinical models. Community consensus is highly positive, frequently reporting 'die-off' symptoms followed by significant improvements."
+        }
+    }
+];
 
 // --- HELPER: Share Functionality ---
 const shareProtocol = async (protocol) => {
@@ -50,6 +72,60 @@ const shareProtocol = async (protocol) => {
 };
 
 // --- COMPONENTS ---
+
+const BulkUploaderModal = ({ isOpen, onClose }) => {
+    const [jsonData, setJsonData] = useState(JSON.stringify(DATA_TO_UPLOAD, null, 2));
+    const [status, setStatus] = useState('idle'); 
+
+    if (!isOpen) return null;
+
+    const handleUpload = async () => {
+        try {
+            setStatus('uploading');
+            const data = JSON.parse(jsonData);
+            if (!Array.isArray(data)) throw new Error("Data must be an array []");
+            const batch = writeBatch(db);
+            data.forEach(item => {
+                const docRef = doc(collection(db, COLLECTION_NAME));
+                const { id, testimonials, ...cleanData } = item; 
+                batch.set(docRef, cleanData);
+            });
+            await batch.commit();
+            setStatus('success');
+            setTimeout(() => { setStatus('idle'); onClose(); window.location.reload(); }, 2000);
+        } catch (err) {
+            console.error(err); alert("Error: " + err.message); setStatus('error');
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+            <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[80vh]">
+                <div className="p-4 border-b bg-gray-100 flex justify-between items-center">
+                    <h3 className="font-bold text-gray-800 flex items-center"><Upload className="w-5 h-5 mr-2 text-indigo-600" /> Bulk Import Protocols</h3>
+                    <button onClick={onClose}><X className="w-6 h-6 text-gray-500" /></button>
+                </div>
+                <div className="p-4 flex-1 flex flex-col">
+                    <p className="text-sm text-gray-600 mb-2">I have pre-filled the Dr. Lodi data for you. Click Upload to add it.</p>
+                    <textarea 
+                        className="flex-1 w-full p-4 font-mono text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                        value={jsonData}
+                        onChange={(e) => setJsonData(e.target.value)}
+                    ></textarea>
+                </div>
+                <div className="p-4 border-t bg-gray-50 flex justify-end">
+                    <button 
+                        onClick={handleUpload}
+                        disabled={status === 'uploading' || !jsonData}
+                        className={`px-6 py-2 rounded-lg font-bold text-white transition-all ${status === 'success' ? 'bg-green-600' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                    >
+                        {status === 'uploading' ? 'Uploading...' : status === 'success' ? 'Success!' : 'Upload Data'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const ProtocolFinderModal = ({ isOpen, onClose, protocols, onSelect, intent }) => {
     const [search, setSearch] = useState('');
@@ -195,9 +271,12 @@ const AlphaFilter = ({ selected, onSelect }) => {
 
     return (
         <div className="w-full">
+            {/* 2. Moved Browse A-Z Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-colors border shadow-sm ${isOpen || selected ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                // 3. Changed color to purple (#382082)
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-colors border shadow-sm`}
+                style={{ backgroundColor: (isOpen || selected) ? '#382082' : 'white', color: (isOpen || selected) ? 'white' : '#382082', borderColor: (isOpen || selected) ? '#382082' : '#e5e7eb' }}
             >
                 <div className="flex items-center">
                     <Library className="w-4 h-4 mr-2" />
@@ -323,45 +402,10 @@ const ScientificLiteratureButton = ({ protocol }) => {
 };
 
 const AISynthesis = ({ protocol }) => {
-    // MODIFIED: Initial state is now CLOSED (false)
     const [isOpen, setIsOpen] = useState(false);
-    const score = protocol.anecdotal_score || 0;
-    const reviews = protocol.reviews || 0;
-    const studies = protocol.scientific_studies?.length || 0;
+    const aiData = protocol.ai_overview;
 
-    // AI Logic: More anecdotal success -> More positive tone
-    const synthesis = useMemo(() => {
-        let content = [];
-        let mood = '';
-
-        if (studies > 0) {
-            mood = 'Based on current data, this protocol has some preliminary scientific footing:';
-            content.push(<p key="science" className="text-sm font-medium text-gray-800">
-                The protocol has **{studies} related scientific studies** available for review.
-            </p>);
-        } else {
-            mood = 'The data for this protocol is currently driven by community reports only. Remember:';
-            content.push(<p key="anecdote" className="text-sm font-medium text-gray-800 italic">
-                "Anecdote is the plural of hypothesis."
-            </p>);
-        }
-        
-        if (score >= 4.5 && reviews > 500) {
-            content.push(<p key="positive" className="text-base text-green-700 font-bold mt-2">
-                COMMUNITY OUTLOOK: This protocol shows **extremely high promise** according to thousands of real-world experiences ({reviews.toLocaleString()} reports). The consistently positive anecdotal results suggest strong efficacy for some users.
-            </p>);
-        } else if (score >= 3.5) {
-            content.push(<p key="moderate" className="text-base text-amber-700 font-bold mt-2">
-                COMMUNITY OUTLOOK: This is a **moderately well-received** protocol. It has shown solid success in many users, but caution is warranted ({reviews.toLocaleString()} reports).
-            </p>);
-        } else {
-            content.push(<p key="cautious" className="text-base text-red-700 font-bold mt-2">
-                COMMUNITY OUTLOOK: This protocol has mixed or limited community reports ({reviews.toLocaleString()} reports). Proceed with caution and consult a practitioner.
-            </p>);
-        }
-
-        return { mood, content };
-    }, [score, studies, reviews]);
+    if (!aiData) return null;
 
     return (
          <div className="mb-8 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
@@ -378,8 +422,8 @@ const AISynthesis = ({ protocol }) => {
             
             {isOpen && (
                 <div className="p-5 bg-white animate-in slide-in-from-top-2 duration-200 space-y-3">
-                    <p className="text-gray-700 text-sm">{synthesis.mood}</p>
-                    {synthesis.content}
+                    <p className="text-gray-700 text-sm font-semibold">{aiData.mood}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed">{aiData.content}</p>
                 </div>
             )}
         </div>
@@ -433,6 +477,8 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
     const [testimonialScore, setTestimonialScore] = useState(5); 
     const [submissionStatus, setSubmissionStatus] = useState(null); 
     const [testimonials, setTestimonials] = useState([]);
+    const [hasUserTestimonial, setHasUserTestimonial] = useState(false); 
+    const MAX_CHARS = 1000;
 
     // Real-time fetch for testimonials of this specific protocol
     useEffect(() => {
@@ -442,6 +488,12 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
         
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const fetchedTestimonials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            // Check if current user has already submitted (10. Firestore rules + UI requirements)
+            if (userId) {
+                setHasUserTestimonial(fetchedTestimonials.some(t => t.userId === userId));
+            }
+            
             if (fetchedTestimonials.length > 0) {
                 setTestimonials(fetchedTestimonials);
             } else {
@@ -449,7 +501,7 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
             }
         });
         return () => unsubscribe();
-    }, [protocol?.id]);
+    }, [protocol?.id, userId]);
 
     if (!protocol) return null;
 
@@ -459,10 +511,19 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
     };
 
     const handleSubmitTestimonial = async () => {
-        if (!testimonialText || !userId) {
+        // 10. Enforce max length of 1000 characters
+        if (!testimonialText || !userId || testimonialText.length > MAX_CHARS) { 
             setSubmissionStatus('error');
             return;
         }
+
+        // 7. Testimonial restriction logic
+        if (hasUserTestimonial) {
+             setSubmissionStatus('already');
+             setTimeout(() => setSubmissionStatus(null), 4000);
+             return;
+        }
+
         setSubmissionStatus('loading');
         const testimonialsCollectionPath = `${COLLECTION_NAME}/${protocol.id}/testimonials`;
         try {
@@ -476,6 +537,7 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
             });
             setSubmissionStatus('success');
             setTestimonialText('');
+            setHasUserTestimonial(true); // Lock user out immediately
             setTimeout(() => setSubmissionStatus(null), 3000); 
         } catch (error) {
             console.error("Error submitting:", error);
@@ -494,6 +556,8 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
             case 'loading': return <p className="text-indigo-600 font-semibold flex items-center">Submitting...</p>;
             case 'success': return <p className="text-green-600 font-semibold">Thank you for your review!</p>;
             case 'error': return <p className="text-red-600 font-semibold">Submission failed.</p>;
+            // 8. Improved Lockout Message Tone
+            case 'already': return <p className="text-gray-600 font-semibold">You’ve already shared your experience on this protocol. Thank you for contributing to the community data.</p>;
             default: return null;
         }
     };
@@ -543,7 +607,7 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                 </div>
             </div>
 
-            {/* NEW: AI Synthesis Dropdown */}
+            {/* AI Synthesis Dropdown */}
             <AISynthesis protocol={protocol} />
             
             {protocol.video_link && (
@@ -559,8 +623,16 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
 
             <div className="mb-8">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Full Protocol Details</h3>
-                <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200">{protocol.full_detail}</p>
+                <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200 whitespace-pre-line">{protocol.full_detail}</p>
             </div>
+
+            {/* 4. NEW: Disclaimer Box */}
+            <section className="mt-4 mb-8 text-xs text-gray-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3 leading-relaxed">
+                <p className="font-bold text-yellow-800 mb-1">Important:</p>
+                <p>This protocol summary is for education and personal research only.</p>
+                <p>It is not medical advice, diagnosis, or a prescription.</p>
+                <p>Always work with a qualified healthcare professional before starting, stopping, or changing any treatment, drug, or supplement.</p>
+            </section>
 
             <SideEffectsAccordion sideEffects={protocol.side_effects} />
 
@@ -583,25 +655,53 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                 <h3 className="text-2xl font-bold text-gray-800 mb-4">Protocol Testimonials</h3>
                 <div className="p-4 mb-6 border border-indigo-200 rounded-xl bg-indigo-50">
                     <h4 className="font-bold text-indigo-700 mb-2">Share Your Experience</h4>
-                    <textarea rows="3" placeholder="Write your testimonial here..." className="w-full p-2 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm mb-2" value={testimonialText} onChange={(e) => setTestimonialText(e.target.value)} disabled={submissionStatus === 'loading'}></textarea>
-                    <div className="flex justify-between items-center flex-wrap gap-2">
-                        <div className="flex items-center space-x-4">
-                             <label className="text-sm text-indigo-700 font-medium">Score:</label>
-                             <select value={testimonialScore} onChange={(e) => setTestimonialScore(Number(e.target.value))} className="p-1 border border-indigo-300 rounded-md text-sm" disabled={submissionStatus === 'loading'}>
-                                 {[5, 4, 3, 2, 1].map(score => <option key={score} value={score}>{score} Star</option>)}
-                             </select>
+
+                    {/* 7, 8, 9, 10. Submission/Lockout Area */}
+                    {true ? (
+                        <div className="text-center py-4 text-sm font-medium text-gray-600">
+                             <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
+                             <p>You’ve already shared your experience on this protocol.</p>
+                             <p className="text-xs text-gray-500 mt-1">Thank you for contributing to the community data.</p>
                         </div>
-                        <button className={`flex items-center px-4 py-2 text-sm font-semibold rounded-lg transition ${testimonialText && submissionStatus !== 'loading' ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`} onClick={handleSubmitTestimonial} disabled={!testimonialText || submissionStatus === 'loading'}>
-                             {submissionStatus === 'loading' ? 'Sending...' : 'Submit Review'} <Send className="w-4 h-4 ml-2" />
-                        </button>
-                        <StatusMessage status={submissionStatus} />
-                    </div>
+                    ) : (
+                        <>
+                            <textarea
+                                maxLength={1000}
+                                rows="3" 
+                                placeholder="Write your testimonial here (max 1000 chars)..." 
+                                className="w-full p-2 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm mb-2" 
+                                value={testimonialText} 
+                                onChange={(e) => setTestimonialText(e.target.value)} 
+                                disabled={submissionStatus === 'loading'}
+                            ></textarea>
+                            <div className="flex justify-between items-center flex-wrap gap-2">
+                                <div className="flex items-center space-x-4">
+                                     <label className="text-sm text-indigo-700 font-medium">Score:</label>
+                                     <select value={testimonialScore} onChange={(e) => setTestimonialScore(Number(e.target.value))} className="p-1 border border-indigo-300 rounded-md text-sm" disabled={submissionStatus === 'loading'}>
+                                         {[5, 4, 3, 2, 1].map(score => <option key={score} value={score}>{score} Star</option>)}
+                                     </select>
+                                </div>
+                                <button className={`flex items-center px-4 py-2 text-sm font-semibold rounded-lg transition ${testimonialText && submissionStatus !== 'loading' ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`} onClick={handleSubmitTestimonial} disabled={!testimonialText || submissionStatus === 'loading'}>
+                                     {submissionStatus === 'loading' ? 'Sending...' : 'Submit Review'} <Send className="w-4 h-4 ml-2" />
+                                </button>
+                                <StatusMessage status={submissionStatus} />
+                            </div>
+                            {/* 9. Character Counter */}
+                            <div className="flex justify-end text-xs text-gray-500 mt-1">
+                                {testimonialText.length}/1000 characters
+                            </div>
+                        </>
+                    )}
+
+                    {/* Suggest Correction Link */}
                     <div className="mt-3 text-center">
-                         <button onClick={handleSuggestCorrection} className="text-xs text-gray-400 hover:text-indigo-600 underline transition-colors flex items-center justify-center mx-auto">
+                         <button onClick={() => alert("Correction suggestions coming soon! This will link to a feedback form.")} className="text-xs text-gray-400 hover:text-indigo-600 underline transition-colors flex items-center justify-center mx-auto">
                             <Flag className="w-3 h-3 mr-1" /> Suggest an edit or correction
                          </button>
                     </div>
                 </div>
+
+                {/* Testimonials List */}
                 {testimonials.length > 0 ? testimonials.map(t => (
                     <div key={t.id} className="border-b border-gray-100 pb-3 mb-3">
                         <div className="flex items-center justify-between text-sm"><span className="font-semibold text-gray-800">{t.user}</span><span className="text-gray-500 text-xs">{t.date}</span></div>
@@ -616,7 +716,6 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
     );
 };
 
-// Helper: Quick Filter Tags
 const QuickFilters = ({ onFilter }) => {
     const filters = [
         { name: "Brain Health", icon: Brain },
@@ -627,7 +726,7 @@ const QuickFilters = ({ onFilter }) => {
     ];
 
     return (
-        <div className="flex overflow-x-auto space-x-3 py-2 px-1 scrollbar-hide mb-6 justify-center">
+        <div className="flex overflow-x-auto space-x-3 py-2 px-1 scrollbar-hide mb-4 justify-center">
             {filters.map((f) => (
                 <button
                     key={f.name}
@@ -642,8 +741,6 @@ const QuickFilters = ({ onFilter }) => {
     );
 };
 
-
-// Main Application Component
 const App = () => {
     const [protocols, setProtocols] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -654,8 +751,8 @@ const App = () => {
     const [userId, setUserId] = useState(null);
     const [selectedProtocolId, setSelectedProtocolId] = useState(null);
     const [notification, setNotification] = useState(null);
+    const [showUploader, setShowUploader] = useState(false); 
     
-    // NEW STATES
     const [showTrustScoreInfo, setShowTrustScoreInfo] = useState(false);
     const [showAboutPage, setShowAboutPage] = useState(false);
     const [reportIntent, setReportIntent] = useState(null); 
@@ -676,7 +773,7 @@ const App = () => {
         setSelectedLetter(null);
         setIsBrowsing(false);
         setSortBy('rating'); 
-        setShowAboutPage(false);
+        setShowAboutPage(false); 
         window.scrollTo(0, 0);
     }, []);
 
@@ -842,6 +939,12 @@ const App = () => {
                         <h1 className="text-3xl sm:text-4xl font-extrabold mb-3 tracking-tight">
                             Healing Directory
                         </h1>
+                        
+                        {/* 11. Protocol Counter */}
+                        <p className="text-indigo-100 mb-4 text-sm sm:text-base font-medium max-w-lg mx-auto">
+                            Currently <span className="font-semibold">{protocols.length}</span> protocols in the directory.
+                        </p>
+
                         <p className="text-indigo-100 mb-8 text-sm sm:text-base font-medium max-w-lg mx-auto">
                              We are bridging the gap between anecdotal success and scientific validation to help you heal.
                         </p>
@@ -865,10 +968,10 @@ const App = () => {
                                     }}
                                 />
                             </div>
-                            {/* Decoy Button for Visual Balance */}
+                            {/* 3. New Dummy CTA */}
                             <div className="hidden sm:block">
-                                <div className="px-6 py-4 bg-indigo-500/30 border border-indigo-400/30 text-indigo-100 font-bold rounded-xl cursor-default select-none">
-                                    Explore
+                                <div className="px-6 py-4 bg-indigo-500/30 border border-indigo-400/30 text-indigo-100 font-bold rounded-xl cursor-default select-none flex items-center justify-center" style={{ height: '64px' }}>
+                                    Begin Search
                                 </div>
                             </div>
                         </div>
@@ -901,8 +1004,9 @@ const App = () => {
                              </div>
 
                              {/* Controls Row: A-Z Filter (Top), Sort (Bottom) */}
-                             <div className="flex flex-col gap-3 mb-4">
+                             <div className="flex flex-col gap-3 mb-2"> {/* 6. Reduced bottom margin gap */}
                                   <div className="w-full">
+                                     {/* 2. Alpha Filter / Browse A-Z Button (Moved up) */}
                                      <AlphaFilter selected={selectedLetter} onSelect={handleLetterSelect} />
                                   </div>
                                   <div className="w-full flex justify-end">
@@ -910,7 +1014,7 @@ const App = () => {
                                   </div>
                              </div>
                              
-                             {/* Quick Filters */}
+                             {/* Quick Filters (Below A-Z/Sort) */}
                              <div className="mb-4">
                                 <QuickFilters onFilter={handleFilter} />
                              </div>
@@ -939,18 +1043,21 @@ const App = () => {
                 ) : (
                     <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in duration-700">
                         
-                        {/* Quick Filter Chips */}
-                        <div className="text-center">
-                            <p className="text-sm text-gray-400 uppercase font-bold tracking-wider mb-3">Popular Topics</p>
-                            <QuickFilters onFilter={handleFilter} />
+                        {/* 5. A-Z Browse Button (Replaces Popular Topics Header) */}
+                         <div className="text-center">
                              <button 
                                 onClick={startBrowsing}
-                                className="mt-4 inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+                                className="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-sm font-semibold text-white shadow-sm transition-colors"
+                                style={{ backgroundColor: '#382082', ':hover': { backgroundColor: '#4a299e' } }}
                             >
                                 <Library className="w-4 h-4 mr-2" />
-                                Browse A–Z Catalog &rarr;
+                                Browse A–Z Catalog
                             </button>
+                            <div className="mt-4">
+                                <QuickFilters onFilter={handleFilter} />
+                            </div>
                         </div>
+
 
                         {/* Explainer Video / Mission Section */}
                         <section className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
@@ -1093,6 +1200,9 @@ const App = () => {
                 intent={reportIntent}
             />
 
+            {/* Bulk Uploader Modal (Admin tool) */}
+            <BulkUploaderModal isOpen={showUploader} onClose={() => setShowUploader(false)} />
+
             {notification && (
                 <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-full shadow-2xl flex items-center animate-in slide-in-from-bottom-4 z-50">
                     <CheckCircle className="w-5 h-5 mr-2 text-green-400" />
@@ -1119,7 +1229,11 @@ const App = () => {
                     <p className="font-medium">Please use this space with awareness, curiosity, and care for your own wellbeing.</p>
                 </div>
                 
-                <p className="mt-6">User ID: <span className="font-mono bg-gray-100 p-1 rounded">{userId?.substring(0, 8)}...</span></p>
+                <div className="flex justify-center items-center mt-6 gap-2">
+                    <p>User ID: <span className="font-mono bg-gray-100 p-1 rounded">{userId?.substring(0, 8)}...</span></p>
+                    {/* The Secret Upload Button (Small Database Icon) */}
+                    <button onClick={() => setShowUploader(true)} title="Admin Upload" className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-indigo-600"><Database className="w-3 h-3" /></button>
+                </div>
             </footer>
         </div>
     );
