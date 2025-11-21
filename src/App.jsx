@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc } from 'firebase/firestore';
 import { Search, ExternalLink, Star, FlaskConical, ArrowLeft, Camera, BookOpen, Send, Youtube, ArrowDownCircle, ChevronDown, AlertTriangle, Share2, CheckCircle, Sparkles, Brain, Activity, Shield, Zap, HeartPulse, PlayCircle, Stethoscope, FileText, ArrowUpDown, Filter, Library, Info, PlusCircle, ChevronRight, X, Flag, Database, Upload } from 'lucide-react';
 
@@ -25,27 +25,8 @@ const COLLECTION_NAME = "protocols";
 
 const formatScore = (score) => (score ? score.toFixed(1) : 'N/A');
 
-// --- DATA TO UPLOAD (Dr. Lodi) ---
-const DATA_TO_UPLOAD = [
-    {
-        title: "Dr. Lodi Anti-Parasite Protocol",
-        ailment: "Parasites, Gut Health, Cancer Support",
-        description: "A comprehensive 3-week cycling protocol utilizing Ivermectin, Fenbendazole, and Praziquantel to target worms, fungus, and protozoa.",
-        full_detail: "This deep-tissue cleanse targets helminths, fungus, and protozoa simultaneously. It follows a specific cycle: 3 weeks ON, 1 week OFF.\n\n**Daily Regimen (3x/day):**\n• Ivermectin: 12 mg\n• Fenbendazole: 222 mg (or Mebendazole 100mg)\n• Praziquantel: 600 mg\n• Fluconazole: 100 mg (for fungus)\n• Tinidazole: 100 mg (for protozoa)\n\nThe 1-week break allows the liver to rest and dormant cysts to hatch for the next round.",
-        anecdotal_score: 4.7,
-        scientific_score: 2.9,
-        reviews: 150,
-        video_link: "https://www.youtube.com/embed/3XmGu7ZCajY",
-        scientific_studies: [
-            { title: "Safety of Triple Co-Administration (NIH)", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2217668/" },
-            { title: "Synergistic interaction of Praziquantel and Fenbendazole", url: "https://journals.asm.org/doi/10.1128/aac.00560-25" }
-        ],
-        ai_overview: {
-             mood: "This protocol utilizes a polytherapy approach to target parasites at different lifecycle stages.",
-             content: "Studies (such as PMC2217668) have confirmed the safety of co-administering Ivermectin and Praziquantel. Fenbendazole has shown synergistic effects with other anthelmintics in preclinical models. Community consensus is highly positive, frequently reporting 'die-off' symptoms followed by significant improvements."
-        }
-    }
-];
+// --- DATA TO UPLOAD (REMOVED: Keeping Array empty) ---
+const DATA_TO_UPLOAD = []; 
 
 // --- HELPER: Share Functionality ---
 const shareProtocol = async (protocol) => {
@@ -106,7 +87,7 @@ const BulkUploaderModal = ({ isOpen, onClose }) => {
                     <button onClick={onClose}><X className="w-6 h-6 text-gray-500" /></button>
                 </div>
                 <div className="p-4 flex-1 flex flex-col">
-                    <p className="text-sm text-gray-600 mb-2">I have pre-filled the Dr. Lodi data for you. Click Upload to add it.</p>
+                    <p className="text-sm text-gray-600 mb-2">Paste your JSON array of protocols here. This allows you to upload 100s of protocols at once.</p>
                     <textarea 
                         className="flex-1 w-full p-4 font-mono text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
                         value={jsonData}
@@ -489,7 +470,7 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const fetchedTestimonials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
-            // Check if current user has already submitted (10. Firestore rules + UI requirements)
+            // 7. Check if current user has already submitted (10. Firestore rules + UI requirements)
             if (userId) {
                 setHasUserTestimonial(fetchedTestimonials.some(t => t.userId === userId));
             }
@@ -547,7 +528,6 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
     };
 
     const handleSuggestCorrection = () => {
-        // In a real app, this would open a modal or redirect to a contact form
         alert("Correction suggestions coming soon! This will link to a feedback form.");
     };
 
@@ -1006,7 +986,7 @@ const App = () => {
                              {/* Controls Row: A-Z Filter (Top), Sort (Bottom) */}
                              <div className="flex flex-col gap-3 mb-2"> {/* 6. Reduced bottom margin gap */}
                                   <div className="w-full">
-                                     {/* 2. Alpha Filter / Browse A-Z Button (Moved up) */}
+                                     {/* 2 & 5. Alpha Filter / Browse A-Z Button (Moved up) */}
                                      <AlphaFilter selected={selectedLetter} onSelect={handleLetterSelect} />
                                   </div>
                                   <div className="w-full flex justify-end">
