@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom'; // Task A: Added routing imports
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth'; // Note: signOut imported here for footer button
-import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc } from 'firebase/firestore'; // CRITICAL: Import Firestore functions here
+import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth'; 
+import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc } from 'firebase/firestore'; 
 import { Search, ExternalLink, Star, FlaskConical, ArrowLeft, Camera, BookOpen, Send, Youtube, ArrowDownCircle, ChevronDown, AlertTriangle, Share2, CheckCircle, Sparkles, Brain, Activity, Shield, Zap, HeartPulse, PlayCircle, Stethoscope, FileText, ArrowUpDown, Filter, Library, Info, PlusCircle, ChevronRight, X, Flag, Database, Upload } from 'lucide-react';
 
 // --- FIREBASE SETUP ---
@@ -60,7 +61,7 @@ const DATA_TO_UPLOAD = [
 <h3><strong>Important Considerations</strong></h3>
 <p style="margin-top: 0.5em; margin-bottom: 1em;">The break periods (1 week off in standard, 5 days off in modified) are often intended to allow the liver to rest and to catch dormant cysts or larvae that may hatch during the pause.</p>
 
-<h3><strong>Adjuncts & Co-Factors (user-reported)</strong></h3>
+<h3><strong>Adjuncts & Co-Factors (User-Reported)</strong></h3>
 <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
     <li style="margin-bottom: 0.3em;"><strong>Dietary Focus:</strong> Uncooked whole plants (fruits, vegetables, nuts, seeds) and green-juice cleansing (celery, cucumber, kale, spinach).</li>
     <li style="margin-bottom: 0.3em;"><strong>Lifestyle:</strong> Focused breathing, consistent sleep, and sunlight exposure.</li>
@@ -106,14 +107,17 @@ const DATA_TO_UPLOAD = [
     }
 ];
 
-// --- HELPER: Share Functionality ---
+// --- HELPER: Share Functionality (Task D) ---
 const shareProtocol = async (protocol) => {
     if (!protocol) return null;
+    
+    // Task D: Build the deep-link URL
+    const url = `${window.location.origin}/protocol/${protocol.id}`;
     
     const shareData = {
         title: protocol.title,
         text: `Check out this healing protocol: ${protocol.title}\n${protocol.description}`,
-        url: window.location.href 
+        url: url
     };
     
     try {
