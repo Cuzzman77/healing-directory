@@ -31,83 +31,77 @@ const DATA_TO_UPLOAD = [
         title: "Dr. Lodi Anti-Parasite Protocol",
         ailment: "Parasites, Gut Health, Cancer Support",
         description: "A comprehensive polytherapy approach primarily used by individuals seeking to address pervasive parasitic infections, often in the context of chronic illness.",
-        full_detail: `<h3><strong>Ailment & Context</strong></h3>
-<p>People use this mix when they believe they’re dealing with parasites, worms, protozoa, or fungal overgrowth.</p>
-<p>It’s pitched as a “cover-everything” anti-parasitic sweep, but everything below is user-reported, not a recommendation, and not medical advice. Calm down, lawyers.</p>
+        full_detail: `<h3><strong>Protocol Overview</strong></h3>
+<p style="margin-top: 0.5em; margin-bottom: 1em;">Dr. Thomas Lodi MD shares an all-encompassing anti-parasitic protocol designed to target helminths (worms), fungus, and protozoa simultaneously.</p>
 
 <h3><strong>User-Reported Core Protocol (Dose & Timing)</strong></h3>
 <p>From the shared protocol attributed to Dr. Thomas Lodi MD:</p>
-<ul>
-    <li><strong>12 mg Ivermectin</strong> – user-reported for helminths/worms</li>
-    <li><strong>222 mg Fenbendazole</strong> OR <strong>100 mg Mebendazole</strong> – user-reported for helminths/worms</li>
-    <li><strong>600 mg Praziquantel</strong> OR <strong>Niclosamide</strong> – user-reported for helminths/worms</li>
-    <li><strong>100 mg Fluconazole</strong> – user-reported for fungus</li>
-    <li><strong>100 mg Tinidazole</strong> OR <strong>Metronidazole</strong> – user-reported for protozoa</li>
+<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+    <li style="margin-bottom: 0.3em;"><strong>12 mg Ivermectin</strong> – user-reported for helminths/worms</li>
+    <li style="margin-bottom: 0.3em;"><strong>222 mg Fenbendazole</strong> OR <strong>100 mg Mebendazole</strong> – user-reported for helminths/worms</li>
+    <li style="margin-bottom: 0.3em;"><strong>600 mg Praziquantel</strong> OR <strong>Niclosamide</strong> – user-reported for helminths/worms</li>
+    <li style="margin-bottom: 0.3em;"><strong>100 mg Fluconazole</strong> – user-reported for fungus</li>
+    <li style="margin-bottom: 0.3em;"><strong>100 mg Tinidazole</strong> OR <strong>Metronidazole</strong> – user-reported for protozoa</li>
 </ul>
 
 <p><strong>Timing pattern (user-reported):</strong></p>
-<ul>
-    <li>Taken 3 times per day</li>
-    <li>3 weeks on, 1 week break, 3 weeks on</li>
+<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+    <li style="margin-bottom: 0.3em;">Taken 3 times per day</li>
+    <li style="margin-bottom: 0.3em;">3 weeks on, 1 week break, 3 weeks on</li>
 </ul>
 
-<p><strong>Alternative user-reported pattern from “many customers”</strong></p>
-<ul>
-    <li>Same substances, but taken twice per day</li>
-    <li>5 days on, 5 days off</li>
-    <li>Repeated for 2–6 rounds, based on personal circumstances and health guidance (user-reported)</li>
+<p><strong>Alternative user-reported pattern:</strong></p>
+<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+    <li style="margin-bottom: 0.3em;">Same substances, but taken twice per day</li>
+    <li style="margin-bottom: 0.3em;">5 days on, 5 days off</li>
+    <li style="margin-bottom: 0.3em;">Repeated for 2–6 rounds, based on personal circumstances and health guidance (user-reported)</li>
 </ul>
+
+<h3><strong>Important Considerations</strong></h3>
+<p style="margin-top: 0.5em; margin-bottom: 1em;">The break periods (1 week off in standard, 5 days off in modified) are often intended to allow the liver to rest and to catch dormant cysts or larvae that may hatch during the pause.</p>
 
 <h3><strong>Adjuncts & Co-Factors (user-reported)</strong></h3>
-<p>The text doesn’t mention any extra supplements or co-factors beyond the core items listed above.</p>
+<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+    <li style="margin-bottom: 0.3em;"><strong>Dietary Focus:</strong> Uncooked whole plants (fruits, vegetables, nuts, seeds) and green-juice cleansing (celery, cucumber, kale, spinach).</li>
+    <li style="margin-bottom: 0.3em;"><strong>Lifestyle:</strong> Focused breathing, consistent sleep, and sunlight exposure.</li>
+    <li style="margin-bottom: 0.3em;"><strong>Targeted Support:</strong> Detoxification, thyroid support (iodine), melatonin.</li>
+</ul>
 
 <h3><strong>Practical Notes (from testimonials)</strong></h3>
-<ul>
-    <li>Some people say they choose the 5-days-on / 5-days-off version because it “feels easier to tolerate.”</li>
-    <li>Others mention sticking to the 3-weeks-on protocol as written.</li>
-    <li>Users often mention choosing one option in each category (e.g., fenbendazole or mebendazole).</li>
+<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+    <li style="margin-bottom: 0.3em;">Some people say they choose the 5-days-on / 5-days-off version because it “feels easier to tolerate.”</li>
+    <li style="margin-bottom: 0.3em;">Others mention sticking to the 3-weeks-on protocol as written.</li>
+    <li style="margin-bottom: 0.3em;">Users often mention choosing one option in each category (e.g., fenbendazole or mebendazole).</li>
 </ul>
 
 <h3><strong>Cautions & Red-Flag Experiences (user-reported)</strong></h3>
-<p>The input text doesn’t list any specific bad reactions or side effects, but given the substances involved, some users online typically mention things like:</p>
-<ul>
-    <li>nausea or stomach upset</li>
-    <li>fatigue</li>
-    <li>“die-off” sensations</li>
+<p style="margin-top: 0.5em;">Using multiple potent compounds concurrently increases the likelihood of side effects.</p>
+<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+    <li style="margin-bottom: 0.3em;"><strong>Common Reactions:</strong> Headache, dizziness, nausea, vomiting, diarrhea, abdominal pain, and joint/muscle pain are frequently reported, particularly in the initial days of the cycle.</li>
+    <li style="margin-bottom: 0.3em;"><strong>Specific Drug Notes:</strong> Praziquantel should be swallowed whole (not chewed) and may cause heart rhythm problems, especially in those with pre-existing heart conditions, kidney, or liver disease.</li>
+    <li style="margin-bottom: 0.3em;"><strong>Liver Stress:</strong> The cycle break (1 week off) is crucial for liver recovery.</li>
 </ul>
-<p>If any of these occur, people in testimonials often stopped the protocol and spoke with a healthcare professional.</p>
-
-<h3><strong>Evidence Snapshot (Anecdotal vs Scientific)</strong></h3>
-<ul>
-    <li><strong>Anecdotal signal:</strong> The protocol is shared as a broad anti-parasitic sweep. Users report various personal experiences, ranging from “felt better” to “had rough detox days.” Input text provides no quantified outcomes.</li>
-    <li><strong>Scientific evidence:</strong> None provided in the input. No studies or citations mentioned. Nothing should be assumed beyond what’s written.</li>
-</ul>
-
-<h3><strong>Sourcing & Product Notes</strong></h3>
-<p>Users mention ivermectin, fenbendazole, mebendazole, praziquantel, niclosamide, fluconazole, tinidazole, and metronidazole, but no specific brands or suppliers. We do not endorse any specific vendor. Always check legality and quality in your region.</p>
-
-<h3><strong>Final Disclaimer</strong></h3>
-<p>This summary is for education and personal research only. It is not medical advice, a diagnosis, or a prescription. Always work with a qualified healthcare professional before starting, stopping, or changing any treatment, drug, or supplement.</p>`,
-        anecdotal_score: 4.8, 
-        scientific_score: 2.5, 
-        reviews: 85, 
-        video_link: "https://www.youtube.com/embed/3XmGu7ZCajY",
-        tags: ["Parasites", "Detox", "Ivermectin", "Fenbendazole", "Dr Lodi", "Polytherapy"],
-        side_effects: {
-            common: ["Nausea", "Stomach cramping", "Herxheimer reaction (Die-off)", "Fatigue", "Headache"],
-            less_common: ["Temporary hair thinning", "Metallic taste (from Tinidazole)", "Elevated liver enzymes"]
+<p style="margin-top: 0.5em;">If any of these occur, people in testimonials often stopped the protocol and spoke with a healthcare professional.</p>`,
+        "anecdotal_score": 4.8, 
+        "scientific_score": 2.5, 
+        "reviews": 85,
+        "video_link": "https://www.youtube.com/embed/3XmGu7ZCajY",
+        "tags": ["Parasites", "Detox", "Ivermectin", "Fenbendazole", "Dr Lodi", "Polytherapy"],
+        "side_effects": {
+            "common": ["Nausea", "Stomach cramping", "Herxheimer reaction (Die-off)", "Fatigue", "Headache"],
+            "less_common": ["Temporary hair thinning", "Metallic taste (from Tinidazole)", "Elevated liver enzymes"]
         },
-        vendors: [
-            { name: "Global Pharma", link: "#", product_trust_score: 4.2 },
-            { name: "Fenben Lab", link: "#", product_trust_score: 4.8 }
+        "vendors": [
+            { "name": "Global Pharma", "link": "#", "product_trust_score": 4.2 },
+            { "name": "Fenben Lab", "link": "#", "product_trust_score": 4.8 }
         ],
-        scientific_studies: [
-            { title: "Safety of Triple Co-Administration (NIH)", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2217668/" },
-            { title: "Synergistic interaction of Praziquantel and Fenbendazole", url: "https://journals.asm.org/doi/10.1128/aac.00560-25" }
+        "scientific_studies": [
+            { "title": "Safety of Triple Co-Administration (NIH)", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2217668/" },
+            { "title": "Synergistic interaction of Praziquantel and Fenbendazole", "url": "https://journals.asm.org/doi/10.1128/aac.00560-25" }
         ],
-        ai_overview: {
-             mood: "This protocol utilizes a polytherapy approach to target parasites at different lifecycle stages.",
-             content: "Studies (such as PMC2217668) have confirmed the safety of co-administering Ivermectin and Praziquantel. Fenbendazole has shown synergistic effects with other anthelmintics in preclinical models. Community consensus is highly positive, frequently reporting 'die-off' symptoms followed by significant improvements."
+        "ai_overview": {
+             "mood": "This protocol utilizes a polytherapy approach to target parasites at different lifecycle stages.",
+             "content": "Studies (such as PMC2217668) have confirmed the safety of co-administering Ivermectin and Praziquantel. Fenbendazole has shown synergistic effects with other anthelmintics in preclinical models. Community consensus is highly positive, frequently reporting 'die-off' symptoms followed by significant improvements."
         }
     }
 ];
@@ -338,7 +332,7 @@ const AlphaFilter = ({ selected, onSelect }) => {
         <div className="w-full mb-4">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-colors border shadow-sm ${isOpen || selected ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-gray-200 text-gray-600 hover:bg-indigo-50'}`}
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-colors border shadow-sm`}
                 style={{ backgroundColor: (isOpen || selected) ? '#382082' : 'white', color: (isOpen || selected) ? 'white' : '#382082', borderColor: (isOpen || selected) ? '#382082' : '#e5e7eb' }}
             >
                 <div className="flex items-center">
@@ -710,8 +704,6 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                 </div>
             </div>
 
-            {/* AI Synthesis Dropdown */}
-            <AISynthesis protocol={protocol} />
             
             {protocol.video_link && (
                 <section className="mb-8">
@@ -724,12 +716,14 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                 </section>
             )}
 
+            {/* AI Synthesis Dropdown - MOVED HERE */}
+            <AISynthesis protocol={protocol} />
+
             <div className="mb-8">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Full Protocol Details</h3>
-                {/* Use custom rendering for HTML content with bolding and list styling */}
+                {/* CRITICAL FIX: Use dangerouslySetInnerHTML to correctly render the HTML structure */}
                 <div 
                     className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200"
-                    // CRITICAL FIX: Use dangerouslySetInnerHTML to correctly render the HTML structure
                     dangerouslySetInnerHTML={{ 
                         __html: protocol.full_detail
                     }}
@@ -1210,21 +1204,14 @@ const App = () => {
                         <section className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
                             <div className="grid md:grid-cols-2">
                                 <div className="bg-gray-900 p-8 flex flex-col justify-center items-center text-center text-white relative min-h-[300px]">
-                                    {/* Video Placeholder */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
                                     <PlayCircle className="w-16 h-16 text-white/80 mb-4 z-20 hover:scale-110 transition-transform cursor-pointer" />
                                     <h3 className="text-xl font-bold z-20">Our Mission</h3>
                                     <p className="text-gray-300 text-sm mt-2 z-20">Watch why we built this database.</p>
                                 </div>
                                 <div className="p-8 flex flex-col justify-center">
                                     <h2 className="text-2xl font-bold text-gray-900 mb-4">The Gap in Modern Medicine</h2>
-                                    <p className="text-gray-600 leading-relaxed mb-6">
-                                        We are sick of seeing big pharma not do clinical trials on off-patent medicines. 
-                                        Promising treatments are often ignored simply because they aren't profitable.
-                                    </p>
-                                    <p className="text-gray-600 leading-relaxed font-medium">
-                                        We built this site to help people heal and learn.
-                                    </p>
+                                    <p className="text-gray-600 leading-relaxed mb-6">We are sick of seeing big pharma not do clinical trials on off-patent medicines. Promising treatments are often ignored simply because they aren't profitable.</p>
+                                    <p className="text-gray-600 leading-relaxed font-medium">We built this site to help people heal and learn.</p>
                                 </div>
                             </div>
                         </section>
@@ -1232,12 +1219,11 @@ const App = () => {
                         {/* Graphics / Why We Exist Section */}
                         <section>
                             <div className="grid md:grid-cols-3 gap-6">
-                                {/* TRUST SCORES CARD */}
                                 <div 
                                     onClick={() => setShowTrustScoreInfo(!showTrustScoreInfo)}
                                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-all cursor-pointer relative overflow-hidden group"
                                 >
-                                    <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-100 transition-colors">
+                                    <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <Shield className="w-6 h-6 text-blue-600" />
                                     </div>
                                     <h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">
@@ -1248,7 +1234,6 @@ const App = () => {
                                         We cut through the noise by separating anecdotal success from scientific validation.
                                     </p>
                                     
-                                    {/* Dropdown Content */}
                                     {showTrustScoreInfo && (
                                         <div className="mt-4 pt-4 border-t border-gray-100 text-left bg-blue-50/50 -mx-6 -mb-6 p-6 animate-in slide-in-from-top-2">
                                             <p className="text-sm text-blue-900 font-medium italic mb-2">
@@ -1261,12 +1246,11 @@ const App = () => {
                                     )}
                                 </div>
 
-                                {/* OFF-PATENT FOCUS CARD */}
                                 <div 
                                     onClick={handleGoToAbout}
                                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-all cursor-pointer group"
                                 >
-                                    <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition-colors">
+                                    <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <Stethoscope className="w-6 h-6 text-green-600" />
                                     </div>
                                     <h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">
@@ -1278,17 +1262,17 @@ const App = () => {
                                     </p>
                                 </div>
 
-                                {/* COMMUNITY VETTED CARD */}
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
                                     <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <FileText className="w-6 h-6 text-purple-600" />
                                     </div>
-                                    <h3 className="font-bold text-gray-900 mb-2">Community Vetted</h3>
+                                    <h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">
+                                        Community Vetted
+                                    </h3>
                                     <p className="text-sm text-gray-500 mb-4">
                                         Real reports from real people. Our database grows smarter with every testimonial shared.
                                     </p>
                                     
-                                    {/* Add Report Dropdown */}
                                     <div className="relative">
                                         <select 
                                             className="w-full p-2 text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-100 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer hover:bg-purple-100 transition-colors appearance-none text-center"
@@ -1378,7 +1362,6 @@ const App = () => {
                     <p className="font-medium">The information shared on this site is for personal exploration and education only.</p>
                     <p>We honour both scientific research and real-world experiences, but nothing here is offered as medical advice.</p>
                     <p>Every body is unique — always listen to your intuition and speak with a qualified healthcare professional before beginning any new protocol, supplement, or treatment.</p>
-                    <p>Community stories reflect individual journeys and may not apply to everyone.</p>
                     <p className="font-medium">Please use this space with awareness, curiosity, and care for your own wellbeing.</p>
                 </div>
                 
