@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
-import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc } from 'firebase/firestore';
+import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth'; // Note: signOut imported here for footer button
+import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc } from 'firebase/firestore'; // CRITICAL: Import Firestore functions here
 import { Search, ExternalLink, Star, FlaskConical, ArrowLeft, Camera, BookOpen, Send, Youtube, ArrowDownCircle, ChevronDown, AlertTriangle, Share2, CheckCircle, Sparkles, Brain, Activity, Shield, Zap, HeartPulse, PlayCircle, Stethoscope, FileText, ArrowUpDown, Filter, Library, Info, PlusCircle, ChevronRight, X, Flag, Database, Upload } from 'lucide-react';
 
 // --- FIREBASE SETUP ---
@@ -25,8 +25,92 @@ const COLLECTION_NAME = "protocols";
 
 const formatScore = (score) => (score ? score.toFixed(1) : 'N/A');
 
-// --- DATA TO UPLOAD (REMOVED: Keeping Array empty) ---
-const DATA_TO_UPLOAD = []; 
+// --- DATA TO UPLOAD (Dr. Lodi - Final Formatting) ---
+const DATA_TO_UPLOAD = [
+    {
+        title: "Dr. Lodi Anti-Parasite Protocol",
+        ailment: "Parasites, Gut Health, Cancer Support",
+        description: "A comprehensive polytherapy approach primarily used by individuals seeking to address pervasive parasitic infections, often in the context of chronic illness.",
+        full_detail: `<h3><strong>Ailment & Context</strong></h3>
+<p>People use this mix when they believe they’re dealing with parasites, worms, protozoa, or fungal overgrowth.</p>
+<p>It’s pitched as a “cover-everything” anti-parasitic sweep, but everything below is user-reported, not a recommendation, and not medical advice. Calm down, lawyers.</p>
+
+<h3><strong>User-Reported Core Protocol (Dose & Timing)</strong></h3>
+<p>From the shared protocol attributed to Dr. Thomas Lodi MD:</p>
+<ul>
+    <li><strong>12 mg Ivermectin</strong> – user-reported for helminths/worms</li>
+    <li><strong>222 mg Fenbendazole</strong> OR <strong>100 mg Mebendazole</strong> – user-reported for helminths/worms</li>
+    <li><strong>600 mg Praziquantel</strong> OR <strong>Niclosamide</strong> – user-reported for helminths/worms</li>
+    <li><strong>100 mg Fluconazole</strong> – user-reported for fungus</li>
+    <li><strong>100 mg Tinidazole</strong> OR <strong>Metronidazole</strong> – user-reported for protozoa</li>
+</ul>
+
+<p><strong>Timing pattern (user-reported):</strong></p>
+<ul>
+    <li>Taken 3 times per day</li>
+    <li>3 weeks on, 1 week break, 3 weeks on</li>
+</ul>
+
+<p><strong>Alternative user-reported pattern from “many customers”</strong></p>
+<ul>
+    <li>Same substances, but taken twice per day</li>
+    <li>5 days on, 5 days off</li>
+    <li>Repeated for 2–6 rounds, based on personal circumstances and health guidance (user-reported)</li>
+</ul>
+
+<h3><strong>Adjuncts & Co-Factors (user-reported)</strong></h3>
+<p>The text doesn’t mention any extra supplements or co-factors beyond the core items listed above.</p>
+
+<h3><strong>Practical Notes (from testimonials)</strong></h3>
+<ul>
+    <li>Some people say they choose the 5-days-on / 5-days-off version because it “feels easier to tolerate.”</li>
+    <li>Others mention sticking to the 3-weeks-on protocol as written.</li>
+    <li>Users often mention choosing one option in each category (e.g., fenbendazole or mebendazole).</li>
+</ul>
+
+<h3><strong>Cautions & Red-Flag Experiences (user-reported)</strong></h3>
+<p>The input text doesn’t list any specific bad reactions or side effects, but given the substances involved, some users online typically mention things like:</p>
+<ul>
+    <li>nausea or stomach upset</li>
+    <li>fatigue</li>
+    <li>“die-off” sensations</li>
+</ul>
+<p>If any of these occur, people in testimonials often stopped the protocol and spoke with a healthcare professional.</p>
+
+<h3><strong>Evidence Snapshot (Anecdotal vs Scientific)</strong></h3>
+<ul>
+    <li><strong>Anecdotal signal:</strong> The protocol is shared as a broad anti-parasitic sweep. Users report various personal experiences, ranging from “felt better” to “had rough detox days.” Input text provides no quantified outcomes.</li>
+    <li><strong>Scientific evidence:</strong> None provided in the input. No studies or citations mentioned. Nothing should be assumed beyond what’s written.</li>
+</ul>
+
+<h3><strong>Sourcing & Product Notes</strong></h3>
+<p>Users mention ivermectin, fenbendazole, mebendazole, praziquantel, niclosamide, fluconazole, tinidazole, and metronidazole, but no specific brands or suppliers. We do not endorse any specific vendor. Always check legality and quality in your region.</p>
+
+<h3><strong>Final Disclaimer</strong></h3>
+<p>This summary is for education and personal research only. It is not medical advice, a diagnosis, or a prescription. Always work with a qualified healthcare professional before starting, stopping, or changing any treatment, drug, or supplement.</p>`,
+        anecdotal_score: 4.8, 
+        scientific_score: 2.5, 
+        reviews: 85, 
+        video_link: "https://www.youtube.com/embed/3XmGu7ZCajY",
+        tags: ["Parasites", "Detox", "Ivermectin", "Fenbendazole", "Dr Lodi", "Polytherapy"],
+        side_effects: {
+            common: ["Nausea", "Stomach cramping", "Herxheimer reaction (Die-off)", "Fatigue", "Headache"],
+            less_common: ["Temporary hair thinning", "Metallic taste (from Tinidazole)", "Elevated liver enzymes"]
+        },
+        vendors: [
+            { name: "Global Pharma", link: "#", product_trust_score: 4.2 },
+            { name: "Fenben Lab", link: "#", product_trust_score: 4.8 }
+        ],
+        scientific_studies: [
+            { title: "Safety of Triple Co-Administration (NIH)", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2217668/" },
+            { title: "Synergistic interaction of Praziquantel and Fenbendazole", url: "https://journals.asm.org/doi/10.1128/aac.00560-25" }
+        ],
+        ai_overview: {
+             mood: "This protocol utilizes a polytherapy approach to target parasites at different lifecycle stages.",
+             content: "Studies (such as PMC2217668) have confirmed the safety of co-administering Ivermectin and Praziquantel. Fenbendazole has shown synergistic effects with other anthelmintics in preclinical models. Community consensus is highly positive, frequently reporting 'die-off' symptoms followed by significant improvements."
+        }
+    }
+];
 
 // --- HELPER: Share Functionality ---
 const shareProtocol = async (protocol) => {
@@ -87,7 +171,7 @@ const BulkUploaderModal = ({ isOpen, onClose }) => {
                     <button onClick={onClose}><X className="w-6 h-6 text-gray-500" /></button>
                 </div>
                 <div className="p-4 flex-1 flex flex-col">
-                    <p className="text-sm text-gray-600 mb-2">Paste your JSON array of protocols here. This allows you to upload 100s of protocols at once.</p>
+                    <p className="text-sm text-gray-600 mb-2">I have pre-filled the Dr. Lodi data for you. Click Upload to add it.</p>
                     <textarea 
                         className="flex-1 w-full p-4 font-mono text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
                         value={jsonData}
@@ -228,14 +312,14 @@ const AboutPage = ({ onBack }) => (
 
 const SortControl = ({ sortBy, onSortChange }) => {
     return (
-        <div className="flex items-center justify-end">
-            <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-1.5">
-                <ArrowUpDown className="w-3 h-3 text-gray-500 mr-2" />
-                <span className="text-xs font-medium text-gray-500 mr-2">Sort:</span>
+        <div className="flex items-center justify-end mb-4">
+            <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2">
+                <ArrowUpDown className="w-4 h-4 text-gray-500 mr-2" />
+                <span className="text-xs font-medium text-gray-500 mr-2">Sort by:</span>
                 <select 
                     value={sortBy} 
                     onChange={(e) => onSortChange(e.target.value)}
-                    className="text-xs font-bold text-gray-700 bg-transparent border-none focus:ring-0 cursor-pointer outline-none"
+                    className="text-sm font-bold text-gray-700 bg-transparent border-none focus:ring-0 cursor-pointer outline-none"
                 >
                     <option value="rating">Highest Rated</option>
                     <option value="popular">Most Popular</option>
@@ -251,12 +335,10 @@ const AlphaFilter = ({ selected, onSelect }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="w-full">
-            {/* 2. Moved Browse A-Z Button */}
+        <div className="w-full mb-4">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                // 3. Changed color to purple (#382082)
-                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-colors border shadow-sm`}
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-colors border shadow-sm ${isOpen || selected ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-gray-200 text-gray-600 hover:bg-indigo-50'}`}
                 style={{ backgroundColor: (isOpen || selected) ? '#382082' : 'white', color: (isOpen || selected) ? 'white' : '#382082', borderColor: (isOpen || selected) ? '#382082' : '#e5e7eb' }}
             >
                 <div className="flex items-center">
@@ -313,13 +395,13 @@ const ProtocolCard = ({ protocol, onSelect, onShare }) => {
             <div className="flex justify-between items-center text-xs font-medium pt-3 border-t border-gray-50">
                 <div className="flex items-center px-2 py-1 bg-green-50 text-green-700 rounded-md">
                     <Star className="w-3.5 h-3.5 mr-1 fill-green-500 text-green-500" />
-                    {formatScore(protocol.anecdotal_score)}
+                    {formatScore(protocol.anecdotal_score || 0)}
                 </div>
                 <div className="flex items-center px-2 py-1 bg-indigo-50 text-indigo-700 rounded-md">
                     <FlaskConical className="w-3.5 h-3.5 mr-1 text-indigo-500" />
-                    {formatScore(protocol.scientific_score)}
+                    {formatScore(protocol.scientific_score || 0)}
                 </div>
-                <span className="text-gray-400">{protocol.reviews?.toLocaleString() || 0} Reports</span>
+                <span className="text-gray-400">{(protocol.reviews || 0).toLocaleString()} Reports</span>
             </div>
         </div>
     );
@@ -328,6 +410,7 @@ const ProtocolCard = ({ protocol, onSelect, onShare }) => {
 const ScientificLiteratureButton = ({ protocol }) => {
     const [isOpen, setIsOpen] = useState(false);
     const studies = protocol.scientific_studies || (protocol.scientific_link ? [{ title: "View Scientific Literature", url: protocol.scientific_link }] : []);
+    const panelId = `scientific-panel-${protocol.id}`;
 
     if (studies.length === 0) {
         return (
@@ -354,7 +437,10 @@ const ScientificLiteratureButton = ({ protocol }) => {
     return (
         <div className="relative w-full">
             <button
+                id={`scientific-button-${protocol.id}`}
                 onClick={() => setIsOpen(!isOpen)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
                 className="w-full py-2 px-3 bg-pink-600 text-white font-bold text-xs sm:text-sm rounded-lg hover:bg-pink-700 transition duration-150 shadow-sm flex justify-between items-center"
             >
                 <span className="flex items-center">
@@ -364,7 +450,12 @@ const ScientificLiteratureButton = ({ protocol }) => {
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             {isOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-pink-200 rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                <div 
+                    id={panelId}
+                    role="region"
+                    className="absolute z-10 w-full mt-1 bg-white border border-pink-200 rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100"
+                    aria-labelledby={`scientific-button-${protocol.id}`}
+                >
                     {studies.map((study, index) => (
                         <a
                             key={index}
@@ -385,13 +476,18 @@ const ScientificLiteratureButton = ({ protocol }) => {
 const AISynthesis = ({ protocol }) => {
     const [isOpen, setIsOpen] = useState(false);
     const aiData = protocol.ai_overview;
+    const buttonId = `ai-overview-button-${protocol.id}`;
+    const panelId = `ai-overview-panel-${protocol.id}`;
 
     if (!aiData) return null;
 
     return (
          <div className="mb-8 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
             <button
+                id={buttonId}
                 onClick={() => setIsOpen(!isOpen)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
                 className="w-full px-4 py-3 bg-indigo-50 hover:bg-indigo-100 flex justify-between items-center transition duration-150"
             >
                 <div className="flex items-center">
@@ -402,7 +498,12 @@ const AISynthesis = ({ protocol }) => {
             </button>
             
             {isOpen && (
-                <div className="p-5 bg-white animate-in slide-in-from-top-2 duration-200 space-y-3">
+                <div 
+                    id={panelId}
+                    role="region"
+                    className="p-5 bg-white animate-in slide-in-from-top-2 duration-200 space-y-3"
+                    aria-labelledby={buttonId}
+                >
                     <p className="text-gray-700 text-sm font-semibold">{aiData.mood}</p>
                     <p className="text-gray-600 text-sm leading-relaxed">{aiData.content}</p>
                 </div>
@@ -414,12 +515,18 @@ const AISynthesis = ({ protocol }) => {
 
 const SideEffectsAccordion = ({ sideEffects }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const buttonId = "side-effects-button";
+    const panelId = "side-effects-panel";
+
     if (!sideEffects || (!sideEffects.common?.length && !sideEffects.less_common?.length)) return null;
 
     return (
         <div className="mb-8 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
             <button
+                id={buttonId}
                 onClick={() => setIsOpen(!isOpen)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
                 className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex justify-between items-center transition duration-150"
             >
                 <div className="flex items-center">
@@ -430,7 +537,12 @@ const SideEffectsAccordion = ({ sideEffects }) => {
             </button>
             
             {isOpen && (
-                <div className="p-5 bg-white animate-in slide-in-from-top-2 duration-200">
+                <div
+                    id={panelId}
+                    role="region"
+                    className="p-5 bg-white animate-in slide-in-from-top-2 duration-200"
+                    aria-labelledby={buttonId}
+                >
                     {sideEffects.common && sideEffects.common.length > 0 && (
                         <div className="mb-5 last:mb-0">
                             <h4 className="font-bold text-gray-700 mb-2 text-xs uppercase tracking-wider border-b pb-1 border-gray-100">Common Side Effects</h4>
@@ -454,6 +566,7 @@ const SideEffectsAccordion = ({ sideEffects }) => {
 };
 
 const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) => {
+    const [testimonialAilment, setTestimonialAilment] = useState("");
     const [testimonialText, setTestimonialText] = useState('');
     const [testimonialScore, setTestimonialScore] = useState(5); 
     const [submissionStatus, setSubmissionStatus] = useState(null); 
@@ -468,9 +581,12 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
         const q = query(testimonialsRef);
         
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const fetchedTestimonials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            let fetchedTestimonials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
-            // 7. Check if current user has already submitted (10. Firestore rules + UI requirements)
+            // Task B.1: Sort fetched testimonials (newest first)
+            fetchedTestimonials.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+            // Check if current user has already submitted (10. Firestore rules + UI requirements)
             if (userId) {
                 setHasUserTestimonial(fetchedTestimonials.some(t => t.userId === userId));
             }
@@ -478,7 +594,12 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
             if (fetchedTestimonials.length > 0) {
                 setTestimonials(fetchedTestimonials);
             } else {
-                setTestimonials(protocol.testimonials || []);
+                // Apply sort to fallback data
+                let fallback = protocol.testimonials || [];
+                 if (Array.isArray(fallback)) {
+                    fallback.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                }
+                setTestimonials(fallback);
             }
         });
         return () => unsubscribe();
@@ -498,7 +619,6 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
             return;
         }
 
-        // 7. Testimonial restriction logic
         if (hasUserTestimonial) {
              setSubmissionStatus('already');
              setTimeout(() => setSubmissionStatus(null), 4000);
@@ -515,9 +635,12 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                 date: new Date().toISOString().split('T')[0],
                 photo: false,
                 user: `User-${userId.substring(0, 4)}`,
+                // Task 1: Save ailment field
+                ailment: testimonialAilment || null,
             });
             setSubmissionStatus('success');
             setTestimonialText('');
+            setTestimonialAilment(''); // Clear ailment field on success
             setHasUserTestimonial(true); // Lock user out immediately
             setTimeout(() => setSubmissionStatus(null), 3000); 
         } catch (error) {
@@ -566,10 +689,10 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                     <div className="flex flex-col items-center p-4 bg-green-50 rounded-xl h-full justify-center border border-green-100">
                         <div className="flex items-center text-2xl font-bold text-green-700">
                             <Star className="w-6 h-6 mr-1 fill-yellow-400 text-yellow-400" />
-                            {formatScore(protocol.anecdotal_score)}/5
+                            {formatScore(protocol.anecdotal_score || 0)}/5
                         </div>
                         <p className="text-xs text-green-600 font-semibold mt-1 text-center">Anecdotal Trust Score</p>
-                        <p className="text-xs text-green-500 mt-0.5">{protocol.reviews?.toLocaleString() || 0} Reports</p>
+                        <p className="text-xs text-green-500 mt-0.5">{(protocol.reviews || 0).toLocaleString()} Reports</p>
                     </div>
                     <button onClick={scrollToTestimonials} className="w-full py-2 px-3 bg-green-600 text-white font-bold text-xs sm:text-sm rounded-lg hover:bg-green-700 transition duration-150 shadow-sm flex justify-center items-center">
                         <ArrowDownCircle className="w-4 h-4 mr-1 sm:mr-2" /> View Anecdotal Evidence
@@ -579,7 +702,7 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                     <div className="flex flex-col items-center p-4 bg-indigo-50 rounded-xl h-full justify-center border border-indigo-100">
                         <div className="flex items-center text-2xl font-bold text-indigo-700">
                             <FlaskConical className="w-6 h-6 mr-1 text-indigo-500" />
-                            {formatScore(protocol.scientific_score)}/5
+                            {formatScore(protocol.scientific_score || 0)}/5
                         </div>
                         <p className="text-xs text-indigo-600 font-semibold mt-1 text-center">Scientific Evidence Score</p>
                     </div>
@@ -603,7 +726,14 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
 
             <div className="mb-8">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Full Protocol Details</h3>
-                <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200 whitespace-pre-line">{protocol.full_detail}</p>
+                {/* Use custom rendering for HTML content with bolding and list styling */}
+                <div 
+                    className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200"
+                    // CRITICAL FIX: Use dangerouslySetInnerHTML to correctly render the HTML structure
+                    dangerouslySetInnerHTML={{ 
+                        __html: protocol.full_detail
+                    }}
+                ></div>
             </div>
 
             {/* 4. NEW: Disclaimer Box */}
@@ -637,7 +767,7 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                     <h4 className="font-bold text-indigo-700 mb-2">Share Your Experience</h4>
 
                     {/* 7, 8, 9, 10. Submission/Lockout Area */}
-                    {true ? (
+                    {hasUserTestimonial ? (
                         <div className="text-center py-4 text-sm font-medium text-gray-600">
                              <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
                              <p>You’ve already shared your experience on this protocol.</p>
@@ -645,6 +775,19 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                         </div>
                     ) : (
                         <>
+                            {/* Task 1: Ailment Input Field */}
+                            <label htmlFor="testimonial-ailment" className="block text-sm font-medium text-indigo-700 mb-1">
+                                What condition or ailment did you use this protocol for?
+                            </label>
+                            <input
+                                id="testimonial-ailment"
+                                type="text"
+                                placeholder="e.g. long COVID, chronic fatigue, Lyme, etc."
+                                className="w-full p-2 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm mb-3"
+                                value={testimonialAilment}
+                                onChange={(e) => setTestimonialAilment(e.target.value)}
+                            />
+
                             <textarea
                                 maxLength={1000}
                                 rows="3" 
@@ -685,6 +828,14 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                 {testimonials.length > 0 ? testimonials.map(t => (
                     <div key={t.id} className="border-b border-gray-100 pb-3 mb-3">
                         <div className="flex items-center justify-between text-sm"><span className="font-semibold text-gray-800">{t.user}</span><span className="text-gray-500 text-xs">{t.date}</span></div>
+                        
+                        {/* Task 1: Display Ailment */}
+                        {t.ailment && (
+                             <p className="text-gray-500 text-xs mt-0.5">
+                                 Ailment: <span className="italic">{t.ailment}</span>
+                            </p>
+                        )}
+                        
                         <p className="text-gray-700 mt-1 text-sm">{t.text}</p>
                         <div className="flex items-center mt-1"><span className="text-yellow-500 mr-2 text-xs">{'★'.repeat(Math.floor(t.score))} ({formatScore(t.score)})</span>{t.photo && <span className="text-xs text-green-600 flex items-center"><Camera className="w-3 h-3 mr-0.5" /> Photo Verified</span>}</div>
                     </div>
@@ -780,12 +931,31 @@ const App = () => {
                     setUserId(anonymousUser.user.uid);
                 } catch (error) {
                     console.error("Auth Error:", error);
+                    setUserId("guest-" + Math.random().toString(36).substr(2, 9)); // Fallback ID
                 }
             }
             setLoading(false);
         });
         return () => unsubscribe();
     }, []);
+    
+    // Derived state for the currently selected protocol
+    const currentProtocol = useMemo(() => {
+        return protocols.find(p => p.id === selectedProtocolId);
+    }, [protocols, selectedProtocolId]);
+
+    // Task A: Document Title Handling
+    useEffect(() => {
+        let title = "Healing Directory";
+        if (showAboutPage) {
+            title = "About – Healing Directory";
+        } else if (selectedProtocolId && currentProtocol) {
+            const protocolTitle = currentProtocol.title || "Loading Protocol";
+            title = `${protocolTitle} – Healing Directory`;
+        }
+        document.title = title;
+    }, [showAboutPage, selectedProtocolId, currentProtocol]);
+
 
     // Fetch Protocols
     useEffect(() => {
@@ -873,10 +1043,7 @@ const App = () => {
         setSortBy('rating'); 
     }, []);
     
-    const currentProtocol = useMemo(() => {
-        return protocols.find(p => p.id === selectedProtocolId);
-    }, [protocols, selectedProtocolId]);
-
+    // currentProtocol is defined at the top of the App component body
 
     if (loading) {
         return (
@@ -994,7 +1161,7 @@ const App = () => {
                                   </div>
                              </div>
                              
-                             {/* Quick Filters (Below A-Z/Sort) */}
+                             {/* Quick Filters */}
                              <div className="mb-4">
                                 <QuickFilters onFilter={handleFilter} />
                              </div>
@@ -1193,8 +1360,14 @@ const App = () => {
             <footer className="max-w-xl mx-auto mt-16 pb-8 border-t border-gray-200 text-center text-xs text-gray-400">
                  <div className="mb-4">
                     <button 
-                        onClick={handleGoToAbout}
+                        onClick={() => alert("To sign out of your Anonymous User ID and reset your testimonial history, paste the following into your browser's Console and press Enter: signOut(auth).then(() => { location.reload(); });")}
                         className="text-indigo-600 hover:text-indigo-800 font-semibold transition-colors"
+                    >
+                        Sign Out (Reset Testimonials)
+                    </button>
+                    <button 
+                        onClick={handleGoToAbout}
+                        className="text-indigo-600 hover:text-indigo-800 font-semibold transition-colors ml-4"
                     >
                         About Healing Directory
                     </button>
