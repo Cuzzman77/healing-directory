@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom'; // Task A: Added routing imports
+// react-router-dom not needed with manual deep-link handling
+// import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth'; 
 import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc } from 'firebase/firestore'; 
@@ -896,20 +898,32 @@ const App = () => {
         }
     }, []);
 
+    const handleBack = useCallback(() => {
+      setSelectedProtocolId(null);
+      window.history.pushState(null, '', '/');
+      window.scrollTo(0, 0);
+    }, []);
+    
     const handleGoHome = useCallback(() => {
-        setSelectedProtocolId(null);
-        setSearchTerm('');
-        setSelectedLetter(null);
-        setIsBrowsing(false);
-        setSortBy('rating'); 
-        setShowAboutPage(false); 
-        window.scrollTo(0, 0);
+      setSelectedProtocolId(null);
+      setSearchTerm('');
+      setSelectedLetter(null);
+      setIsBrowsing(false);
+      setSortBy('rating');
+      setShowAboutPage(false);
+      window.history.pushState(null, '', '/');
+      window.scrollTo(0, 0);
     }, []);
-
+    
     const handleGoToAbout = useCallback(() => {
-        setShowAboutPage(true);
-        window.scrollTo(0, 0);
+      setShowAboutPage(true);
+      setSelectedProtocolId(null);
+      setIsBrowsing(false);
+      setSearchTerm('');
+      setSelectedLetter(null);
+      window.history.pushState(null, '', '/about');
     }, []);
+    
 
     const handleProtocolReportSelect = useCallback((id) => {
         setSelectedProtocolId(id);
@@ -967,6 +981,43 @@ const App = () => {
         return () => unsubscribe();
     }, []);
 
+// Sync initial URL → selectedProtocolId on first load
+useEffect(() => {
+  const path = window.location.pathname;
+  const match = path.match(/^\/protocol\/([^/]+)/);
+
+  if (match) {
+    const idFromUrl = match[1];
+    setSelectedProtocolId(idFromUrl);
+    setIsBrowsing(false);
+    setShowAboutPage(false);
+  }
+}, []);
+
+// Keep state in sync when user uses browser back/forward
+useEffect(() => {
+  const handlePopState = () => {
+    const path = window.location.pathname;
+    const protocolMatch = path.match(/^\/protocol\/([^/]+)/);
+  
+    if (protocolMatch) {
+      setSelectedProtocolId(protocolMatch[1]);
+      setIsBrowsing(false);
+      setShowAboutPage(false);
+    } else if (path === '/about') {
+      setShowAboutPage(true);
+      setSelectedProtocolId(null);
+    } else {
+      setSelectedProtocolId(null);
+      setShowAboutPage(false);
+    }
+  };
+  
+
+  window.addEventListener('popstate', handlePopState);
+  return () => window.removeEventListener('popstate', handlePopState);
+}, []);
+
     // --- SORT & FILTER LOGIC ---
     const filteredProtocols = useMemo(() => {
         let results = [];
@@ -1007,14 +1058,12 @@ const App = () => {
     }, [protocols, searchTerm, selectedLetter, isBrowsing, sortBy]);
 
     const handleSelectProtocol = useCallback((id) => {
-        setSelectedProtocolId(id);
-        window.scrollTo(0, 0); 
+      setSelectedProtocolId(id);
+      // update URL so share links are canonical
+      window.history.pushState(null, '', `/protocol/${id}`);
+      window.scrollTo(0, 0);
     }, []);
-
-    const handleBack = useCallback(() => {
-        setSelectedProtocolId(null);
-        window.scrollTo(0, 0);
-    }, []);
+    
 
     const handleFilter = useCallback((tag) => {
         setSearchTerm(tag);
@@ -1050,6 +1099,7 @@ const App = () => {
             </div>
         );
     }
+
 
     const MainContent = () => {
         if (showAboutPage) {
