@@ -702,8 +702,11 @@ const ScientificLiteratureButton = ({ protocol }) => {
     const panelId = `scientific-panel-${protocol.id}`;
 
     // Common classes for all button states to align borders
-    const buttonBaseClass = "w-[calc(100%+2px)] -ml-[1px] -mr-[1px] -mb-[1px] py-2 px-3 text-xs font-bold flex justify-center items-center transition duration-150 relative z-10";
-    const roundedClass = "rounded-b-xl sm:rounded-bl-none sm:rounded-br-xl";
+    // Added min-h to ensure it matches the left button height if text wraps
+    const buttonBaseClass = "w-[calc(100%+2px)] -ml-[1px] -mr-[1px] -mb-[1px] py-3 px-2 text-[10px] sm:text-xs font-bold flex justify-center items-center transition duration-150 relative z-10 min-h-[42px]";
+    
+    // Always round the bottom right, never the bottom left (since it's side-by-side)
+    const roundedClass = "rounded-br-xl rounded-bl-none";
 
     if (studies.length === 0) {
         return (
@@ -721,8 +724,8 @@ const ScientificLiteratureButton = ({ protocol }) => {
                 rel="noopener noreferrer"
                 className={`${buttonBaseClass} ${roundedClass} bg-blue-600 text-white hover:bg-blue-700`}
             >
-                <BookOpen className="w-3.5 h-3.5 mr-1.5" />
-                View Scientific Literature
+                <BookOpen className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                <span className="truncate">Scientific Lit.</span>
             </a>
         );
     }
@@ -736,17 +739,17 @@ const ScientificLiteratureButton = ({ protocol }) => {
                 aria-controls={panelId}
                 className={`${buttonBaseClass} ${roundedClass} bg-blue-600 text-white hover:bg-blue-700 justify-between`}
             >
-                <span className="flex items-center">
-                    <BookOpen className="w-3.5 h-3.5 mr-1.5" />
-                    Scientific Literature ({studies.length})
-                </span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                <div className="flex items-center overflow-hidden">
+                    <BookOpen className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                    <span className="truncate">Scientific Lit. ({studies.length})</span>
+                </div>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} flex-shrink-0 ml-1`} />
             </button>
             {isOpen && (
                 <div 
                     id={panelId}
                     role="region"
-                    className="absolute z-20 w-[calc(100%+2px)] -ml-[1px] mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100"
+                    className="absolute z-20 w-[calc(100%+2px)] -ml-[1px] mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 left-0 right-0"
                     aria-labelledby={`scientific-button-${protocol.id}`}
                 >
                     {studies.map((study, index) => (
@@ -909,37 +912,37 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">{protocol.title}</h1>
             <p className="text-lg text-emerald-600 font-semibold mb-4">Target Ailment: {protocol.ailment}</p>
             
-            {/* Compact Trust Score Section - FIXED DROPDOWN & PADDING & BORDER ALIGNMENT */}
-            <div className="mb-8 shadow-sm rounded-xl flex flex-col sm:flex-row border border-gray-200">
-                {/* Anecdotal Score (Left Half) */}
-                <div className="flex-1 flex flex-col bg-green-50 sm:border-r border-green-100 rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none">
-                    <div className="py-2 px-3 flex flex-col items-center justify-center">
-                        <div className="flex items-center text-xl font-extrabold text-green-700">
-                            <Star className="w-5 h-5 mr-1.5 fill-yellow-400 text-yellow-400" />
+            {/* Compact Trust Score Section - FORCED SIDE-BY-SIDE */}
+            <div className="mb-8 shadow-sm rounded-xl flex flex-row flex-nowrap border border-gray-200">
+                {/* Anecdotal Score (Left Half - 50% Width) */}
+                <div className="w-1/2 flex flex-col bg-green-50 border-r border-green-100 rounded-l-xl">
+                    <div className="py-3 px-1 flex flex-col items-center justify-center flex-grow">
+                        <div className="flex items-center text-lg sm:text-xl font-extrabold text-green-700">
+                            <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-1 fill-yellow-400 text-yellow-400" />
                             {formatScore(protocol.anecdotal_score || 0)}/5
                         </div>
-                        <p className="text-[10px] text-green-700 font-bold uppercase tracking-wide mt-0.5">Anecdotal Trust Score</p>
-                        <p className="text-[10px] text-green-600 font-medium">{(protocol.reviews || 0).toLocaleString()} Reports</p>
+                        <p className="text-[9px] sm:text-[10px] text-green-700 font-bold uppercase tracking-wide mt-0.5 text-center">Anecdotal Score</p>
+                        <p className="text-[9px] sm:text-[10px] text-green-600 font-medium text-center leading-tight">{(protocol.reviews || 0).toLocaleString()} Reports</p>
                     </div>
                     <div className="mt-auto">
                         <button 
                             onClick={scrollToTestimonials} 
-                            className="w-[calc(100%+2px)] -ml-[1px] -mr-[1px] sm:-mb-[1px] py-2 px-3 bg-green-600 text-white font-bold text-xs hover:bg-green-700 transition duration-150 flex justify-center items-center relative z-10 rounded-none sm:rounded-bl-xl"
+                            className="w-[calc(100%+2px)] -ml-[1px] -mr-[1px] -mb-[1px] py-3 px-2 bg-green-600 text-white font-bold text-[10px] sm:text-xs hover:bg-green-700 transition duration-150 flex justify-center items-center relative z-10 rounded-bl-xl min-h-[42px]"
                         >
-                            <ArrowDownCircle className="w-3.5 h-3.5 mr-1.5" /> View Evidence
+                            <ArrowDownCircle className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" /> 
+                            <span className="truncate">View Evidence</span>
                         </button>
                     </div>
                 </div>
 
-                {/* Scientific Score (Right Half) */}
-                {/* Removed overflow-hidden from parent, applying border radius here to prevent clipping dropdown */}
-                <div className="flex-1 flex flex-col bg-blue-50 rounded-b-xl sm:rounded-r-xl sm:rounded-bl-none">
-                    <div className="py-2 px-3 flex flex-col items-center justify-center">
-                        <div className="flex items-center text-xl font-extrabold text-blue-700">
-                            <FlaskConical className="w-5 h-5 mr-1.5 text-blue-500" />
+                {/* Scientific Score (Right Half - 50% Width) */}
+                <div className="w-1/2 flex flex-col bg-blue-50 rounded-r-xl">
+                    <div className="py-3 px-1 flex flex-col items-center justify-center flex-grow">
+                        <div className="flex items-center text-lg sm:text-xl font-extrabold text-blue-700">
+                            <FlaskConical className="w-4 h-4 sm:w-5 sm:h-5 mr-1 text-blue-500" />
                             {formatScore(protocol.scientific_score || 0)}/5
                         </div>
-                        <p className="text-[10px] text-blue-700 font-bold uppercase tracking-wide mt-0.5">Scientific Evidence Score</p>
+                        <p className="text-[9px] sm:text-[10px] text-blue-700 font-bold uppercase tracking-wide mt-0.5 text-center">Scientific Score</p>
                     </div>
                     <div className="mt-auto">
                         <ScientificLiteratureButton protocol={protocol} />
