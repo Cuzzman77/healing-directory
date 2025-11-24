@@ -639,7 +639,8 @@ const AboutPage = ({ onBack }) => (
 
 const SortControl = ({ sortBy, onSortChange }) => {
     return (
-        <div className="flex items-center justify-end mb-4">
+        // Removed mb-4 to ensure vertical alignment with the button next to it
+        <div className="flex items-center justify-end">
             <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2">
                 <ArrowUpDown className="w-4 h-4 text-gray-500 mr-2" />
                 <span className="text-xs font-medium text-gray-500 mr-2">Sort by:</span>
@@ -1682,8 +1683,9 @@ const App = () => {
                                   </div>
                                   <div className="w-full flex justify-between items-center">
                                      <button
-                                        onClick={() => onFilter('favorites')}
-                                        className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all ${activeFilter === 'favorites' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-500'}`}
+                                        onClick={() => handleFilter('favorites')}
+                                        // Updated rounded-full to rounded-lg and px-4 to px-3 to match SortControl
+                                        className={`flex items-center px-3 py-2 rounded-lg shadow-sm text-sm font-semibold border whitespace-nowrap transition-all ${activeFilter === 'favorites' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-500'}`}
                                     >
                                         <Heart className={`w-4 h-4 mr-2 ${activeFilter === 'favorites' ? 'fill-current' : ''}`} />
                                         My Saved
