@@ -1275,12 +1275,14 @@ const QuickFilters = ({ onFilter, activeFilter, showSaved = true }) => {
     ];
 
     return (
-        <div className="flex overflow-x-auto space-x-3 py-2 px-1 scrollbar-hide mb-4 justify-center">
+        // FIXED: Changed justify-center to justify-start md:justify-center
+        // This ensures items start at the left edge on mobile (fix scrolling) but center on desktop
+        <div className="flex overflow-x-auto space-x-3 py-2 px-1 scrollbar-hide mb-4 justify-start md:justify-center">
             {filters.map((f) => (
                 <button
                     key={f.name}
                     onClick={() => onFilter(f.name)}
-                    className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all ${activeFilter === f.name ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-emerald-700 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-200'}`}
+                    className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all flex-shrink-0 ${activeFilter === f.name ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-emerald-700 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-200'}`}
                 >
                     <f.icon className={`w-4 h-4 mr-2 ${activeFilter === f.name ? 'text-white' : 'text-emerald-500'}`} />
                     {f.name}
@@ -1291,7 +1293,7 @@ const QuickFilters = ({ onFilter, activeFilter, showSaved = true }) => {
             {showSaved && (
                 <button
                     onClick={() => onFilter('favorites')}
-                    className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all ${activeFilter === 'favorites' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-500'}`}
+                    className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all flex-shrink-0 ${activeFilter === 'favorites' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-500'}`}
                 >
                     <Heart className={`w-4 h-4 mr-2 ${activeFilter === 'favorites' ? 'fill-current' : ''}`} />
                     My Saved
