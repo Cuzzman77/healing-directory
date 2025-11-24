@@ -1366,6 +1366,7 @@ const App = () => {
       setActiveFilter(null);
       setReportIntent(null); // Clear intent
       window.history.pushState(null, '', '/about');
+      window.scrollTo(0, 0);
     }, []);
     
 
