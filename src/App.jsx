@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-// react-router-dom not needed with manual deep-link handling
-// import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
-
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth'; 
+import { getAuth, signInAnonymously, onAuthStateChanged, signOut, signInWithCustomToken } from 'firebase/auth'; 
 import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc } from 'firebase/firestore'; 
-import { Search, ExternalLink, Star, FlaskConical, ArrowLeft, Camera, BookOpen, Send, Youtube, ArrowDownCircle, ChevronDown, AlertTriangle, Share2, CheckCircle, Sparkles, Brain, Activity, Shield, Zap, HeartPulse, PlayCircle, Stethoscope, FileText, ArrowUpDown, Filter, Library, Info, PlusCircle, ChevronRight, X, Flag, Database, Upload } from 'lucide-react';
+import { Search, ExternalLink, Star, FlaskConical, ArrowLeft, Camera, BookOpen, Send, Youtube, ArrowDownCircle, ChevronDown, AlertTriangle, Share2, CheckCircle, Sparkles, Brain, Activity, Shield, Zap, HeartPulse, PlayCircle, Stethoscope, FileText, ArrowUpDown, Filter, Library, Info, PlusCircle, ChevronRight, X, Flag, Database, Upload, Heart, Bookmark, Clock, AlertOctagon, User, ShoppingBag } from 'lucide-react';
 
 // --- FIREBASE SETUP ---
 const firebaseConfig = {
@@ -20,7 +17,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app); // Global DB instance
+const db = getFirestore(app);
 const auth = getAuth(app);
 
 // Collection Name
@@ -28,106 +25,344 @@ const COLLECTION_NAME = "protocols";
 
 const formatScore = (score) => (score ? score.toFixed(1) : 'N/A');
 
-// --- DATA TO UPLOAD (Dr. Lodi - Final Formatting) ---
+// --- DATA TO UPLOAD ---
 const DATA_TO_UPLOAD = [
     {
         title: "Dr. Lodi Anti-Parasite Protocol",
         ailment: "Parasites, Gut Health, Cancer Support",
         description: "A comprehensive polytherapy approach primarily used by individuals seeking to address pervasive parasitic infections, often in the context of chronic illness.",
-        full_detail: `<h3><strong>Protocol Overview</strong></h3>
-<p style="margin-top: 0.5em; margin-bottom: 1em;">Dr. Thomas Lodi MD shares an all-encompassing anti-parasitic protocol designed to target helminths (worms), fungus, and protozoa simultaneously.</p>
-
-<h3><strong>User-Reported Core Protocol (Dose & Timing)</strong></h3>
-<p>From the shared protocol attributed to Dr. Thomas Lodi MD:</p>
-<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-    <li style="margin-bottom: 0.3em;"><strong>12 mg Ivermectin</strong> – user-reported for helminths/worms</li>
-    <li style="margin-bottom: 0.3em;"><strong>222 mg Fenbendazole</strong> OR <strong>100 mg Mebendazole</strong> – user-reported for helminths/worms</li>
-    <li style="margin-bottom: 0.3em;"><strong>600 mg Praziquantel</strong> OR <strong>Niclosamide</strong> – user-reported for helminths/worms</li>
-    <li style="margin-bottom: 0.3em;"><strong>100 mg Fluconazole</strong> – user-reported for fungus</li>
-    <li style="margin-bottom: 0.3em;"><strong>100 mg Tinidazole</strong> OR <strong>Metronidazole</strong> – user-reported for protozoa</li>
-</ul>
-
-<p><strong>Timing pattern (user-reported):</strong></p>
-<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-    <li style="margin-bottom: 0.3em;">Taken 3 times per day</li>
-    <li style="margin-bottom: 0.3em;">3 weeks on, 1 week break, 3 weeks on</li>
-</ul>
-
-<p><strong>Alternative user-reported pattern:</strong></p>
-<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-    <li style="margin-bottom: 0.3em;">Same substances, but taken twice per day</li>
-    <li style="margin-bottom: 0.3em;">5 days on, 5 days off</li>
-    <li style="margin-bottom: 0.3em;">Repeated for 2–6 rounds, based on personal circumstances and health guidance (user-reported)</li>
-</ul>
-
-<h3><strong>Important Considerations</strong></h3>
-<p style="margin-top: 0.5em; margin-bottom: 1em;">The break periods (1 week off in standard, 5 days off in modified) are often intended to allow the liver to rest and to catch dormant cysts or larvae that may hatch during the pause.</p>
-
-<h3><strong>Adjuncts & Co-Factors (User-Reported)</strong></h3>
-<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-    <li style="margin-bottom: 0.3em;"><strong>Dietary Focus:</strong> Uncooked whole plants (fruits, vegetables, nuts, seeds) and green-juice cleansing (celery, cucumber, kale, spinach).</li>
-    <li style="margin-bottom: 0.3em;"><strong>Lifestyle:</strong> Focused breathing, consistent sleep, and sunlight exposure.</li>
-    <li style="margin-bottom: 0.3em;"><strong>Targeted Support:</strong> Detoxification, thyroid support (iodine), melatonin.</li>
-</ul>
-
-<h3><strong>Practical Notes (from testimonials)</strong></h3>
-<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-    <li style="margin-bottom: 0.3em;">Some people say they choose the 5-days-on / 5-days-off version because it “feels easier to tolerate.”</li>
-    <li style="margin-bottom: 0.3em;">Others mention sticking to the 3-weeks-on protocol as written.</li>
-    <li style="margin-bottom: 0.3em;">Users often mention choosing one option in each category (e.g., fenbendazole or mebendazole).</li>
-</ul>
-
-<h3><strong>Cautions & Red-Flag Experiences (user-reported)</strong></h3>
-<p style="margin-top: 0.5em;">Using multiple potent compounds concurrently increases the likelihood of side effects.</p>
-<ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-    <li style="margin-bottom: 0.3em;"><strong>Common Reactions:</strong> Headache, dizziness, nausea, vomiting, diarrhea, abdominal pain, and joint/muscle pain are frequently reported, particularly in the initial days of the cycle.</li>
-    <li style="margin-bottom: 0.3em;"><strong>Specific Drug Notes:</strong> Praziquantel should be swallowed whole (not chewed) and may cause heart rhythm problems, especially in those with pre-existing heart conditions, kidney, or liver disease.</li>
-    <li style="margin-bottom: 0.3em;"><strong>Liver Stress:</strong> The cycle break (1 week off) is crucial for liver recovery.</li>
-</ul>
-<p style="margin-top: 0.5em;">If any of these occur, people in testimonials often stopped the protocol and spoke with a healthcare professional.</p>`,
-        "anecdotal_score": 4.8, 
-        "scientific_score": 2.5, 
-        "reviews": 85,
-        "video_link": "https://www.youtube.com/embed/3XmGu7ZCajY",
-        "tags": ["Parasites", "Detox", "Ivermectin", "Fenbendazole", "Dr Lodi", "Polytherapy"],
-        "side_effects": {
-            "common": ["Nausea", "Stomach cramping", "Herxheimer reaction (Die-off)", "Fatigue", "Headache"],
-            "less_common": ["Temporary hair thinning", "Metallic taste (from Tinidazole)", "Elevated liver enzymes"]
+        ai_overview: {
+             "mood": "Comprehensive Polytherapy",
+             "content": "Dr. Thomas Lodi's protocol is an all-encompassing anti-parasitic approach targeting helminths, fungus, and protozoa simultaneously. It employs a cyclic schedule (typically 3 weeks on, 1 week off) to catch dormant larvae and allow liver recovery. Users frequently report high efficacy accompanied by significant 'die-off' reactions, emphasizing the need for drainage support."
         },
-        "vendors": [
-            { "name": "Global Pharma", "link": "#", "product_trust_score": 4.2 },
-            { "name": "Fenben Lab", "link": "#", "product_trust_score": 4.8 }
+        section_core: `
+            <p><strong>User-Reported Dosages (Dr. Lodi Attribution):</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+                <li><strong>12 mg Ivermectin</strong> – Target: Helminths/Worms</li>
+                <li><strong>222 mg Fenbendazole</strong> OR <strong>100 mg Mebendazole</strong> – Target: Helminths/Worms</li>
+                <li><strong>600 mg Praziquantel</strong> OR <strong>Niclosamide</strong> – Target: Helminths/Worms</li>
+                <li><strong>100 mg Fluconazole</strong> – Target: Fungus</li>
+                <li><strong>100 mg Tinidazole</strong> OR <strong>Metronidazole</strong> – Target: Protozoa</li>
+            </ul>
+            <p><strong>Standard Timing:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li>Taken 3 times per day</li>
+                <li>Cycle: <strong>3 weeks ON, 1 week OFF</strong></li>
+            </ul>
+            <p><strong>Alternative "Gentle" Timing:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li>Taken 2 times per day</li>
+                <li>Cycle: <strong>5 days ON, 5 days OFF</strong></li>
+                <li>Repeated for 2–6 rounds depending on tolerance</li>
+            </ul>
+        `,
+        section_adjuncts: `
+            <p><strong>Dietary Focus:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li>Uncooked whole plants (fruits, vegetables, nuts, seeds).</li>
+                <li>Green-juice cleansing (celery, cucumber, kale, spinach) to support alkalinity.</li>
+            </ul>
+            <p><strong>Lifestyle & Support:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li><strong>Drainage:</strong> Coffee enemas or colon hydrotherapy are strongly recommended to help the body eliminate dead parasites.</li>
+                <li><strong>Thyroid Support:</strong> Iodine supplementation.</li>
+                <li><strong>Sleep:</strong> Melatonin is often used synergistically.</li>
+            </ul>
+        `,
+        section_considerations: `
+            <p><strong>The "Hatching" Phase:</strong></p>
+            <p style="margin-bottom: 1em;">The break periods (1 week off or 5 days off) are not just for rest. They are intended to catch dormant cysts or larvae that may detect the absence of the drugs and hatch, making them vulnerable to the next round of treatment.</p>
+            <p><strong>Liver Health:</strong></p>
+            <p style="margin-bottom: 1em;">Because this is a polytherapy involving multiple pharmaceuticals, the off-days are crucial for allowing liver enzymes to normalize.</p>
+            <p><strong>Selection:</strong></p>
+            <p>Users typically choose <em>one</em> option from each category (e.g., they pick Fenbendazole <em>or</em> Mebendazole, not both).</p>
+        `,
+        section_cautions: `
+            <p style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">Red Flag: Liver Stress</p>
+            <p style="margin-bottom: 1em;">Elevated liver enzymes are a risk when combining these medications. Regular blood work is highly recommended.</p>
+            
+            <p><strong>Common "Die-Off" (Herxheimer) Reactions:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li>Nausea, vomiting, diarrhea</li>
+                <li>Stomach cramping</li>
+                <li>Headache and dizziness</li>
+                <li>Flu-like exhaustion</li>
+            </ul>
+            
+            <p><strong>Drug Specifics:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em;">
+                <li><strong>Praziquantel:</strong> Swallow whole; do not chew (extremely bitter). May cause heart rhythm issues in those with pre-existing conditions.</li>
+                <li><strong>Metronidazole/Tinidazole:</strong> Strictly avoid alcohol while taking these, as it can cause severe nausea/vomiting.</li>
+            </ul>
+        `,
+        anecdotal_score: 4.8, 
+        scientific_score: 2.5, 
+        reviews: 85,
+        video_link: "https://www.youtube.com/embed/3XmGu7ZCajY",
+        tags: ["Parasites", "Detox", "Ivermectin", "Fenbendazole", "Dr Lodi", "Polytherapy"],
+        vendors: [
+            { name: "Global Pharma", link: "#", product_trust_score: 4.2 },
+            { name: "Fenben Lab", link: "#", product_trust_score: 4.8 }
         ],
-        "scientific_studies": [
-            { "title": "Safety of Triple Co-Administration (NIH)", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2217668/" },
-            { "title": "Synergistic interaction of Praziquantel and Fenbendazole", "url": "https://journals.asm.org/doi/10.1128/aac.00560-25" }
+        scientific_studies: [
+            { title: "Safety of Triple Co-Administration (NIH)", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2217668/" },
+            { title: "Synergistic interaction of Praziquantel and Fenbendazole", url: "https://journals.asm.org/doi/10.1128/aac.00560-25" }
+        ]
+    },
+    {
+        title: "Joe Tippens Protocol (Fenbendazole)",
+        ailment: "Cancer Support (Metabolic)",
+        description: "The viral 'My Cancer Story' protocol focusing on Fenbendazole, CBD, and nutrient co-factors. Originated from a patient's personal success story with small cell lung cancer.",
+        ai_overview: {
+             "mood": "Metabolic & Cellular Support",
+             "content": "Originated by Joe Tippens, this protocol gained massive attention for repurposing the canine dewormer Fenbendazole. It hypothesizes that Fenbendazole disrupts microtubule formation in rapidly dividing cells (similar to taxane chemotherapy) but with a milder safety profile. It is typically used as a complementary metabolic approach."
+        },
+        section_core: `
+            <p><strong>The "Big 4" Core Components:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+                <li><strong>Fenbendazole:</strong> 222 mg per day (Standard canine granule packet or capsule).</li>
+                <li><strong>Bio-Available Curcumin:</strong> 600 mg per day.</li>
+                <li><strong>CBD Oil:</strong> 25 mg sublingual (under tongue) per day.</li>
+                <li><strong>Vitamin E:</strong> 400-800 IU per day (Succinate form preferred).</li>
+            </ul>
+            <p><strong>Timing Pattern:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li><strong>Original Version:</strong> 3 days ON, 4 days OFF (Fenbendazole only; others daily).</li>
+                <li><strong>Updated Version:</strong> 7 days a week (No off days) has become the more common standard reported by Joe Tippens later in his journey.</li>
+            </ul>
+        `,
+        section_adjuncts: `
+            <p><strong>Additional Support:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li><strong>Berberine:</strong> Often added for glucose regulation/metabolic support.</li>
+                <li><strong>Quercetin:</strong> Acts as a zinc ionophore and anti-inflammatory.</li>
+                <li><strong>Vitamin D3 + K2:</strong> Immune modulation.</li>
+            </ul>
+            <p><strong>Lifestyle:</strong></p>
+            <p>Often paired with a Ketogenic or Low-Carb diet to reduce glucose availability to cancer cells (Warburg Effect).</p>
+        `,
+        section_considerations: `
+            <p><strong>Product Form:</strong></p>
+            <p style="margin-bottom: 1em;">Users typically buy Fenbendazole marketed for animals (e.g., Panacur C or Safe-Guard) or from research chemical labs (Fenben Lab) due to lack of FDA approval for human cancer use.</p>
+            <p><strong>Absorption:</strong></p>
+            <p>Fenbendazole is lipophilic (fat-loving). It is best taken with a meal containing healthy fats (olive oil, avocado, yogurt) to maximize absorption.</p>
+        `,
+        section_cautions: `
+            <p style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">Drug Interactions</p>
+            <p style="margin-bottom: 1em;">Fenbendazole is generally well-tolerated but interacts with liver enzymes (CYP450). Consult a doctor if taking blood thinners or other chemotherapy agents.</p>
+            <p><strong>Liver Enzymes:</strong></p>
+            <p>Mild elevation in liver enzymes (AST/ALT) can occur. Monthly blood panels are recommended.</p>
+        `,
+        anecdotal_score: 4.9, 
+        scientific_score: 3.1, 
+        reviews: 342,
+        video_link: "https://www.youtube.com/embed/hySmXmw9fSc", 
+        tags: ["Cancer", "Fenbendazole", "Joe Tippens", "Metabolic", "Repurposed Drugs"],
+        vendors: [
+            { name: "Fenben Lab", link: "https://fenbenlab.com", product_trust_score: 4.9 },
+            { name: "The Happy Healing Store", link: "#", product_trust_score: 4.5 }
         ],
-        "ai_overview": {
-             "mood": "This protocol utilizes a polytherapy approach to target parasites at different lifecycle stages.",
-             "content": "Studies (such as PMC2217668) have confirmed the safety of co-administering Ivermectin and Praziquantel. Fenbendazole has shown synergistic effects with other anthelmintics in preclinical models. Community consensus is highly positive, frequently reporting 'die-off' symptoms followed by significant improvements."
-        }
+        scientific_studies: [
+            { title: "Fenbendazole acts as a moderate microtubule destabilizing agent (Nature)", url: "https://www.nature.com/articles/s41598-018-30158-6" },
+            { title: "Antitumor effect of fenbendazole in varying 5-fluorouracil resistance", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3580766/" }
+        ]
+    },
+    {
+        title: "Cancer Protocol for Active Cancers (High Dose)",
+        ailment: "Active Cancer, Parasitic Infection",
+        description: "An aggressive, high-dose anti-parasitic regimen utilizing Ivermectin and Fenbendazole, specifically designed for active cases with a focus on bio-availability enhancers like DMSO.",
+        ai_overview: {
+             "mood": "Aggressive Polytherapy",
+             "content": "This protocol is distinct for its high dosage of Ivermectin (2mg/kg) compared to standard protocols. It emphasizes 'driving' medication into cells using DMSO and strictly managing the toxic load from dying parasites using binders. It implies a strong link between parasitic load and active cancer states."
+        },
+        section_core: `
+            <p><strong>Core Anti-Parasitic Regimen:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+                <li><strong>Ivermectin:</strong> 2 mg per kg of body weight. Taken <strong>6 days a week</strong>.</li>
+                <li><strong>Fenbendazole:</strong> 500 mg per day. Taken <strong>6 days a week</strong>.</li>
+            </ul>
+            <p><strong>Maintenance (Post-Clearance):</strong></p>
+            <p>Once cancer-free, users recommend continuing Ivermectin as a prophylactic:</p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em;">
+                <li><strong>Dosage:</strong> 12 mg per day.</li>
+                <li><strong>Frequency:</strong> 3 times per week.</li>
+            </ul>
+        `,
+        section_adjuncts: `
+            <p><strong>Bio-Availability Enhancers (Cellular Drivers):</strong></p>
+            <p style="margin-bottom: 0.5em;">To drive the medication deeper into cells:</p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li><strong>DMSO:</strong> 1/4 to 1 tsp mixed with 1 TBS of pure organic aloe vera juice (for taste). Taken daily.</li>
+            </ul>
+            <p><strong>Essential Support & Detoxification:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li><strong>Vitamin D3 + K:</strong> 10,000 IU per day.</li>
+                <li><strong>Toxin Binders:</strong> 2 tsp of micronized zeolite powder or activated charcoal daily. This is critical to eliminate toxins released by dying parasites.</li>
+            </ul>
+            <p><strong>Dietary Guidelines:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em;">
+                <li><strong>Strictly Eliminate:</strong> All refined sugars, soft drinks, cakes, biscuits, and fruit juices.</li>
+                <li><strong>Reduce:</strong> Animal products, especially cured meats.</li>
+            </ul>
+        `,
+        section_considerations: `
+            <p><strong>Sourcing Ivermectin (User Tips):</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
+                <li>Often sourced from generic pharmacies (e.g., safegenericpharmacy.com).</li>
+                <li><strong>Tip:</strong> Ignore sections asking for a script/Dr name if ordering from overseas; it is often not required for export.</li>
+                <li><strong>Value:</strong> Users report bulk tabs (e.g., 500 x 12mg) offer the best value.</li>
+            </ul>
+            <p><strong>Sourcing Fenbendazole:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em;">
+                <li>Available from suppliers like Fenbendazole Australia or animal stock/feed stores (liquid form is cheaper).</li>
+            </ul>
+        `,
+        section_cautions: `
+            <p style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">Critical Warning: Toxin Release</p>
+            <p style="margin-bottom: 1em;">The use of binders (Zeolite/Charcoal) is described as <strong>critical</strong> to eliminate toxins released by dying parasites. Failure to manage this toxic load can result in severe reactions.</p>
+            <p><strong>High Dose Note:</strong></p>
+            <p>2 mg/kg is a very high dose of Ivermectin compared to standard use. Strict medical supervision is advised.</p>
+        `,
+        anecdotal_score: 4.7, 
+        scientific_score: 2.2, 
+        reviews: 156,
+        tags: ["Cancer", "Ivermectin", "Fenbendazole", "High Dose", "DMSO", "Active"],
+        vendors: [
+            { name: "Safe Generic Pharmacy", link: "https://www.safegenericpharmacy.com/", product_trust_score: 4.5 },
+            { name: "Fenbendazole Australia", link: "https://fenbendazoleaustralia.com.au/", product_trust_score: 4.7 }
+        ],
+        scientific_studies: [
+            { title: "Ivermectin, a potential anticancer drug (PMC)", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7505114/" },
+            { title: "Ivermectin: from antiviral to anticancer applications (PubMed)", url: "https://pubmed.ncbi.nlm.nih.gov/36185334/" },
+            { title: "Repurposing ivermectin for NSCLC (BMC Cancer)", url: "https://bmccancer.biomedcentral.com/articles/10.1186/s12885-021-09021-x" }
+        ]
+    },
+    {
+        title: "Chlorine Dioxide Solution (CDS)",
+        ailment: "Systemic Pathogen Load & Biofilm",
+        description: "A selective oxidant therapy using chlorine dioxide gas dissolved in water to neutralize acidic pathogens, viruses, and bacteria without triggering antibiotic resistance.",
+        ai_overview: {
+             "mood": "Selective Oxidative Purifier",
+             "content": "CDS acts as a 'smart' molecule (ClO2) that targets acidic pathogens and anaerobic cells through oxidation, stripping them of electrons. Unlike the older 'MMS' protocol which causes frequent nausea due to reaction residues, CDS is the pure gas saturated in water (3000ppm), offering higher bioavailability and significantly fewer gastric side effects."
+        },
+        section_core: `
+            <p><strong>Protocol C (Common Daily Protocol):</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+                <li style="margin-bottom: 0.3em;"><strong>Preparation:</strong> Add <strong>10ml</strong> of CDS concentrate (3000ppm) to <strong>1 Liter</strong> of water.</li>
+                <li style="margin-bottom: 0.3em;"><strong>Dosage:</strong> Drink roughly <strong>100ml every hour</strong> for 10 hours throughout the day.</li>
+                <li style="margin-bottom: 0.3em;"><strong>Acute Infection:</strong> Dosage can be safely increased to 20ml or 30ml of CDS per Liter of water if well tolerated, taken in shorter intervals.</li>
+            </ul>
+        `,
+        section_adjuncts: `
+            <p><strong>Bio-Availability & Support:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+                <li style="margin-bottom: 0.3em;"><strong>DMSO (Dimethyl Sulfoxide):</strong> Adding 3ml-5ml of 70% DMSO to the 1L bottle can help the ClO2 penetrate deeper into tissues and cysts.</li>
+                <li style="margin-bottom: 0.3em;"><strong>Isotonic Water:</strong> Mixing CDS with diluted sea water (isotonic) instead of plain water can improve electrolyte balance during the detox.</li>
+                <li style="margin-bottom: 0.3em;"><strong>Binder Support:</strong> Zeolite or Bentonite clay (taken 2 hours apart) can help mop up endotoxins released by dying pathogens.</li>
+            </ul>
+        `,
+        section_considerations: `
+            <p><strong>Critical Storage & Handling:</strong></p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+                <li style="margin-bottom: 0.3em;"><strong>Temperature Sensitive:</strong> Keep the 3000ppm concentrate refrigerated (below 11°C). Above this temperature, the gas evaporates, reducing potency.</li>
+                <li style="margin-bottom: 0.3em;"><strong>UV Sensitive:</strong> Store in amber glass bottles. Light degrades the molecule rapidly.</li>
+                <li style="margin-bottom: 0.3em;"><strong>The 'Antioxidant Gap':</strong> Vitamin C, coffee, alcohol, and antioxidant supplements neutralize Chlorine Dioxide. You must separate them by at least <strong>2 to 4 hours</strong> from your CDS doses.</li>
+            </ul>
+        `,
+        section_cautions: `
+            <p style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">WARNING: Lung Irritant</p>
+            <p>Do not inhale the gas directly from the concentrate bottle.</p>
+            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
+                <li style="margin-bottom: 0.3em;"><strong>Herxheimer Reaction:</strong> Rapid pathogen die-off can cause fatigue, nausea, or diarrhea. If this occurs, reduce the dose by 50% the next day; do not stop completely.</li>
+                <li style="margin-bottom: 0.3em;"><strong>Material Reactivity:</strong> Never use metal containers or spoons. ClO2 reacts with metal. Use glass or HDPE plastic.</li>
+                <li style="margin-bottom: 0.3em;"><strong>Contraindications:</strong> Caution is advised for those on strong blood thinners (CDS increases microcirculation) or those with G6PD deficiency (rare).</li>
+            </ul>
+        `,
+        anecdotal_score: 4.8,
+        scientific_score: 1.8,
+        reviews: 12500,
+        video_link: null,
+        tags: [
+          "Oxidative Therapy",
+          "Detox",
+          "Antiviral",
+          "Andreas Kalcker",
+          "Water Purification"
+        ],
+        vendors: [
+          {
+            name: "Aquarius Pro Life (Europe)",
+            link: "https://www.aquarius-prolife.com",
+            product_trust_score: 4.7
+          },
+          {
+            name: "KV Lab (Reagents)",
+            link: "https://www.kvlab.com",
+            product_trust_score: 4.5
+          }
+        ],
+        scientific_studies: [
+          {
+            title: "Chlorine dioxide is a more potent antiviral agent against SARS-CoV-2 than sodium hypochlorite",
+            url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8442261/"
+          },
+          {
+            title: "Clarifying the Science of Chlorine Dioxide Solution (CDS): Evidence for Medical Use",
+            url: "https://ijmra.in/v8i3/54.php"
+          }
+        ]
     }
 ];
 
-// --- HELPER: Share Functionality (Task D) ---
+// --- HELPER HOOKS ---
+const useFavorites = () => {
+    const [favorites, setFavorites] = useState(() => {
+        try {
+            const saved = localStorage.getItem('healing_favorites');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
+    });
+
+    const toggleFavorite = (id) => {
+        setFavorites(prev => {
+            let newFavs;
+            if (prev.includes(id)) {
+                newFavs = prev.filter(favId => favId !== id);
+            } else {
+                newFavs = [...prev, id];
+            }
+            localStorage.setItem('healing_favorites', JSON.stringify(newFavs));
+            return newFavs;
+        });
+    };
+
+    const isFavorite = (id) => favorites.includes(id);
+
+    return { favorites, toggleFavorite, isFavorite };
+};
+
+// --- HELPER: Share Functionality ---
 const shareProtocol = async (protocol) => {
     if (!protocol) return null;
-    
-    // Task D: Build the deep-link URL
     const url = `${window.location.origin}/protocol/${protocol.id}`;
-    
     const shareData = {
         title: protocol.title,
         text: `Check out this healing protocol: ${protocol.title}\n${protocol.description}`,
         url: url
     };
-    
     try {
         if (navigator.share) {
             await navigator.share(shareData);
             return 'shared'; 
         } else {
-            await navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}\n${shareData.url}`);
+            const textArea = document.createElement("textarea");
+            textArea.value = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
             return 'copied'; 
         }
     } catch (err) {
@@ -137,6 +372,44 @@ const shareProtocol = async (protocol) => {
 };
 
 // --- COMPONENTS ---
+
+const AccordionSection = ({ title, content, icon: Icon, defaultOpen = false, isWarning = false, children, headerContent }) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+
+    if (!content) return null;
+
+    return (
+        <div className={`border rounded-xl overflow-hidden shadow-sm transition-all duration-300 ${isWarning ? 'border-red-100 bg-red-50/30' : 'border-gray-200 bg-white'}`}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className={`w-full px-5 py-4 flex items-center justify-between relative transition-colors duration-200 ${isOpen ? (isWarning ? 'bg-red-50' : 'bg-emerald-50/50') : 'hover:bg-gray-50'}`}
+            >
+                {/* Left: Title & Icon */}
+                <div className="flex items-center flex-shrink-0 z-10">
+                    {Icon && <Icon className={`w-5 h-5 mr-3 ${isWarning ? 'text-red-500' : 'text-emerald-600'}`} />}
+                    <h3 className={`text-base font-bold ${isWarning ? 'text-red-800' : 'text-gray-800'}`}>{title}</h3>
+                </div>
+
+                {/* Center: Header Content (Disclaimer) - Absolutely positioned to be perfectly centered */}
+                {headerContent && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        {headerContent}
+                    </div>
+                )}
+
+                {/* Right: Chevron */}
+                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0 z-10 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {isOpen && (
+                <div className={`p-5 text-gray-700 leading-relaxed border-t animate-in slide-in-from-top-1 ${isWarning ? 'border-red-100' : 'border-gray-100'}`}>
+                    <div dangerouslySetInnerHTML={{ __html: content }} />
+                    {children}
+                </div>
+            )}
+        </div>
+    );
+};
 
 const BulkUploaderModal = ({ isOpen, onClose }) => {
     const [jsonData, setJsonData] = useState(JSON.stringify(DATA_TO_UPLOAD, null, 2));
@@ -166,14 +439,14 @@ const BulkUploaderModal = ({ isOpen, onClose }) => {
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
             <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[80vh]">
-                <div className="p-4 border-b bg-gray-100 flex justify-between items-center">
-                    <h3 className="font-bold text-gray-800 flex items-center"><Upload className="w-5 h-5 mr-2 text-indigo-600" /> Bulk Import Protocols</h3>
+                <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
+                    <h3 className="font-bold text-gray-800 flex items-center"><Upload className="w-5 h-5 mr-2 text-emerald-600" /> Bulk Import Protocols</h3>
                     <button onClick={onClose}><X className="w-6 h-6 text-gray-500" /></button>
                 </div>
                 <div className="p-4 flex-1 flex flex-col">
-                    <p className="text-sm text-gray-600 mb-2">I have pre-filled the Dr. Lodi data for you. Click Upload to add it.</p>
+                    <p className="text-sm text-gray-600 mb-2">Pre-filled Dr. Lodi data ready for upload (Updated Structure).</p>
                     <textarea 
-                        className="flex-1 w-full p-4 font-mono text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                        className="flex-1 w-full p-4 font-mono text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
                         value={jsonData}
                         onChange={(e) => setJsonData(e.target.value)}
                     ></textarea>
@@ -182,7 +455,7 @@ const BulkUploaderModal = ({ isOpen, onClose }) => {
                     <button 
                         onClick={handleUpload}
                         disabled={status === 'uploading' || !jsonData}
-                        className={`px-6 py-2 rounded-lg font-bold text-white transition-all ${status === 'success' ? 'bg-green-600' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                        className={`px-6 py-2 rounded-lg font-bold text-white transition-all ${status === 'success' ? 'bg-green-600' : 'bg-emerald-600 hover:bg-emerald-700'}`}
                     >
                         {status === 'uploading' ? 'Uploading...' : status === 'success' ? 'Success!' : 'Upload Data'}
                     </button>
@@ -206,7 +479,7 @@ const ProtocolFinderModal = ({ isOpen, onClose, protocols, onSelect, intent }) =
     const intentLabels = {
         'success': 'Submit Success Story',
         'side-effect': 'Report Side Effect',
-        'correction': 'Suggest Correction'
+        'correction': 'Suggest an Edit'
     };
 
     return (
@@ -215,7 +488,7 @@ const ProtocolFinderModal = ({ isOpen, onClose, protocols, onSelect, intent }) =
                 <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                     <div>
                         <h3 className="font-bold text-gray-800">Find Protocol</h3>
-                        <p className="text-xs text-gray-500">Select the protocol to {intentLabels[intent] || 'report on'}</p>
+                        <p className="text-xs text-gray-500">Select protocol to {intentLabels[intent] || 'report on'}</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
                         <X className="w-5 h-5 text-gray-500" />
@@ -229,7 +502,7 @@ const ProtocolFinderModal = ({ isOpen, onClose, protocols, onSelect, intent }) =
                             autoFocus
                             type="text" 
                             placeholder="Type protocol name (e.g. Ivermectin)..." 
-                            className="w-full p-3 pl-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="w-full p-3 pl-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                         />
@@ -243,10 +516,10 @@ const ProtocolFinderModal = ({ isOpen, onClose, protocols, onSelect, intent }) =
                                 <button 
                                     key={p.id}
                                     onClick={() => onSelect(p.id)}
-                                    className="w-full text-left p-3 hover:bg-indigo-50 rounded-lg transition-colors flex justify-between items-center group"
+                                    className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg transition-colors flex justify-between items-center group"
                                 >
-                                    <span className="font-medium text-gray-700 group-hover:text-indigo-700">{p.title}</span>
-                                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-indigo-400" />
+                                    <span className="font-medium text-gray-700 group-hover:text-emerald-700">{p.title}</span>
+                                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-emerald-400" />
                                 </button>
                             ))}
                         </div>
@@ -263,12 +536,12 @@ const ProtocolFinderModal = ({ isOpen, onClose, protocols, onSelect, intent }) =
 
 const AboutPage = ({ onBack }) => (
     <div className="p-6 bg-white rounded-2xl shadow-2xl min-h-[80vh] animate-in fade-in duration-500">
-        <button onClick={onBack} className="flex items-center text-indigo-600 hover:text-indigo-800 transition duration-150 mb-8 p-2 rounded-lg bg-indigo-50 hover:bg-indigo-100">
+        <button onClick={onBack} className="flex items-center text-emerald-600 hover:text-emerald-800 transition duration-150 mb-8 p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100">
             <ArrowLeft className="w-5 h-5 mr-2" /> Back to Directory
         </button>
         
         <div className="max-w-3xl mx-auto">
-            <div className="flex items-center justify-center w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full mb-6 mx-auto">
+            <div className="flex items-center justify-center w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full mb-6 mx-auto">
                 <Stethoscope className="w-8 h-8" />
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6 text-center">The Mission for Off-Patent Medicine</h1>
@@ -286,9 +559,9 @@ const AboutPage = ({ onBack }) => (
                     Why? Because without a patent, there is no exclusive profit margin to fund the multi-million dollar clinical trials required for FDA approval for <em>new</em> uses.
                 </p>
 
-                <div className="bg-indigo-50 p-6 rounded-xl border-l-4 border-indigo-500 my-8">
-                    <h3 className="text-lg font-bold text-indigo-900 mb-2">The Result?</h3>
-                    <p className="text-indigo-800">
+                <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-8">
+                    <h3 className="text-lg font-bold text-emerald-900 mb-2">The Result?</h3>
+                    <p className="text-emerald-800">
                         Potentially life-saving treatments for cancer, chronic illness, and cognitive decline sit on the shelf, categorized only for their original purpose, while patients are left searching for answers in the dark.
                     </p>
                 </div>
@@ -303,7 +576,7 @@ const AboutPage = ({ onBack }) => (
                 </ul>
 
                 <p>
-                    By using our <strong>Trust Scores</strong>, we help you navigate the noise. We don't just show you what's "approved"—we show you what people are actually using to heal, backed by whatever scientific evidence exists, regardless of profitability.
+                    By using our <strong>Trust Scores</strong>, we help you navigate the noise. We don't just show you what's "approved"—we show you what people are actually using to heal.
                 </p>
             </div>
         </div>
@@ -339,7 +612,11 @@ const AlphaFilter = ({ selected, onSelect }) => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-colors border shadow-sm`}
-                style={{ backgroundColor: (isOpen || selected) ? '#382082' : 'white', color: (isOpen || selected) ? 'white' : '#382082', borderColor: (isOpen || selected) ? '#382082' : '#e5e7eb' }}
+                style={{ 
+                    backgroundColor: (isOpen || selected) ? '#059669' : 'white', // Emerald-600
+                    color: (isOpen || selected) ? 'white' : '#065f46', // Emerald-800
+                    borderColor: (isOpen || selected) ? '#059669' : '#e5e7eb' 
+                }}
             >
                 <div className="flex items-center">
                     <Library className="w-4 h-4 mr-2" />
@@ -352,7 +629,7 @@ const AlphaFilter = ({ selected, onSelect }) => {
                 <div className="mt-3 flex flex-wrap gap-2 justify-center bg-white p-4 rounded-xl shadow-lg border border-gray-100 animate-in slide-in-from-top-2">
                     <button
                         onClick={() => { onSelect(null); setIsOpen(false); }}
-                         className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 border ${!selected ? 'bg-indigo-600 text-white border-indigo-600 shadow-md transform scale-105' : 'bg-white text-gray-500 border-gray-200 hover:bg-indigo-50 hover:border-indigo-200'}`}
+                         className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 border ${!selected ? 'bg-emerald-600 text-white border-emerald-600 shadow-md transform scale-105' : 'bg-white text-gray-500 border-gray-200 hover:bg-emerald-50 hover:border-emerald-200'}`}
                     >
                         ALL
                     </button>
@@ -360,7 +637,7 @@ const AlphaFilter = ({ selected, onSelect }) => {
                         <button
                             key={char}
                             onClick={() => { onSelect(char); setIsOpen(false); }}
-                            className={`w-9 h-9 flex items-center justify-center text-xs font-bold rounded-lg transition-all duration-200 border ${selected === char ? 'bg-indigo-600 text-white border-indigo-600 shadow-md transform scale-105' : 'bg-white text-gray-500 border-gray-200 hover:bg-indigo-50 hover:border-indigo-200'}`}
+                            className={`w-9 h-9 flex items-center justify-center text-xs font-bold rounded-lg transition-all duration-200 border ${selected === char ? 'bg-emerald-600 text-white border-emerald-600 shadow-md transform scale-105' : 'bg-white text-gray-500 border-gray-200 hover:bg-emerald-50 hover:border-emerald-200'}`}
                         >
                             {char}
                         </button>
@@ -371,24 +648,36 @@ const AlphaFilter = ({ selected, onSelect }) => {
     )
 }
 
-const ProtocolCard = ({ protocol, onSelect, onShare }) => {
+const ProtocolCard = ({ protocol, onSelect, onShare, isFavorite, onToggleFavorite }) => {
     return (
         <div 
-            className="bg-white p-5 sm:p-6 shadow-md rounded-2xl transition-all duration-300 border border-gray-100 cursor-pointer active:scale-[0.98] hover:shadow-xl hover:border-indigo-100 relative group animate-in slide-in-from-bottom-4 fade-in duration-500"
+            className="bg-white p-5 sm:p-6 shadow-md rounded-2xl transition-all duration-300 border border-gray-100 cursor-pointer active:scale-[0.98] hover:shadow-xl hover:border-emerald-100 relative group animate-in slide-in-from-bottom-4 fade-in duration-500"
             onClick={() => onSelect(protocol.id)}
         >
             <div className="flex justify-between items-start mb-2">
-                <h2 className="text-lg font-extrabold text-gray-800 pr-10 group-hover:text-indigo-700 transition-colors">{protocol.title}</h2>
-                <button 
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        onShare(protocol);
-                    }}
-                    className="absolute top-4 right-4 p-2 text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
-                    title="Share Protocol"
-                >
-                    <Share2 className="w-5 h-5" />
-                </button>
+                <h2 className="text-lg font-extrabold text-gray-800 pr-16 group-hover:text-emerald-700 transition-colors">{protocol.title}</h2>
+                <div className="absolute top-4 right-4 flex space-x-2">
+                    <button 
+                        onClick={(e) => {
+                            e.stopPropagation(); 
+                            onToggleFavorite(protocol.id);
+                        }}
+                        className={`p-2 rounded-full transition-colors ${isFavorite ? 'text-red-500 bg-red-50' : 'text-gray-300 hover:text-red-400 hover:bg-red-50'}`}
+                        title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                    >
+                        <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+                    </button>
+                    <button 
+                        onClick={(e) => {
+                            e.stopPropagation(); 
+                            onShare(protocol);
+                        }}
+                        className="p-2 text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors"
+                        title="Share Protocol"
+                    >
+                        <Share2 className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
             <p className="text-gray-500 mb-4 text-sm line-clamp-2 leading-relaxed">{protocol.description}</p>
 
@@ -397,8 +686,8 @@ const ProtocolCard = ({ protocol, onSelect, onShare }) => {
                     <Star className="w-3.5 h-3.5 mr-1 fill-green-500 text-green-500" />
                     {formatScore(protocol.anecdotal_score || 0)}
                 </div>
-                <div className="flex items-center px-2 py-1 bg-indigo-50 text-indigo-700 rounded-md">
-                    <FlaskConical className="w-3.5 h-3.5 mr-1 text-indigo-500" />
+                <div className="flex items-center px-2 py-1 bg-blue-50 text-blue-700 rounded-md">
+                    <FlaskConical className="w-3.5 h-3.5 mr-1 text-blue-500" />
                     {formatScore(protocol.scientific_score || 0)}
                 </div>
                 <span className="text-gray-400">{(protocol.reviews || 0).toLocaleString()} Reports</span>
@@ -412,9 +701,13 @@ const ScientificLiteratureButton = ({ protocol }) => {
     const studies = protocol.scientific_studies || (protocol.scientific_link ? [{ title: "View Scientific Literature", url: protocol.scientific_link }] : []);
     const panelId = `scientific-panel-${protocol.id}`;
 
+    // Common classes for all button states to align borders
+    const buttonBaseClass = "w-[calc(100%+2px)] -ml-[1px] -mr-[1px] -mb-[1px] py-2 px-3 text-xs font-bold flex justify-center items-center transition duration-150 relative z-10";
+    const roundedClass = "rounded-b-xl sm:rounded-bl-none sm:rounded-br-xl";
+
     if (studies.length === 0) {
         return (
-            <button disabled className="w-full py-2 px-3 bg-gray-200 text-gray-400 font-bold text-xs sm:text-sm rounded-lg cursor-not-allowed flex justify-center items-center">
+            <button disabled className={`${buttonBaseClass} ${roundedClass} bg-gray-100 text-gray-400 cursor-not-allowed border-t border-gray-200`}>
                 No Link Available
             </button>
         );
@@ -426,9 +719,9 @@ const ScientificLiteratureButton = ({ protocol }) => {
                 href={studies[0].url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2 px-3 bg-pink-600 text-white font-bold text-xs sm:text-sm rounded-lg hover:bg-pink-700 transition duration-150 shadow-sm flex justify-center items-center"
+                className={`${buttonBaseClass} ${roundedClass} bg-blue-600 text-white hover:bg-blue-700`}
             >
-                <BookOpen className="w-4 h-4 mr-1 sm:mr-2" />
+                <BookOpen className="w-3.5 h-3.5 mr-1.5" />
                 View Scientific Literature
             </a>
         );
@@ -441,10 +734,10 @@ const ScientificLiteratureButton = ({ protocol }) => {
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
                 aria-controls={panelId}
-                className="w-full py-2 px-3 bg-pink-600 text-white font-bold text-xs sm:text-sm rounded-lg hover:bg-pink-700 transition duration-150 shadow-sm flex justify-between items-center"
+                className={`${buttonBaseClass} ${roundedClass} bg-blue-600 text-white hover:bg-blue-700 justify-between`}
             >
                 <span className="flex items-center">
-                    <BookOpen className="w-4 h-4 mr-1 sm:mr-2" />
+                    <BookOpen className="w-3.5 h-3.5 mr-1.5" />
                     Scientific Literature ({studies.length})
                 </span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
@@ -453,7 +746,7 @@ const ScientificLiteratureButton = ({ protocol }) => {
                 <div 
                     id={panelId}
                     role="region"
-                    className="absolute z-10 w-full mt-1 bg-white border border-pink-200 rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100"
+                    className="absolute z-20 w-[calc(100%+2px)] -ml-[1px] mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100"
                     aria-labelledby={`scientific-button-${protocol.id}`}
                 >
                     {studies.map((study, index) => (
@@ -462,7 +755,7 @@ const ScientificLiteratureButton = ({ protocol }) => {
                             href={study.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block px-4 py-3 text-xs sm:text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-900 border-b border-gray-100 last:border-0 text-left transition-colors"
+                            className="block px-4 py-3 text-xs sm:text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 border-b border-gray-100 last:border-0 text-left transition-colors"
                         >
                             {study.title || `Study #${index + 1}`}
                         </a>
@@ -473,99 +766,8 @@ const ScientificLiteratureButton = ({ protocol }) => {
     );
 };
 
-const AISynthesis = ({ protocol }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const aiData = protocol.ai_overview;
-    const buttonId = `ai-overview-button-${protocol.id}`;
-    const panelId = `ai-overview-panel-${protocol.id}`;
 
-    if (!aiData) return null;
-
-    return (
-         <div className="mb-8 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <button
-                id={buttonId}
-                onClick={() => setIsOpen(!isOpen)}
-                aria-expanded={isOpen}
-                aria-controls={panelId}
-                className="w-full px-4 py-3 bg-indigo-50 hover:bg-indigo-100 flex justify-between items-center transition duration-150"
-            >
-                <div className="flex items-center">
-                    <Sparkles className="w-5 h-5 text-indigo-500 mr-2" />
-                    <h3 className="text-lg font-bold text-gray-800">AI Overview</h3>
-                </div>
-                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {isOpen && (
-                <div 
-                    id={panelId}
-                    role="region"
-                    className="p-5 bg-white animate-in slide-in-from-top-2 duration-200 space-y-3"
-                    aria-labelledby={buttonId}
-                >
-                    <p className="text-gray-700 text-sm font-semibold">{aiData.mood}</p>
-                    <p className="text-gray-600 text-sm leading-relaxed">{aiData.content}</p>
-                </div>
-            )}
-        </div>
-    );
-};
-
-
-const SideEffectsAccordion = ({ sideEffects }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const buttonId = "side-effects-button";
-    const panelId = "side-effects-panel";
-
-    if (!sideEffects || (!sideEffects.common?.length && !sideEffects.less_common?.length)) return null;
-
-    return (
-        <div className="mb-8 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <button
-                id={buttonId}
-                onClick={() => setIsOpen(!isOpen)}
-                aria-expanded={isOpen}
-                aria-controls={panelId}
-                className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex justify-between items-center transition duration-150"
-            >
-                <div className="flex items-center">
-                    <AlertTriangle className="w-5 h-5 text-amber-500 mr-2" />
-                    <h3 className="text-lg font-bold text-gray-800">Possible Side Effects</h3>
-                </div>
-                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {isOpen && (
-                <div
-                    id={panelId}
-                    role="region"
-                    className="p-5 bg-white animate-in slide-in-from-top-2 duration-200"
-                    aria-labelledby={buttonId}
-                >
-                    {sideEffects.common && sideEffects.common.length > 0 && (
-                        <div className="mb-5 last:mb-0">
-                            <h4 className="font-bold text-gray-700 mb-2 text-xs uppercase tracking-wider border-b pb-1 border-gray-100">Common Side Effects</h4>
-                            <ul className="list-disc list-inside text-gray-600 space-y-1.5 text-sm">
-                                {sideEffects.common.map((effect, idx) => <li key={idx}>{effect}</li>)}
-                            </ul>
-                        </div>
-                    )}
-                    {sideEffects.less_common && sideEffects.less_common.length > 0 && (
-                        <div className="mb-0">
-                            <h4 className="font-bold text-gray-700 mb-2 text-xs uppercase tracking-wider border-b pb-1 border-gray-100">Less Common Side Effects</h4>
-                            <ul className="list-disc list-inside text-gray-600 space-y-1.5 text-sm">
-                                {sideEffects.less_common.map((effect, idx) => <li key={idx}>{effect}</li>)}
-                            </ul>
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
-    );
-};
-
-const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) => {
+const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite, onToggleFavorite, scrollToTestimonialsOnMount }) => {
     const [testimonialAilment, setTestimonialAilment] = useState("");
     const [testimonialText, setTestimonialText] = useState('');
     const [testimonialScore, setTestimonialScore] = useState(5); 
@@ -574,7 +776,27 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
     const [hasUserTestimonial, setHasUserTestimonial] = useState(false); 
     const MAX_CHARS = 1000;
 
-    // Real-time fetch for testimonials of this specific protocol
+    // Helper to scroll to vendors
+    const scrollToVendors = () => {
+        const element = document.getElementById('vendors-section');
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // Helper: Extract Video ID and format as Embed URL
+    const getEmbedUrl = (url) => {
+        if (!url) return null;
+        
+        // TRIM WHITESPACE to prevent copy-paste errors from breaking the link
+        const cleanUrl = url.trim();
+
+        // Regex updated to handle /shorts/ URLs
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+        const match = cleanUrl.match(regExp);
+        return (match && match[2].length === 11) 
+            ? `https://www.youtube.com/embed/${match[2]}` 
+            : null; 
+    };
+
     useEffect(() => {
         if (!protocol?.id) return;
         const testimonialsRef = collection(db, `${COLLECTION_NAME}/${protocol.id}/testimonials`);
@@ -582,11 +804,8 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
         
         const unsubscribe = onSnapshot(q, (snapshot) => {
             let fetchedTestimonials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
-            // Task B.1: Sort fetched testimonials (newest first)
             fetchedTestimonials.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-            // Check if current user has already submitted (10. Firestore rules + UI requirements)
             if (userId) {
                 setHasUserTestimonial(fetchedTestimonials.some(t => t.userId === userId));
             }
@@ -594,7 +813,6 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
             if (fetchedTestimonials.length > 0) {
                 setTestimonials(fetchedTestimonials);
             } else {
-                // Apply sort to fallback data
                 let fallback = protocol.testimonials || [];
                  if (Array.isArray(fallback)) {
                     fallback.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
@@ -612,8 +830,18 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
         if (element) element.scrollIntoView({ behavior: 'smooth' });
     };
 
+    // Auto-scroll effect if requested via props
+    useEffect(() => {
+        if (scrollToTestimonialsOnMount) {
+            // Small delay to ensure DOM is fully rendered
+            const timer = setTimeout(() => {
+                scrollToTestimonials();
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [scrollToTestimonialsOnMount]);
+
     const handleSubmitTestimonial = async () => {
-        // 10. Enforce max length of 1000 characters
         if (!testimonialText || !userId || testimonialText.length > MAX_CHARS) { 
             setSubmissionStatus('error');
             return;
@@ -635,13 +863,12 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
                 date: new Date().toISOString().split('T')[0],
                 photo: false,
                 user: `User-${userId.substring(0, 4)}`,
-                // Task 1: Save ailment field
                 ailment: testimonialAilment || null,
             });
             setSubmissionStatus('success');
             setTestimonialText('');
-            setTestimonialAilment(''); // Clear ailment field on success
-            setHasUserTestimonial(true); // Lock user out immediately
+            setTestimonialAilment(''); 
+            setHasUserTestimonial(true); 
             setTimeout(() => setSubmissionStatus(null), 3000); 
         } catch (error) {
             console.error("Error submitting:", error);
@@ -650,16 +877,11 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
         }
     };
 
-    const handleSuggestCorrection = () => {
-        alert("Correction suggestions coming soon! This will link to a feedback form.");
-    };
-
     const StatusMessage = ({ status }) => {
         switch (status) {
-            case 'loading': return <p className="text-indigo-600 font-semibold flex items-center">Submitting...</p>;
+            case 'loading': return <p className="text-emerald-600 font-semibold flex items-center">Submitting...</p>;
             case 'success': return <p className="text-green-600 font-semibold">Thank you for your review!</p>;
             case 'error': return <p className="text-red-600 font-semibold">Submission failed.</p>;
-            // 8. Improved Lockout Message Tone
             case 'already': return <p className="text-gray-600 font-semibold">You’ve already shared your experience on this protocol. Thank you for contributing to the community data.</p>;
             default: return null;
         }
@@ -668,93 +890,200 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
     return (
         <div className="p-4 sm:p-6 bg-white rounded-2xl shadow-2xl min-h-[80vh] animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-between items-center mb-6">
-                <button onClick={onBack} className="flex items-center text-indigo-600 hover:text-indigo-800 transition duration-150 p-2 rounded-lg bg-indigo-50 hover:bg-indigo-100">
+                <button onClick={onBack} className="flex items-center text-emerald-600 hover:text-emerald-800 transition duration-150 p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100">
                     <ArrowLeft className="w-5 h-5 mr-2" /> Back to Directory
                 </button>
-                <button onClick={() => onShare(protocol)} className="flex items-center text-indigo-600 hover:text-indigo-800 transition duration-150 p-2 rounded-lg bg-indigo-50 hover:bg-indigo-100">
-                    <Share2 className="w-5 h-5" />
-                </button>
+                <div className="flex space-x-2">
+                     <button 
+                        onClick={() => onToggleFavorite(protocol.id)}
+                        className={`p-2 rounded-lg transition duration-150 flex items-center ${isFavorite ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                    >
+                         <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+                    </button>
+                    <button onClick={() => onShare(protocol)} className="flex items-center text-emerald-600 hover:text-emerald-800 transition duration-150 p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100">
+                        <Share2 className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
 
             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">{protocol.title}</h1>
-            <p className="text-lg text-indigo-600 font-semibold mb-4">Target Ailment: {protocol.ailment}</p>
+            <p className="text-lg text-emerald-600 font-semibold mb-4">Target Ailment: {protocol.ailment}</p>
             
-            <div className="mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-lg text-sm font-medium">
-                <p className="font-bold">AD SPOT 2 (Protocol Detail):</p>
-                <p>High-value ad placement focused on products relevant to this specific protocol.</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-8">
-                <div className="flex flex-col gap-2">
-                    <div className="flex flex-col items-center p-4 bg-green-50 rounded-xl h-full justify-center border border-green-100">
-                        <div className="flex items-center text-2xl font-bold text-green-700">
-                            <Star className="w-6 h-6 mr-1 fill-yellow-400 text-yellow-400" />
+            {/* Compact Trust Score Section - FIXED DROPDOWN & PADDING & BORDER ALIGNMENT */}
+            <div className="mb-8 shadow-sm rounded-xl flex flex-col sm:flex-row border border-gray-200">
+                {/* Anecdotal Score (Left Half) */}
+                <div className="flex-1 flex flex-col bg-green-50 sm:border-r border-green-100 rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none">
+                    <div className="py-2 px-3 flex flex-col items-center justify-center">
+                        <div className="flex items-center text-xl font-extrabold text-green-700">
+                            <Star className="w-5 h-5 mr-1.5 fill-yellow-400 text-yellow-400" />
                             {formatScore(protocol.anecdotal_score || 0)}/5
                         </div>
-                        <p className="text-xs text-green-600 font-semibold mt-1 text-center">Anecdotal Trust Score</p>
-                        <p className="text-xs text-green-500 mt-0.5">{(protocol.reviews || 0).toLocaleString()} Reports</p>
+                        <p className="text-[10px] text-green-700 font-bold uppercase tracking-wide mt-0.5">Anecdotal Trust Score</p>
+                        <p className="text-[10px] text-green-600 font-medium">{(protocol.reviews || 0).toLocaleString()} Reports</p>
                     </div>
-                    <button onClick={scrollToTestimonials} className="w-full py-2 px-3 bg-green-600 text-white font-bold text-xs sm:text-sm rounded-lg hover:bg-green-700 transition duration-150 shadow-sm flex justify-center items-center">
-                        <ArrowDownCircle className="w-4 h-4 mr-1 sm:mr-2" /> View Anecdotal Evidence
-                    </button>
+                    <div className="mt-auto">
+                        <button 
+                            onClick={scrollToTestimonials} 
+                            className="w-[calc(100%+2px)] -ml-[1px] -mr-[1px] sm:-mb-[1px] py-2 px-3 bg-green-600 text-white font-bold text-xs hover:bg-green-700 transition duration-150 flex justify-center items-center relative z-10 rounded-none sm:rounded-bl-xl"
+                        >
+                            <ArrowDownCircle className="w-3.5 h-3.5 mr-1.5" /> View Evidence
+                        </button>
+                    </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                    <div className="flex flex-col items-center p-4 bg-indigo-50 rounded-xl h-full justify-center border border-indigo-100">
-                        <div className="flex items-center text-2xl font-bold text-indigo-700">
-                            <FlaskConical className="w-6 h-6 mr-1 text-indigo-500" />
+
+                {/* Scientific Score (Right Half) */}
+                {/* Removed overflow-hidden from parent, applying border radius here to prevent clipping dropdown */}
+                <div className="flex-1 flex flex-col bg-blue-50 rounded-b-xl sm:rounded-r-xl sm:rounded-bl-none">
+                    <div className="py-2 px-3 flex flex-col items-center justify-center">
+                        <div className="flex items-center text-xl font-extrabold text-blue-700">
+                            <FlaskConical className="w-5 h-5 mr-1.5 text-blue-500" />
                             {formatScore(protocol.scientific_score || 0)}/5
                         </div>
-                        <p className="text-xs text-indigo-600 font-semibold mt-1 text-center">Scientific Evidence Score</p>
+                        <p className="text-[10px] text-blue-700 font-bold uppercase tracking-wide mt-0.5">Scientific Evidence Score</p>
                     </div>
-                    <ScientificLiteratureButton protocol={protocol} />
+                    <div className="mt-auto">
+                        <ScientificLiteratureButton protocol={protocol} />
+                    </div>
                 </div>
             </div>
 
             
-            {protocol.video_link && (
+            {protocol.video_link && getEmbedUrl(protocol.video_link) && (
                 <section className="mb-8">
                     <h3 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
                         <Youtube className="w-6 h-6 mr-2 text-red-500" /> Video Overview
                     </h3>
                     <div className="relative overflow-hidden rounded-xl shadow-xl" style={{ paddingTop: '56.25%' }}>
-                        <iframe className="absolute top-0 left-0 w-full h-full" src={protocol.video_link} title={`Video guide for ${protocol.title}`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                        <iframe 
+                            className="absolute top-0 left-0 w-full h-full" 
+                            src={getEmbedUrl(protocol.video_link)} 
+                            title={`Video guide for ${protocol.title}`} 
+                            frameBorder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
                     </div>
                 </section>
             )}
 
-            {/* AI Synthesis Dropdown - MOVED HERE */}
-            <AISynthesis protocol={protocol} />
+            {/* --- SECTION A: Always Open Summary --- */}
+            {(protocol.ai_overview || protocol.summary) && (
+                <div className="mb-6 bg-white p-6 rounded-2xl shadow-sm border border-emerald-100">
+                    <h3 className="flex items-center text-lg font-bold text-gray-900 mb-3">
+                        <Sparkles className="w-5 h-5 text-emerald-500 mr-2" />
+                        Protocol Summary <span className="text-xs font-normal text-gray-400 ml-2">(AI Generated)</span>
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">
+                        {protocol.ai_overview?.content || protocol.summary}
+                    </p>
+                </div>
+            )}
 
-            <div className="mb-8">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Full Protocol Details</h3>
-                {/* CRITICAL FIX: Use dangerouslySetInnerHTML to correctly render the HTML structure */}
-                <div 
-                    className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200"
-                    dangerouslySetInnerHTML={{ 
-                        __html: protocol.full_detail
-                    }}
-                ></div>
+            {/* --- SECTIONS B, C, D, E: Accordions --- */}
+            <div className="space-y-4 mb-8">
+                {/* Fallback for legacy data that only has full_detail */}
+                {protocol.full_detail && !protocol.section_core && (
+                    <div 
+                        className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200"
+                        dangerouslySetInnerHTML={{ __html: protocol.full_detail }}
+                    ></div>
+                )}
+
+                {/* New Section Structure */}
+                <AccordionSection 
+                    title="Core Regimen" 
+                    icon={Activity} 
+                    content={protocol.section_core} 
+                    defaultOpen={true} // B is usually the most important, default open slightly helps UX
+                    headerContent={
+                        <span className="hidden sm:inline-block text-base font-bold text-gray-800 whitespace-nowrap">
+                            For Educational Purposes Only
+                        </span>
+                    }
+                >
+                    {/* Button to scroll to vendors */}
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                        <button 
+                            onClick={scrollToVendors}
+                            className="w-full flex items-center justify-center px-4 py-3 bg-emerald-100 text-emerald-800 text-sm font-bold rounded-lg hover:bg-emerald-200 transition-colors"
+                        >
+                            <ShoppingBag className="w-4 h-4 mr-2" />
+                            See Where to Purchase
+                            <ArrowDownCircle className="w-4 h-4 ml-2" />
+                        </button>
+                    </div>
+                </AccordionSection>
+                
+                <AccordionSection 
+                    title="Adjuncts & Co-Factors" 
+                    icon={Zap} 
+                    content={protocol.section_adjuncts} 
+                />
+                
+                <AccordionSection 
+                    title="Important Considerations" 
+                    icon={Clock} // Using Clock icon for timing/breaks
+                    content={protocol.section_considerations} 
+                />
+                
+                <AccordionSection 
+                    title="Cautions & Red Flags" 
+                    icon={AlertOctagon} // Using AlertOctagon for stronger warning
+                    content={protocol.section_cautions} 
+                    isWarning={true}
+                />
             </div>
 
-            {/* 4. NEW: Disclaimer Box */}
-            <section className="mt-4 mb-8 text-xs text-gray-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3 leading-relaxed">
-                <p className="font-bold text-yellow-800 mb-1">Important:</p>
+            <section className="mt-4 mb-8 text-sm text-gray-700 bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 leading-relaxed">
+                <p className="font-bold text-lg text-yellow-900 mb-2">Important:</p>
                 <p>This protocol summary is for education and personal research only.</p>
                 <p>It is not medical advice, diagnosis, or a prescription.</p>
                 <p>Always work with a qualified healthcare professional before starting, stopping, or changing any treatment, drug, or supplement.</p>
             </section>
 
-            <SideEffectsAccordion sideEffects={protocol.side_effects} />
+            <div className="mb-8 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-lg text-sm font-medium">
+                <p className="font-bold">SPONSOR AD:</p>
+                <p>High-quality supplements vetted for purity. Use code HEAL20 for 20% off at PartnerStore.</p>
+            </div>
 
-            <section className="mt-8 pt-6 border-t border-gray-200">
+            <section id="vendors-section" className="mt-8 pt-6 border-t border-gray-200">
                 <h3 className="text-2xl font-bold text-gray-800 mb-4">Where to Buy (Vendor Trust)</h3>
                 <div className="space-y-3">
                     {protocol.vendors?.map((vendor, index) => (
-                        <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
-                            <div className="flex-grow"><p className="font-semibold text-gray-800">{vendor.name}</p></div>
-                            <div className="flex items-center space-x-3">
-                                <span className="flex items-center text-sm font-bold text-indigo-700 whitespace-nowrap"><Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />{formatScore(vendor.product_trust_score)}/5</span>
-                                <a href={vendor.link || '#'} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold px-3 py-1 bg-indigo-500 text-white rounded-full hover:bg-indigo-600 transition duration-150 flex items-center">Buy Now</a>
+                        <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all gap-4">
+                            
+                            {/* Left Side: Logo & Name */}
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-gray-50 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-100 text-gray-400">
+                                    {/* Placeholder for Logo - could be an <img> tag if URL exists */}
+                                    <ShoppingBag className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-gray-900 text-lg leading-tight">{vendor.name}</p>
+                                    <p className="text-xs text-gray-500">Verified Vendor</p>
+                                </div>
+                            </div>
+
+                            {/* Right Side: Score & Button */}
+                            <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-6 pl-16 sm:pl-0">
+                                 {/* Trust Score */}
+                                <div className="flex flex-col items-start sm:items-end">
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Trust Score</span>
+                                    <div className="flex items-center font-bold text-gray-900 text-lg">
+                                        <Star className="w-5 h-5 mr-1.5 fill-yellow-400 text-yellow-400" />
+                                        {formatScore(vendor.product_trust_score)}
+                                    </div>
+                                </div>
+
+                                {/* Button */}
+                                <a 
+                                    href={vendor.link || '#'} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm whitespace-nowrap flex items-center"
+                                >
+                                    Visit Store
+                                </a>
                             </div>
                         </div>
                     ))}
@@ -763,91 +1092,123 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, appId }) =>
 
             <section id="testimonials-section" className="mt-8 pt-6 border-t border-gray-200">
                 <h3 className="text-2xl font-bold text-gray-800 mb-4">Protocol Testimonials</h3>
-                <div className="p-4 mb-6 border border-indigo-200 rounded-xl bg-indigo-50">
-                    <h4 className="font-bold text-indigo-700 mb-2">Share Your Experience</h4>
+                
+                {/* Updated Testimonial Input Card - Grey Background */}
+                <div className="p-6 mb-8 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
+                    <h4 className="font-bold text-gray-800 mb-4 text-lg">Share Your Experience</h4>
 
-                    {/* 7, 8, 9, 10. Submission/Lockout Area */}
                     {hasUserTestimonial ? (
-                        <div className="text-center py-4 text-sm font-medium text-gray-600">
-                             <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                             <p>You’ve already shared your experience on this protocol.</p>
-                             <p className="text-xs text-gray-500 mt-1">Thank you for contributing to the community data.</p>
+                        <div className="text-center py-6 bg-white rounded-xl border border-green-100">
+                             <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                             <p className="font-semibold text-gray-800">You’ve already shared your experience.</p>
+                             <p className="text-sm text-gray-500 mt-1">Thank you for contributing to the community data.</p>
                         </div>
                     ) : (
                         <>
-                            {/* Task 1: Ailment Input Field */}
-                            <label htmlFor="testimonial-ailment" className="block text-sm font-medium text-indigo-700 mb-1">
-                                What condition or ailment did you use this protocol for?
+                            <label htmlFor="testimonial-ailment" className="block text-sm font-bold text-gray-700 mb-2">
+                                Condition / Ailment
                             </label>
                             <input
                                 id="testimonial-ailment"
                                 type="text"
-                                placeholder="e.g. long COVID, chronic fatigue, Lyme, etc."
-                                className="w-full p-2 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm mb-3"
+                                placeholder="e.g. Lyme Disease, Chronic Fatigue..."
+                                className="w-full p-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm mb-4 shadow-sm"
                                 value={testimonialAilment}
                                 onChange={(e) => setTestimonialAilment(e.target.value)}
                             />
 
+                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                                Your Experience
+                            </label>
                             <textarea
                                 maxLength={1000}
-                                rows="3" 
-                                placeholder="Write your testimonial here (max 1000 chars)..." 
-                                className="w-full p-2 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm mb-2" 
+                                rows="4" 
+                                placeholder="How did this protocol work for you? Details on dosing, timing, and results help others." 
+                                className="w-full p-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm mb-4 shadow-sm" 
                                 value={testimonialText} 
                                 onChange={(e) => setTestimonialText(e.target.value)} 
                                 disabled={submissionStatus === 'loading'}
                             ></textarea>
-                            <div className="flex justify-between items-center flex-wrap gap-2">
-                                <div className="flex items-center space-x-4">
-                                     <label className="text-sm text-indigo-700 font-medium">Score:</label>
-                                     <select value={testimonialScore} onChange={(e) => setTestimonialScore(Number(e.target.value))} className="p-1 border border-indigo-300 rounded-md text-sm" disabled={submissionStatus === 'loading'}>
-                                         {[5, 4, 3, 2, 1].map(score => <option key={score} value={score}>{score} Star</option>)}
-                                     </select>
+
+                            <div className="flex justify-between items-center flex-wrap gap-4">
+                                <div className="flex flex-col">
+                                     <label className="text-sm font-bold text-gray-700 mb-1">Your Rating</label>
+                                     <div className="flex space-x-1">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                onClick={() => setTestimonialScore(star)}
+                                                disabled={submissionStatus === 'loading'}
+                                                className="focus:outline-none transition-transform hover:scale-110 active:scale-95 p-1"
+                                            >
+                                                <Star className={`w-6 h-6 ${star <= testimonialScore ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
+                                            </button>
+                                        ))}
+                                     </div>
                                 </div>
-                                <button className={`flex items-center px-4 py-2 text-sm font-semibold rounded-lg transition ${testimonialText && submissionStatus !== 'loading' ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`} onClick={handleSubmitTestimonial} disabled={!testimonialText || submissionStatus === 'loading'}>
-                                     {submissionStatus === 'loading' ? 'Sending...' : 'Submit Review'} <Send className="w-4 h-4 ml-2" />
-                                </button>
-                                <StatusMessage status={submissionStatus} />
+                                <div className="flex flex-col items-end">
+                                     <button className={`flex items-center px-6 py-2.5 text-sm font-bold rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 ${testimonialText && submissionStatus !== 'loading' ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`} onClick={handleSubmitTestimonial} disabled={!testimonialText || submissionStatus === 'loading'}>
+                                          {submissionStatus === 'loading' ? 'Sending...' : 'Post Review'} <Send className="w-4 h-4 ml-2" />
+                                     </button>
+                                     <div className="mt-2 text-right">
+                                        <StatusMessage status={submissionStatus} />
+                                     </div>
+                                </div>
                             </div>
-                            {/* 9. Character Counter */}
-                            <div className="flex justify-end text-xs text-gray-500 mt-1">
+                            <div className="flex justify-end text-xs text-gray-400 mt-2">
                                 {testimonialText.length}/1000 characters
                             </div>
                         </>
                     )}
 
-                    {/* Suggest Correction Link */}
-                    <div className="mt-3 text-center">
-                         <button onClick={() => alert("Correction suggestions coming soon! This will link to a feedback form.")} className="text-xs text-gray-400 hover:text-indigo-600 underline transition-colors flex items-center justify-center mx-auto">
-                            <Flag className="w-3 h-3 mr-1" /> Suggest an edit or correction
+                    <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+                         <button onClick={() => alert("Correction suggestions coming soon! This will link to a feedback form.")} className="text-xs text-gray-400 hover:text-emerald-600 underline transition-colors flex items-center justify-center mx-auto">
+                            <Flag className="w-3 h-3 mr-1" /> Suggest an edit to this protocol
                          </button>
                     </div>
                 </div>
 
-                {/* Testimonials List */}
+                {/* Updated Testimonial List Cards */}
+                <div className="space-y-4">
                 {testimonials.length > 0 ? testimonials.map(t => (
-                    <div key={t.id} className="border-b border-gray-100 pb-3 mb-3">
-                        <div className="flex items-center justify-between text-sm"><span className="font-semibold text-gray-800">{t.user}</span><span className="text-gray-500 text-xs">{t.date}</span></div>
-                        
-                        {/* Task 1: Display Ailment */}
-                        {t.ailment && (
-                             <p className="text-gray-500 text-xs mt-0.5">
-                                 Ailment: <span className="italic">{t.ailment}</span>
-                            </p>
-                        )}
-                        
-                        <p className="text-gray-700 mt-1 text-sm">{t.text}</p>
-                        <div className="flex items-center mt-1"><span className="text-yellow-500 mr-2 text-xs">{'★'.repeat(Math.floor(t.score))} ({formatScore(t.score)})</span>{t.photo && <span className="text-xs text-green-600 flex items-center"><Camera className="w-3 h-3 mr-0.5" /> Photo Verified</span>}</div>
+                    <div key={t.id} className="flex gap-4 p-5 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-500 border border-gray-100">
+                                 <User className="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div className="flex-grow">
+                            <div className="flex items-center justify-between mb-1">
+                                 <span className="font-bold text-gray-900 text-sm">{t.user}</span>
+                                 <span className="text-gray-400 text-xs">{t.date}</span>
+                            </div>
+                            <div className="flex items-center mb-2">
+                                 {[...Array(5)].map((_, i) => (
+                                     <Star key={i} className={`w-3 h-3 ${i < t.score ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`} />
+                                 ))}
+                            </div>
+                            {t.ailment && (
+                                 <div className="inline-block px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 text-xs font-medium mb-3">
+                                     For: {t.ailment}
+                                 </div>
+                            )}
+                            <p className="text-gray-700 text-sm leading-relaxed">{t.text}</p>
+                            {t.photo && <span className="text-xs text-green-600 flex items-center mt-2 font-medium"><Camera className="w-3 h-3 mr-1" /> Verified Purchase</span>}
+                        </div>
                     </div>
                 )) : (
-                    <p className="text-gray-500 italic text-sm text-center py-4">No testimonials yet. Be the first to share your experience!</p>
+                    <div className="text-center p-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                        <p className="text-gray-500 italic text-sm">No testimonials yet. Be the first to share your experience!</p>
+                    </div>
                 )}
+                </div>
             </section>
         </div>
     );
 };
 
-const QuickFilters = ({ onFilter }) => {
+const QuickFilters = ({ onFilter, activeFilter, showSaved = true }) => {
     const filters = [
         { name: "Brain Health", icon: Brain },
         { name: "Immunity", icon: Shield },
@@ -862,12 +1223,23 @@ const QuickFilters = ({ onFilter }) => {
                 <button
                     key={f.name}
                     onClick={() => onFilter(f.name)}
-                    className="flex items-center px-4 py-2 bg-white text-indigo-700 rounded-full shadow-sm text-sm font-semibold border border-indigo-100 hover:bg-indigo-50 hover:border-indigo-200 whitespace-nowrap transition-all"
+                    className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all ${activeFilter === f.name ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-emerald-700 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-200'}`}
                 >
-                    <f.icon className="w-4 h-4 mr-2 text-indigo-500" />
+                    <f.icon className={`w-4 h-4 mr-2 ${activeFilter === f.name ? 'text-white' : 'text-emerald-500'}`} />
                     {f.name}
                 </button>
             ))}
+            
+            {/* My Saved Button - Conditionally Rendered */}
+            {showSaved && (
+                <button
+                    onClick={() => onFilter('favorites')}
+                    className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all ${activeFilter === 'favorites' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-500'}`}
+                >
+                    <Heart className={`w-4 h-4 mr-2 ${activeFilter === 'favorites' ? 'fill-current' : ''}`} />
+                    My Saved
+                </button>
+            )}
         </div>
     );
 };
@@ -888,6 +1260,10 @@ const App = () => {
     const [showAboutPage, setShowAboutPage] = useState(false);
     const [reportIntent, setReportIntent] = useState(null); 
     const [isFindingProtocolForReport, setIsFindingProtocolForReport] = useState(false);
+    const [activeFilter, setActiveFilter] = useState(null);
+
+    // Custom Hook
+    const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
 
     const handleShare = useCallback(async (protocol) => {
@@ -900,6 +1276,7 @@ const App = () => {
 
     const handleBack = useCallback(() => {
       setSelectedProtocolId(null);
+      setReportIntent(null); // Clear intent when going back
       window.history.pushState(null, '', '/');
       window.scrollTo(0, 0);
     }, []);
@@ -911,6 +1288,8 @@ const App = () => {
       setIsBrowsing(false);
       setSortBy('rating');
       setShowAboutPage(false);
+      setActiveFilter(null);
+      setReportIntent(null); // Clear intent when going home
       window.history.pushState(null, '', '/');
       window.scrollTo(0, 0);
     }, []);
@@ -921,6 +1300,8 @@ const App = () => {
       setIsBrowsing(false);
       setSearchTerm('');
       setSelectedLetter(null);
+      setActiveFilter(null);
+      setReportIntent(null); // Clear intent
       window.history.pushState(null, '', '/about');
     }, []);
     
@@ -928,35 +1309,37 @@ const App = () => {
     const handleProtocolReportSelect = useCallback((id) => {
         setSelectedProtocolId(id);
         setIsFindingProtocolForReport(false);
-        setReportIntent(null);
+        // Don't clear reportIntent here so we can use it to scroll in ProtocolDetailPage
+        window.history.pushState(null, '', `/protocol/${id}`);
         window.scrollTo(0, 0);
     }, []);
 
-    // Auth Listener
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                setUserId(user.uid);
-            } else {
-                try {
-                    const anonymousUser = await signInAnonymously(auth);
-                    setUserId(anonymousUser.user.uid);
-                } catch (error) {
-                    console.error("Auth Error:", error);
-                    setUserId("guest-" + Math.random().toString(36).substr(2, 9)); // Fallback ID
-                }
-            }
-            setLoading(false);
-        });
+        const initAuth = async () => {
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
+        };
+        initAuth();
+        const unsubscribe = onAuthStateChanged(auth, setUser);
         return () => unsubscribe();
     }, []);
+
+    function setUser(user) {
+        if (user) {
+            setUserId(user.uid);
+        } else {
+            setUserId("guest-" + Math.random().toString(36).substr(2, 9)); 
+        }
+        setLoading(false);
+    }
     
-    // Derived state for the currently selected protocol
     const currentProtocol = useMemo(() => {
         return protocols.find(p => p.id === selectedProtocolId);
     }, [protocols, selectedProtocolId]);
 
-    // Task A: Document Title Handling
     useEffect(() => {
         let title = "Healing Directory";
         if (showAboutPage) {
@@ -969,7 +1352,6 @@ const App = () => {
     }, [showAboutPage, selectedProtocolId, currentProtocol]);
 
 
-    // Fetch Protocols
     useEffect(() => {
         const q = query(collection(db, COLLECTION_NAME));
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -981,48 +1363,48 @@ const App = () => {
         return () => unsubscribe();
     }, []);
 
-// Sync initial URL → selectedProtocolId on first load
-useEffect(() => {
-  const path = window.location.pathname;
-  const match = path.match(/^\/protocol\/([^/]+)/);
+    useEffect(() => {
+      const path = window.location.pathname;
+      const match = path.match(/^\/protocol\/([^/]+)/);
 
-  if (match) {
-    const idFromUrl = match[1];
-    setSelectedProtocolId(idFromUrl);
-    setIsBrowsing(false);
-    setShowAboutPage(false);
-  }
-}, []);
+      if (match) {
+        const idFromUrl = match[1];
+        setSelectedProtocolId(idFromUrl);
+        setIsBrowsing(false);
+        setShowAboutPage(false);
+      }
+    }, []);
 
-// Keep state in sync when user uses browser back/forward
-useEffect(() => {
-  const handlePopState = () => {
-    const path = window.location.pathname;
-    const protocolMatch = path.match(/^\/protocol\/([^/]+)/);
-  
-    if (protocolMatch) {
-      setSelectedProtocolId(protocolMatch[1]);
-      setIsBrowsing(false);
-      setShowAboutPage(false);
-    } else if (path === '/about') {
-      setShowAboutPage(true);
-      setSelectedProtocolId(null);
-    } else {
-      setSelectedProtocolId(null);
-      setShowAboutPage(false);
-    }
-  };
-  
+    useEffect(() => {
+      const handlePopState = () => {
+        const path = window.location.pathname;
+        const protocolMatch = path.match(/^\/protocol\/([^/]+)/);
+      
+        if (protocolMatch) {
+          setSelectedProtocolId(protocolMatch[1]);
+          setIsBrowsing(false);
+          setShowAboutPage(false);
+        } else if (path === '/about') {
+          setShowAboutPage(true);
+          setSelectedProtocolId(null);
+        } else {
+          setSelectedProtocolId(null);
+          setShowAboutPage(false);
+          setReportIntent(null); // Clear intent on history navigation to home
+        }
+      };
+      
 
-  window.addEventListener('popstate', handlePopState);
-  return () => window.removeEventListener('popstate', handlePopState);
-}, []);
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
 
-    // --- SORT & FILTER LOGIC ---
     const filteredProtocols = useMemo(() => {
         let results = [];
 
-        if (searchTerm) {
+        if (activeFilter === 'favorites') {
+            results = protocols.filter(p => favorites.includes(p.id));
+        } else if (searchTerm) {
             const lowerCaseSearch = searchTerm.toLowerCase();
             const searchWords = lowerCaseSearch.split(/\s+/).filter(word => word.length > 0);
             results = protocols.filter(protocol => {
@@ -1055,26 +1437,42 @@ useEffect(() => {
             default:
                 return sorted;
         }
-    }, [protocols, searchTerm, selectedLetter, isBrowsing, sortBy]);
+    }, [protocols, searchTerm, selectedLetter, isBrowsing, sortBy, activeFilter, favorites]);
 
     const handleSelectProtocol = useCallback((id) => {
       setSelectedProtocolId(id);
-      // update URL so share links are canonical
       window.history.pushState(null, '', `/protocol/${id}`);
       window.scrollTo(0, 0);
     }, []);
     
 
     const handleFilter = useCallback((tag) => {
-        setSearchTerm(tag);
-        setSelectedLetter(null);
-        setIsBrowsing(false);
-        setShowAboutPage(false);
-    }, []);
+        if (activeFilter === tag) {
+            setActiveFilter(null);
+            setSearchTerm('');
+            if (tag === 'favorites') {
+                setIsBrowsing(true); // fall back to browsing all if unclicking favorites
+            }
+        } else {
+            setActiveFilter(tag);
+            if (tag === 'favorites') {
+                setSearchTerm('');
+                setSelectedLetter(null);
+                setIsBrowsing(true);
+                setShowAboutPage(false);
+            } else {
+                setSearchTerm(tag);
+                setSelectedLetter(null);
+                setIsBrowsing(false);
+                setShowAboutPage(false);
+            }
+        }
+    }, [activeFilter]);
 
     const handleLetterSelect = useCallback((letter) => {
         setSelectedLetter(letter);
         setSearchTerm('');
+        setActiveFilter(null);
         setIsBrowsing(true);
         setShowAboutPage(false);
         if (letter === null) { 
@@ -1086,16 +1484,15 @@ useEffect(() => {
         setIsBrowsing(true);
         setSearchTerm('');
         setSelectedLetter(null);
+        setActiveFilter(null);
         setShowAboutPage(false);
         setSortBy('rating'); 
     }, []);
     
-    // currentProtocol is defined at the top of the App component body
-
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen bg-gray-50">
-                <p className="text-xl text-indigo-600 animate-pulse">Loading Healing Directory Database...</p>
+                <p className="text-xl text-emerald-600 animate-pulse">Loading Healing Directory Database...</p>
             </div>
         );
     }
@@ -1107,50 +1504,59 @@ useEffect(() => {
         }
 
         if (selectedProtocolId && currentProtocol) {
-            return <ProtocolDetailPage protocol={currentProtocol} onBack={handleBack} onShare={handleShare} db={db} userId={userId} appId={firebaseConfig.appId} />;
+            return <ProtocolDetailPage 
+                protocol={currentProtocol} 
+                onBack={handleBack} 
+                onShare={handleShare} 
+                db={db} 
+                userId={userId} 
+                appId={firebaseConfig.appId} 
+                isFavorite={isFavorite(selectedProtocolId)} 
+                onToggleFavorite={toggleFavorite} 
+                scrollToTestimonialsOnMount={!!reportIntent} // Trigger scroll if intent exists
+            />;
         }
 
         return (
             <>
                 {/* Hero / Search Section */}
-                {!(searchTerm || isBrowsing) && (
-                <div className="relative bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-6 sm:p-10 text-white mb-8 shadow-xl overflow-hidden"
+                {!(searchTerm || isBrowsing || activeFilter) && (
+                <div className="relative bg-gradient-to-br from-teal-700 to-emerald-800 rounded-3xl p-6 sm:p-10 text-white mb-8 shadow-xl overflow-hidden"
                      style={{ 
-                         // Placeholder image of a blurred crowd
-                         backgroundImage: 'url(/crowd_blurred.jpg)',
-                         backgroundSize: 'cover',
-                         backgroundPosition: 'center',
-                     }}
+                          // You can add a background pattern here or image
+                          backgroundImage: 'url("hero background.jpg")',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                      }}
                 >
-                    {/* Dark overlay for contrast and blur filter */}
-                    <div className="absolute inset-0 bg-indigo-900/60 backdrop-blur-[4px] rounded-3xl"></div>
+                    {/* Switched overlay back to Teal at 30% opacity */}
+                    <div className="absolute inset-0 bg-teal-900/30 backdrop-blur-[1px] rounded-3xl"></div>
                     
                     <div className="relative z-10 max-w-2xl mx-auto text-center">
                         <div className="flex justify-center mb-4">
-                            <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm">
+                            <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm border border-white/20">
                                 <HeartPulse className="w-8 h-8 text-white" />
                             </div>
                         </div>
-                        <h1 className="text-3xl sm:text-4xl font-extrabold mb-3 tracking-tight">
+                        <h1 className="text-3xl sm:text-4xl font-extrabold mb-3 tracking-tight font-serif">
                             Healing Directory
                         </h1>
                         
-                        {/* 11. Protocol Counter */}
-                        <p className="text-indigo-100 mb-4 text-sm sm:text-base font-medium max-w-lg mx-auto">
-                            Currently <span className="font-semibold">{protocols.length}</span> protocols in the directory.
+                        <p className="text-emerald-50 mb-4 text-sm sm:text-base font-medium max-w-lg mx-auto">
+                            Currently tracking <span className="font-bold bg-white/20 px-2 py-0.5 rounded text-white">{protocols.length}</span> off-patent protocols.
                         </p>
 
-                        <p className="text-indigo-100 mb-8 text-sm sm:text-base font-medium max-w-lg mx-auto">
-                             We are bridging the gap between anecdotal success and scientific validation to help you heal.
+                        <p className="text-emerald-100 mb-8 text-sm sm:text-base font-medium max-w-lg mx-auto">
+                             Bridging the gap between anecdotal success and scientific validation.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto">
-                            <div className="relative w-full">
+                            <div className="relative w-full shadow-2xl">
                                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search for ailments, drugs, or protocols..."
-                                    className="w-full py-4 pl-12 pr-4 bg-white text-gray-800 rounded-xl shadow-lg focus:ring-4 focus:ring-indigo-400/50 focus:outline-none transition-all font-medium"
+                                <input 
+                                    type="text" 
+                                    placeholder="Search for ailments, drugs, or protocols..." 
+                                    className="w-full py-4 pl-12 pr-4 bg-white text-gray-800 rounded-xl shadow-lg focus:ring-4 focus:ring-teal-400/50 focus:outline-none transition-all font-medium" 
                                     value={searchTerm}
                                     onChange={(e) => {
                                         setSearchTerm(e.target.value);
@@ -1163,30 +1569,28 @@ useEffect(() => {
                                     }}
                                 />
                             </div>
-                            {/* 3. New Dummy CTA */}
-                            <div className="hidden sm:block">
-                                <div className="px-6 py-4 bg-indigo-500/30 border border-indigo-400/30 text-indigo-100 font-bold rounded-xl cursor-default select-none flex items-center justify-center" style={{ height: '64px' }}>
-                                    Begin Search
-                                </div>
-                            </div>
+                        </div>
+                        <div className="mt-6 flex justify-center gap-2">
+                             <button onClick={startBrowsing} className="text-xs bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full font-semibold transition backdrop-blur-sm">Browse A-Z</button>
+                             <button onClick={() => { setActiveFilter('favorites'); setIsBrowsing(true); }} className="text-xs bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full font-semibold transition backdrop-blur-sm flex items-center"><Heart className="w-3 h-3 mr-1" /> My Saved</button>
                         </div>
                     </div>
                 </div>
                 )}
 
                 {/* Conditionally render Results */}
-                {(searchTerm || isBrowsing) ? (
+                {(searchTerm || isBrowsing || activeFilter) ? (
                     <div className="flex flex-col h-full">
                         
                         {/* STICKY HEADER SECTION */}
-                        <div className="sticky top-0 z-30 bg-gray-50/95 backdrop-blur-md pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:static sm:bg-transparent">
+                        <div className="sticky top-0 z-30 bg-gray-50/95 backdrop-blur-md pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:static sm:bg-transparent transition-all">
                              {/* Compact Search Bar */}
                              <div className="relative w-full mb-3 pt-4">
                                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                 <input
-                                     type="text"
-                                     placeholder="Search..."
-                                     className="w-full py-2.5 pl-10 pr-4 bg-white border border-gray-200 text-gray-800 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all font-medium text-sm"
+                                 <input 
+                                     type="text" 
+                                     placeholder="Search..." 
+                                     className="w-full py-2.5 pl-10 pr-4 bg-white border border-gray-200 text-gray-800 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium text-sm" 
                                      value={searchTerm}
                                      onChange={(e) => {
                                          setSearchTerm(e.target.value);
@@ -1198,10 +1602,9 @@ useEffect(() => {
                                  />
                              </div>
 
-                             {/* Controls Row: A-Z Filter (Top), Sort (Bottom) */}
-                             <div className="flex flex-col gap-3 mb-2"> {/* 6. Reduced bottom margin gap */}
+                             {/* Controls Row */}
+                             <div className="flex flex-col gap-3 mb-2">
                                   <div className="w-full">
-                                     {/* 2 & 5. Alpha Filter / Browse A-Z Button (Moved up) */}
                                      <AlphaFilter selected={selectedLetter} onSelect={handleLetterSelect} />
                                   </div>
                                   <div className="w-full flex justify-end">
@@ -1209,9 +1612,8 @@ useEffect(() => {
                                   </div>
                              </div>
                              
-                             {/* Quick Filters */}
                              <div className="mb-4">
-                                <QuickFilters onFilter={handleFilter} />
+                                <QuickFilters onFilter={handleFilter} activeFilter={activeFilter} showSaved={true} />
                              </div>
                         </div>
 
@@ -1220,17 +1622,33 @@ useEffect(() => {
                             {filteredProtocols.length > 0 ? (
                                 <div className="grid grid-cols-1 gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
                                     <div className="text-xs text-gray-500 font-medium flex justify-between items-center px-1">
-                                        <span>{filteredProtocols.length} results {selectedLetter && ` starting with "${selectedLetter}"`}</span>
+                                        <span>{filteredProtocols.length} results {selectedLetter && ` starting with "${selectedLetter}"`} {activeFilter === 'favorites' && '(Saved Items)'}</span>
                                     </div>
                                     {filteredProtocols.map((protocol) => (
-                                        <ProtocolCard key={protocol.id} protocol={protocol} onSelect={handleSelectProtocol} onShare={handleShare} />
+                                        <ProtocolCard 
+                                            key={protocol.id} 
+                                            protocol={protocol} 
+                                            onSelect={handleSelectProtocol} 
+                                            onShare={handleShare}
+                                            isFavorite={isFavorite(protocol.id)}
+                                            onToggleFavorite={toggleFavorite}
+                                        />
                                     ))}
                                 </div>
                             ) : (
                                 <div className="text-center p-12 bg-white rounded-2xl shadow-md border border-gray-100 mt-4">
                                     <FlaskConical className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                                     <h3 className="text-lg font-bold text-gray-800 mb-1">No results found</h3>
-                                    <p className="text-gray-500 text-sm">{selectedLetter ? `No protocols found starting with "${selectedLetter}".` : `We couldn't find any protocols matching "${searchTerm}".`}</p>
+                                    <p className="text-gray-500 text-sm">
+                                        {activeFilter === 'favorites' 
+                                            ? "You haven't saved any protocols yet." 
+                                            : selectedLetter 
+                                                ? `No protocols found starting with "${selectedLetter}".` 
+                                                : `We couldn't find any protocols matching "${searchTerm}".`}
+                                    </p>
+                                    {activeFilter === 'favorites' && (
+                                        <button onClick={() => { setActiveFilter(null); startBrowsing(); }} className="mt-4 text-emerald-600 font-bold hover:underline">Browse All Protocols</button>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -1238,18 +1656,10 @@ useEffect(() => {
                 ) : (
                     <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in duration-700">
                         
-                        {/* 5. A-Z Browse Button (Replaces Popular Topics Header) */}
                          <div className="text-center">
-                             <button 
-                                onClick={startBrowsing}
-                                className="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-sm font-semibold text-white shadow-sm transition-colors"
-                                style={{ backgroundColor: '#382082', ':hover': { backgroundColor: '#4a299e' } }}
-                            >
-                                <Library className="w-4 h-4 mr-2" />
-                                Browse A–Z Catalog
-                            </button>
-                            <div className="mt-4">
-                                <QuickFilters onFilter={handleFilter} />
+                            <div className="mt-6">
+                                {/* Hidden Saved button here since it is already in the hero */}
+                                <QuickFilters onFilter={handleFilter} activeFilter={activeFilter} showSaved={false} />
                             </div>
                         </div>
 
@@ -1257,20 +1667,20 @@ useEffect(() => {
                         {/* Explainer Video / Mission Section */}
                         <section className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
                             <div className="grid md:grid-cols-2">
-                                <div className="bg-gray-900 p-8 flex flex-col justify-center items-center text-center text-white relative min-h-[300px]">
+                                <div className="bg-slate-900 p-8 flex flex-col justify-center items-center text-center text-white relative min-h-[300px]">
                                     <PlayCircle className="w-16 h-16 text-white/80 mb-4 z-20 hover:scale-110 transition-transform cursor-pointer" />
                                     <h3 className="text-xl font-bold z-20">Our Mission</h3>
-                                    <p className="text-gray-300 text-sm mt-2 z-20">Watch why we built this database.</p>
+                                    <p className="text-slate-300 text-sm mt-2 z-20">Watch why we built this database.</p>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                                 </div>
                                 <div className="p-8 flex flex-col justify-center">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-4">The Gap in Modern Medicine</h2>
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-4 font-serif">The Gap in Modern Medicine</h2>
                                     <p className="text-gray-600 leading-relaxed mb-6">We are sick of seeing big pharma not do clinical trials on off-patent medicines. Promising treatments are often ignored simply because they aren't profitable.</p>
-                                    <p className="text-gray-600 leading-relaxed font-medium">We built this site to help people heal and learn.</p>
+                                    <p className="text-emerald-700 leading-relaxed font-bold">We built this site to help you heal.</p>
                                 </div>
                             </div>
                         </section>
 
-                        {/* Graphics / Why We Exist Section */}
                         <section>
                             <div className="grid md:grid-cols-3 gap-6">
                                 <div 
@@ -1336,13 +1746,13 @@ useEffect(() => {
                                                     setReportIntent(e.target.value);
                                                     setIsFindingProtocolForReport(true);
                                                 }
-                                                e.target.value = ""; // Reset
+                                                e.target.value = ""; 
                                             }}
                                         >
                                             <option value="" disabled>+ Add Your Report Here</option>
                                             <option value="success">Submit Success Story</option>
                                             <option value="side-effect">Report Side Effect</option>
-                                            <option value="correction">Suggest Correction</option>
+                                            <option value="correction">Suggest an Edit</option>
                                         </select>
                                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-700">
                                             <PlusCircle className="h-3 w-3" />
@@ -1365,10 +1775,10 @@ useEffect(() => {
                     onClick={handleGoHome}
                     className="inline-flex items-center space-x-2 mb-1 hover:opacity-80 transition-opacity"
                 >
-                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-md">
-                         <Sparkles className="w-5 h-5 text-white" />
+                    <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-md">
+                         <HeartPulse className="w-5 h-5 text-white" />
                     </div>
-                    <span className="text-xl font-bold text-gray-900 tracking-tight">Healing Directory</span>
+                    <span className="text-xl font-bold text-gray-900 tracking-tight font-serif">Healing Directory</span>
                 </button>
             </header>
 
@@ -1398,20 +1808,19 @@ useEffect(() => {
             <footer className="max-w-xl mx-auto mt-16 pb-8 border-t border-gray-200 text-center text-xs text-gray-400">
                  <div className="mb-4">
                     <button 
-                        onClick={() => alert("To sign out of your Anonymous User ID and reset your testimonial history, paste the following into your browser's Console and press Enter: signOut(auth).then(() => { location.reload(); });")}
-                        className="text-indigo-600 hover:text-indigo-800 font-semibold transition-colors"
+                        onClick={() => alert("To sign out, check console.")}
+                        className="text-emerald-600 hover:text-emerald-800 font-semibold transition-colors"
                     >
-                        Sign Out (Reset Testimonials)
+                        Sign Out / Reset
                     </button>
                     <button 
                         onClick={handleGoToAbout}
-                        className="text-indigo-600 hover:text-indigo-800 font-semibold transition-colors ml-4"
+                        className="text-emerald-600 hover:text-emerald-800 font-semibold transition-colors ml-4"
                     >
                         About Healing Directory
                     </button>
                 </div>
                 
-                {/* Updated Disclaimer Block */}
                 <div className="space-y-2 max-w-lg mx-auto">
                     <p className="font-medium">The information shared on this site is for personal exploration and education only.</p>
                     <p>We honour both scientific research and real-world experiences, but nothing here is offered as medical advice.</p>
@@ -1421,8 +1830,7 @@ useEffect(() => {
                 
                 <div className="flex justify-center items-center mt-6 gap-2">
                     <p>User ID: <span className="font-mono bg-gray-100 p-1 rounded">{userId?.substring(0, 8)}...</span></p>
-                    {/* The Secret Upload Button (Small Database Icon) */}
-                    <button onClick={() => setShowUploader(true)} title="Admin Upload" className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-indigo-600"><Database className="w-3 h-3" /></button>
+                    <button onClick={() => setShowUploader(true)} title="Admin Upload" className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-emerald-600"><Database className="w-3 h-3" /></button>
                 </div>
             </footer>
         </div>
