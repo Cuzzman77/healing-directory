@@ -291,24 +291,24 @@ const DATA_TO_UPLOAD = [
         ],
         vendors: [
           {
-            name: "Aquarius Pro Life (Europe)",
-            link: "https://www.aquarius-prolife.com",
-            product_trust_score: 4.7
+            "name": "Aquarius Pro Life (Europe)",
+            "link": "https://www.aquarius-prolife.com",
+            "product_trust_score": 4.7
           },
           {
-            name: "KV Lab (Reagents)",
-            link: "https://www.kvlab.com",
-            product_trust_score: 4.5
+            "name": "KV Lab (Reagents)",
+            "link": "https://www.kvlab.com",
+            "product_trust_score": 4.5
           }
         ],
         scientific_studies: [
           {
-            title: "Chlorine dioxide is a more potent antiviral agent against SARS-CoV-2 than sodium hypochlorite",
-            url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8442261/"
+            "title": "Chlorine dioxide is a more potent antiviral agent against SARS-CoV-2 than sodium hypochlorite",
+            "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8442261/"
           },
           {
-            title: "Clarifying the Science of Chlorine Dioxide Solution (CDS): Evidence for Medical Use",
-            url: "https://ijmra.in/v8i3/54.php"
+            "title": "Clarifying the Science of Chlorine Dioxide Solution (CDS): Evidence for Medical Use",
+            "url": "https://ijmra.in/v8i3/54.php"
           }
         ]
     }
@@ -414,8 +414,22 @@ const AccordionSection = ({ title, content, icon: Icon, defaultOpen = false, isW
 const BulkUploaderModal = ({ isOpen, onClose }) => {
     const [jsonData, setJsonData] = useState(JSON.stringify(DATA_TO_UPLOAD, null, 2));
     const [status, setStatus] = useState('idle'); 
+    const [password, setPassword] = useState('');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    
+    // Simple client-side security gate
+    const ADMIN_KEY = "heal2025"; 
 
     if (!isOpen) return null;
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+        if (password === ADMIN_KEY) {
+            setIsAuthenticated(true);
+        } else {
+            alert("Incorrect Access Code");
+        }
+    };
 
     const handleUpload = async () => {
         try {
@@ -430,32 +444,72 @@ const BulkUploaderModal = ({ isOpen, onClose }) => {
             });
             await batch.commit();
             setStatus('success');
-            setTimeout(() => { setStatus('idle'); onClose(); window.location.reload(); }, 2000);
+            
+            // Clear data and close after success
+            setTimeout(() => { 
+                setJsonData(''); // Clear the field
+                setStatus('idle'); 
+                onClose(); 
+            }, 2000);
         } catch (err) {
             console.error(err); alert("Error: " + err.message); setStatus('error');
         }
     };
 
+    // 1. Security Screen
+    if (!isAuthenticated) {
+        return (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+                <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden p-6 text-center animate-in zoom-in-95 duration-200">
+                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Shield className="w-6 h-6 text-red-500" />
+                    </div>
+                    <h3 className="font-bold text-gray-800 mb-2">Admin Access Required</h3>
+                    <p className="text-xs text-gray-500 mb-6">Please enter the access code to manage the database.</p>
+                    <form onSubmit={handleLogin}>
+                        <input 
+                            type="password" 
+                            className="w-full p-3 border border-gray-300 rounded-xl mb-4 focus:ring-2 focus:ring-emerald-500 outline-none text-center tracking-widest"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            autoFocus
+                        />
+                        <div className="flex gap-2">
+                            <button type="button" onClick={onClose} className="flex-1 py-2.5 text-gray-500 font-bold hover:bg-gray-50 rounded-xl transition-colors">Cancel</button>
+                            <button type="submit" className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-sm">Unlock</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+
+    // 2. Upload Screen (Only shown if authenticated)
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[80vh]">
+            <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[80vh] animate-in zoom-in-95 duration-200">
                 <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
                     <h3 className="font-bold text-gray-800 flex items-center"><Upload className="w-5 h-5 mr-2 text-emerald-600" /> Bulk Import Protocols</h3>
-                    <button onClick={onClose}><X className="w-6 h-6 text-gray-500" /></button>
+                    <button onClick={onClose}><X className="w-6 h-6 text-gray-500 hover:text-gray-700" /></button>
                 </div>
                 <div className="p-4 flex-1 flex flex-col">
-                    <p className="text-sm text-gray-600 mb-2">Pre-filled Dr. Lodi data ready for upload (Updated Structure).</p>
+                    <div className="flex justify-between items-center mb-2">
+                        <p className="text-sm text-gray-600">Paste your JSON array below.</p>
+                        <button onClick={() => setJsonData('')} className="text-xs text-red-500 hover:text-red-700 font-semibold">Clear</button>
+                    </div>
                     <textarea 
                         className="flex-1 w-full p-4 font-mono text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
                         value={jsonData}
                         onChange={(e) => setJsonData(e.target.value)}
+                        placeholder='[ { "title": "Example Protocol", ... } ]'
                     ></textarea>
                 </div>
                 <div className="p-4 border-t bg-gray-50 flex justify-end">
                     <button 
                         onClick={handleUpload}
                         disabled={status === 'uploading' || !jsonData}
-                        className={`px-6 py-2 rounded-lg font-bold text-white transition-all ${status === 'success' ? 'bg-green-600' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+                        className={`px-6 py-2 rounded-lg font-bold text-white transition-all ${status === 'success' ? 'bg-green-600' : 'bg-emerald-600 hover:bg-emerald-700'} disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                         {status === 'uploading' ? 'Uploading...' : status === 'success' ? 'Success!' : 'Upload Data'}
                     </button>
@@ -912,10 +966,10 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">{protocol.title}</h1>
             <p className="text-lg text-emerald-600 font-semibold mb-4">Target Ailment: {protocol.ailment}</p>
             
-            {/* Compact Trust Score Section - FORCED SIDE-BY-SIDE */}
-            <div className="mb-8 shadow-sm rounded-xl flex flex-row flex-nowrap border border-gray-200">
+            {/* Compact Trust Score Section - FORCED GRID LAYOUT FOR STRICT 50/50 */}
+            <div className="mb-8 shadow-sm rounded-xl grid grid-cols-2 border border-gray-200">
                 {/* Anecdotal Score (Left Half - 50% Width) */}
-                <div className="w-1/2 flex flex-col bg-green-50 border-r border-green-100 rounded-l-xl">
+                <div className="flex flex-col bg-green-50 border-r border-green-100 rounded-l-xl min-w-0">
                     <div className="py-3 px-1 flex flex-col items-center justify-center flex-grow">
                         <div className="flex items-center text-lg sm:text-xl font-extrabold text-green-700">
                             <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-1 fill-yellow-400 text-yellow-400" />
@@ -936,7 +990,7 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
                 </div>
 
                 {/* Scientific Score (Right Half - 50% Width) */}
-                <div className="w-1/2 flex flex-col bg-blue-50 rounded-r-xl">
+                <div className="flex flex-col bg-blue-50 rounded-r-xl min-w-0">
                     <div className="py-3 px-1 flex flex-col items-center justify-center flex-grow">
                         <div className="flex items-center text-lg sm:text-xl font-extrabold text-blue-700">
                             <FlaskConical className="w-4 h-4 sm:w-5 sm:h-5 mr-1 text-blue-500" />
@@ -1250,6 +1304,7 @@ const QuickFilters = ({ onFilter, activeFilter, showSaved = true }) => {
 const App = () => {
     const [protocols, setProtocols] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [heroSearchTerm, setHeroSearchTerm] = useState(''); // New independent state for Hero search
     const [selectedLetter, setSelectedLetter] = useState(null); 
     const [isBrowsing, setIsBrowsing] = useState(false); 
     const [sortBy, setSortBy] = useState('rating'); 
@@ -1287,6 +1342,7 @@ const App = () => {
     const handleGoHome = useCallback(() => {
       setSelectedProtocolId(null);
       setSearchTerm('');
+      setHeroSearchTerm(''); // Clear hero search too
       setSelectedLetter(null);
       setIsBrowsing(false);
       setSortBy('rating');
@@ -1302,6 +1358,7 @@ const App = () => {
       setSelectedProtocolId(null);
       setIsBrowsing(false);
       setSearchTerm('');
+      setHeroSearchTerm('');
       setSelectedLetter(null);
       setActiveFilter(null);
       setReportIntent(null); // Clear intent
@@ -1453,6 +1510,7 @@ const App = () => {
         if (activeFilter === tag) {
             setActiveFilter(null);
             setSearchTerm('');
+            setHeroSearchTerm('');
             if (tag === 'favorites') {
                 setIsBrowsing(true); // fall back to browsing all if unclicking favorites
             }
@@ -1460,13 +1518,17 @@ const App = () => {
             setActiveFilter(tag);
             if (tag === 'favorites') {
                 setSearchTerm('');
+                setHeroSearchTerm('');
                 setSelectedLetter(null);
                 setIsBrowsing(true);
                 setShowAboutPage(false);
             } else {
                 setSearchTerm(tag);
+                setHeroSearchTerm(tag); // Sync hero search so it feels connected
                 setSelectedLetter(null);
-                setIsBrowsing(false);
+                setIsBrowsing(false); // Keep user on home for tag click or switch? Usually filter implies list view.
+                // Let's force list view for tags
+                setIsBrowsing(true);
                 setShowAboutPage(false);
             }
         }
@@ -1475,6 +1537,7 @@ const App = () => {
     const handleLetterSelect = useCallback((letter) => {
         setSelectedLetter(letter);
         setSearchTerm('');
+        setHeroSearchTerm('');
         setActiveFilter(null);
         setIsBrowsing(true);
         setShowAboutPage(false);
@@ -1486,12 +1549,23 @@ const App = () => {
     const startBrowsing = useCallback(() => {
         setIsBrowsing(true);
         setSearchTerm('');
+        setHeroSearchTerm('');
         setSelectedLetter(null);
         setActiveFilter(null);
         setShowAboutPage(false);
         setSortBy('rating'); 
     }, []);
     
+    // New function to handle Hero Search Enter Key
+    const handleHeroSearchSubmit = (e) => {
+        if (e.key === 'Enter' && heroSearchTerm.trim()) {
+            setSearchTerm(heroSearchTerm); // Pass term to main search
+            setIsBrowsing(true); // Switch view
+            setSelectedLetter(null);
+            setActiveFilter(null);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen bg-gray-50">
@@ -1560,16 +1634,9 @@ const App = () => {
                                     type="text" 
                                     placeholder="Search for ailments, drugs, or protocols..." 
                                     className="w-full py-4 pl-12 pr-4 bg-white text-gray-800 rounded-xl shadow-lg focus:ring-4 focus:ring-teal-400/50 focus:outline-none transition-all font-medium" 
-                                    value={searchTerm}
-                                    onChange={(e) => {
-                                        setSearchTerm(e.target.value);
-                                        if (e.target.value) {
-                                            setIsBrowsing(true);
-                                            setSelectedLetter(null);
-                                        } else if (!selectedLetter) {
-                                            setIsBrowsing(false);
-                                        }
-                                    }}
+                                    value={heroSearchTerm}
+                                    onChange={(e) => setHeroSearchTerm(e.target.value)}
+                                    onKeyDown={handleHeroSearchSubmit}
                                 />
                             </div>
                         </div>
@@ -1591,6 +1658,7 @@ const App = () => {
                              <div className="relative w-full mb-3 pt-4">
                                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                                  <input 
+                                     autoFocus // Automatically focus this input when switching from Hero
                                      type="text" 
                                      placeholder="Search..." 
                                      className="w-full py-2.5 pl-10 pr-4 bg-white border border-gray-200 text-gray-800 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium text-sm" 
@@ -1610,13 +1678,20 @@ const App = () => {
                                   <div className="w-full">
                                      <AlphaFilter selected={selectedLetter} onSelect={handleLetterSelect} />
                                   </div>
-                                  <div className="w-full flex justify-end">
+                                  <div className="w-full flex justify-between items-center">
+                                     <button
+                                        onClick={() => onFilter('favorites')}
+                                        className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all ${activeFilter === 'favorites' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-500'}`}
+                                    >
+                                        <Heart className={`w-4 h-4 mr-2 ${activeFilter === 'favorites' ? 'fill-current' : ''}`} />
+                                        My Saved
+                                    </button>
                                      <SortControl sortBy={sortBy} onSortChange={setSortBy} />
                                   </div>
                              </div>
                              
                              <div className="mb-4">
-                                <QuickFilters onFilter={handleFilter} activeFilter={activeFilter} showSaved={true} />
+                                <QuickFilters onFilter={handleFilter} activeFilter={activeFilter} showSaved={false} />
                              </div>
                         </div>
 
