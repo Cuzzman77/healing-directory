@@ -1624,7 +1624,7 @@ const App = () => {
                         </h1>
                         
                         <p className="text-emerald-50 mb-4 text-sm sm:text-base font-medium max-w-lg mx-auto">
-                            Currently tracking <span className="font-bold bg-white/20 px-2 py-0.5 rounded text-white">{protocols.length}</span> off-patent protocols.
+                            Currently tracking <span className="font-bold bg-white/20 px-2 py-0.5 rounded text-white">{protocols.length}</span> protocols.
                         </p>
 
                         <p className="text-emerald-100 mb-8 text-sm sm:text-base font-medium max-w-lg mx-auto">
@@ -1891,14 +1891,8 @@ const App = () => {
             <footer className="max-w-xl mx-auto mt-16 pb-8 border-t border-gray-200 text-center text-xs text-gray-400">
                  <div className="mb-4">
                     <button 
-                        onClick={() => alert("To sign out, check console.")}
-                        className="text-emerald-600 hover:text-emerald-800 font-semibold transition-colors"
-                    >
-                        Sign Out / Reset
-                    </button>
-                    <button 
                         onClick={handleGoToAbout}
-                        className="text-emerald-600 hover:text-emerald-800 font-semibold transition-colors ml-4"
+                        className="text-emerald-600 hover:text-emerald-800 font-semibold transition-colors"
                     >
                         About Healing Directory
                     </button>
