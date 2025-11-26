@@ -1895,7 +1895,7 @@ const App = () => {
                         </h1>
                         
                         <p className="text-emerald-50 mb-4 text-sm sm:text-base font-medium max-w-lg mx-auto">
-                            Currently tracking <span className="font-bold bg-white/20 px-2 py-0.5 rounded text-white">{protocols.length}</span> off-patent protocols.
+                            Currently tracking <span className="font-bold bg-white/20 px-2 py-0.5 rounded text-white">{protocols.length}</span> Repurposed & Integrative Protocols.
                         </p>
 
                         <p className="text-emerald-100 mb-8 text-sm sm:text-base font-medium max-w-lg mx-auto">
