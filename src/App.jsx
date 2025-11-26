@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signOut, signInWithCustomToken } from 'firebase/auth'; 
-import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc } from 'firebase/firestore'; 
-import { Search, ExternalLink, Star, FlaskConical, ArrowLeft, Camera, BookOpen, Send, Youtube, ArrowDownCircle, ChevronDown, AlertTriangle, Share2, CheckCircle, Sparkles, Brain, Activity, Shield, Zap, HeartPulse, PlayCircle, Stethoscope, FileText, ArrowUpDown, Filter, Library, Info, PlusCircle, ChevronRight, X, Flag, Database, Upload, Heart, Bookmark, Clock, AlertOctagon, User, ShoppingBag } from 'lucide-react';
+import { getFirestore, collection, query, onSnapshot, addDoc, writeBatch, doc, updateDoc, increment, getDoc, setDoc } from 'firebase/firestore'; 
+import { Search, ExternalLink, Star, FlaskConical, ArrowLeft, Camera, BookOpen, Send, Youtube, ArrowDownCircle, ChevronDown, AlertTriangle, Share2, CheckCircle, Sparkles, Brain, Activity, Shield, Zap, HeartPulse, PlayCircle, Stethoscope, FileText, ArrowUpDown, Filter, Library, Info, PlusCircle, ChevronRight, X, Flag, Database, Upload, Heart, Bookmark, Clock, AlertOctagon, User, ShoppingBag, Eye, TrendingUp } from 'lucide-react';
 
 // --- FIREBASE SETUP ---
 const firebaseConfig = {
@@ -23,298 +23,40 @@ const auth = getAuth(app);
 // Collection Name
 const COLLECTION_NAME = "protocols"; 
 
-const formatScore = (score) => (score ? score.toFixed(1) : 'N/A');
+// --- HELPERS & HOOKS ---
 
-// --- DATA TO UPLOAD ---
-const DATA_TO_UPLOAD = [
-    {
-        title: "Dr. Lodi Anti-Parasite Protocol",
-        ailment: "Parasites, Gut Health, Cancer Support",
-        description: "A comprehensive polytherapy approach primarily used by individuals seeking to address pervasive parasitic infections, often in the context of chronic illness.",
-        ai_overview: {
-             "mood": "Comprehensive Polytherapy",
-             "content": "Dr. Thomas Lodi's protocol is an all-encompassing anti-parasitic approach targeting helminths, fungus, and protozoa simultaneously. It employs a cyclic schedule (typically 3 weeks on, 1 week off) to catch dormant larvae and allow liver recovery. Users frequently report high efficacy accompanied by significant 'die-off' reactions, emphasizing the need for drainage support."
-        },
-        section_core: `
-            <p><strong>User-Reported Dosages (Dr. Lodi Attribution):</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-                <li><strong>12 mg Ivermectin</strong> – Target: Helminths/Worms</li>
-                <li><strong>222 mg Fenbendazole</strong> OR <strong>100 mg Mebendazole</strong> – Target: Helminths/Worms</li>
-                <li><strong>600 mg Praziquantel</strong> OR <strong>Niclosamide</strong> – Target: Helminths/Worms</li>
-                <li><strong>100 mg Fluconazole</strong> – Target: Fungus</li>
-                <li><strong>100 mg Tinidazole</strong> OR <strong>Metronidazole</strong> – Target: Protozoa</li>
-            </ul>
-            <p><strong>Standard Timing:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li>Taken 3 times per day</li>
-                <li>Cycle: <strong>3 weeks ON, 1 week OFF</strong></li>
-            </ul>
-            <p><strong>Alternative "Gentle" Timing:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li>Taken 2 times per day</li>
-                <li>Cycle: <strong>5 days ON, 5 days OFF</strong></li>
-                <li>Repeated for 2–6 rounds depending on tolerance</li>
-            </ul>
-        `,
-        section_adjuncts: `
-            <p><strong>Dietary Focus:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li>Uncooked whole plants (fruits, vegetables, nuts, seeds).</li>
-                <li>Green-juice cleansing (celery, cucumber, kale, spinach) to support alkalinity.</li>
-            </ul>
-            <p><strong>Lifestyle & Support:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li><strong>Drainage:</strong> Coffee enemas or colon hydrotherapy are strongly recommended to help the body eliminate dead parasites.</li>
-                <li><strong>Thyroid Support:</strong> Iodine supplementation.</li>
-                <li><strong>Sleep:</strong> Melatonin is often used synergistically.</li>
-            </ul>
-        `,
-        section_considerations: `
-            <p><strong>The "Hatching" Phase:</strong></p>
-            <p style="margin-bottom: 1em;">The break periods (1 week off or 5 days off) are not just for rest. They are intended to catch dormant cysts or larvae that may detect the absence of the drugs and hatch, making them vulnerable to the next round of treatment.</p>
-            <p><strong>Liver Health:</strong></p>
-            <p style="margin-bottom: 1em;">Because this is a polytherapy involving multiple pharmaceuticals, the off-days are crucial for allowing liver enzymes to normalize.</p>
-            <p><strong>Selection:</strong></p>
-            <p>Users typically choose <em>one</em> option from each category (e.g., they pick Fenbendazole <em>or</em> Mebendazole, not both).</p>
-        `,
-        section_cautions: `
-            <p style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">Red Flag: Liver Stress</p>
-            <p style="margin-bottom: 1em;">Elevated liver enzymes are a risk when combining these medications. Regular blood work is highly recommended.</p>
-            
-            <p><strong>Common "Die-Off" (Herxheimer) Reactions:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li>Nausea, vomiting, diarrhea</li>
-                <li>Stomach cramping</li>
-                <li>Headache and dizziness</li>
-                <li>Flu-like exhaustion</li>
-            </ul>
-            
-            <p><strong>Drug Specifics:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em;">
-                <li><strong>Praziquantel:</strong> Swallow whole; do not chew (extremely bitter). May cause heart rhythm issues in those with pre-existing conditions.</li>
-                <li><strong>Metronidazole/Tinidazole:</strong> Strictly avoid alcohol while taking these, as it can cause severe nausea/vomiting.</li>
-            </ul>
-        `,
-        anecdotal_score: 4.8, 
-        scientific_score: 2.5, 
-        reviews: 85,
-        video_link: "https://www.youtube.com/embed/3XmGu7ZCajY",
-        tags: ["Parasites", "Detox", "Ivermectin", "Fenbendazole", "Dr Lodi", "Polytherapy"],
-        vendors: [
-            { name: "Global Pharma", link: "#", product_trust_score: 4.2 },
-            { name: "Fenben Lab", link: "#", product_trust_score: 4.8 }
-        ],
-        scientific_studies: [
-            { title: "Safety of Triple Co-Administration (NIH)", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2217668/" },
-            { title: "Synergistic interaction of Praziquantel and Fenbendazole", url: "https://journals.asm.org/doi/10.1128/aac.00560-25" }
-        ]
-    },
-    {
-        title: "Joe Tippens Protocol (Fenbendazole)",
-        ailment: "Cancer Support (Metabolic)",
-        description: "The viral 'My Cancer Story' protocol focusing on Fenbendazole, CBD, and nutrient co-factors. Originated from a patient's personal success story with small cell lung cancer.",
-        ai_overview: {
-             "mood": "Metabolic & Cellular Support",
-             "content": "Originated by Joe Tippens, this protocol gained massive attention for repurposing the canine dewormer Fenbendazole. It hypothesizes that Fenbendazole disrupts microtubule formation in rapidly dividing cells (similar to taxane chemotherapy) but with a milder safety profile. It is typically used as a complementary metabolic approach."
-        },
-        section_core: `
-            <p><strong>The "Big 4" Core Components:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-                <li><strong>Fenbendazole:</strong> 222 mg per day (Standard canine granule packet or capsule).</li>
-                <li><strong>Bio-Available Curcumin:</strong> 600 mg per day.</li>
-                <li><strong>CBD Oil:</strong> 25 mg sublingual (under tongue) per day.</li>
-                <li><strong>Vitamin E:</strong> 400-800 IU per day (Succinate form preferred).</li>
-            </ul>
-            <p><strong>Timing Pattern:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li><strong>Original Version:</strong> 3 days ON, 4 days OFF (Fenbendazole only; others daily).</li>
-                <li><strong>Updated Version:</strong> 7 days a week (No off days) has become the more common standard reported by Joe Tippens later in his journey.</li>
-            </ul>
-        `,
-        section_adjuncts: `
-            <p><strong>Additional Support:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li><strong>Berberine:</strong> Often added for glucose regulation/metabolic support.</li>
-                <li><strong>Quercetin:</strong> Acts as a zinc ionophore and anti-inflammatory.</li>
-                <li><strong>Vitamin D3 + K2:</strong> Immune modulation.</li>
-            </ul>
-            <p><strong>Lifestyle:</strong></p>
-            <p>Often paired with a Ketogenic or Low-Carb diet to reduce glucose availability to cancer cells (Warburg Effect).</p>
-        `,
-        section_considerations: `
-            <p><strong>Product Form:</strong></p>
-            <p style="margin-bottom: 1em;">Users typically buy Fenbendazole marketed for animals (e.g., Panacur C or Safe-Guard) or from research chemical labs (Fenben Lab) due to lack of FDA approval for human cancer use.</p>
-            <p><strong>Absorption:</strong></p>
-            <p>Fenbendazole is lipophilic (fat-loving). It is best taken with a meal containing healthy fats (olive oil, avocado, yogurt) to maximize absorption.</p>
-        `,
-        section_cautions: `
-            <p style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">Drug Interactions</p>
-            <p style="margin-bottom: 1em;">Fenbendazole is generally well-tolerated but interacts with liver enzymes (CYP450). Consult a doctor if taking blood thinners or other chemotherapy agents.</p>
-            <p><strong>Liver Enzymes:</strong></p>
-            <p>Mild elevation in liver enzymes (AST/ALT) can occur. Monthly blood panels are recommended.</p>
-        `,
-        anecdotal_score: 4.9, 
-        scientific_score: 3.1, 
-        reviews: 342,
-        video_link: "https://www.youtube.com/embed/hySmXmw9fSc", 
-        tags: ["Cancer", "Fenbendazole", "Joe Tippens", "Metabolic", "Repurposed Drugs"],
-        vendors: [
-            { name: "Fenben Lab", link: "https://fenbenlab.com", product_trust_score: 4.9 },
-            { name: "The Happy Healing Store", link: "#", product_trust_score: 4.5 }
-        ],
-        scientific_studies: [
-            { title: "Fenbendazole acts as a moderate microtubule destabilizing agent (Nature)", url: "https://www.nature.com/articles/s41598-018-30158-6" },
-            { title: "Antitumor effect of fenbendazole in varying 5-fluorouracil resistance", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3580766/" }
-        ]
-    },
-    {
-        title: "Cancer Protocol for Active Cancers (High Dose)",
-        ailment: "Active Cancer, Parasitic Infection",
-        description: "An aggressive, high-dose anti-parasitic regimen utilizing Ivermectin and Fenbendazole, specifically designed for active cases with a focus on bio-availability enhancers like DMSO.",
-        ai_overview: {
-             "mood": "Aggressive Polytherapy",
-             "content": "This protocol is distinct for its high dosage of Ivermectin (2mg/kg) compared to standard protocols. It emphasizes 'driving' medication into cells using DMSO and strictly managing the toxic load from dying parasites using binders. It implies a strong link between parasitic load and active cancer states."
-        },
-        section_core: `
-            <p><strong>Core Anti-Parasitic Regimen:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-                <li><strong>Ivermectin:</strong> 2 mg per kg of body weight. Taken <strong>6 days a week</strong>.</li>
-                <li><strong>Fenbendazole:</strong> 500 mg per day. Taken <strong>6 days a week</strong>.</li>
-            </ul>
-            <p><strong>Maintenance (Post-Clearance):</strong></p>
-            <p>Once cancer-free, users recommend continuing Ivermectin as a prophylactic:</p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em;">
-                <li><strong>Dosage:</strong> 12 mg per day.</li>
-                <li><strong>Frequency:</strong> 3 times per week.</li>
-            </ul>
-        `,
-        section_adjuncts: `
-            <p><strong>Bio-Availability Enhancers (Cellular Drivers):</strong></p>
-            <p style="margin-bottom: 0.5em;">To drive the medication deeper into cells:</p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li><strong>DMSO:</strong> 1/4 to 1 tsp mixed with 1 TBS of pure organic aloe vera juice (for taste). Taken daily.</li>
-            </ul>
-            <p><strong>Essential Support & Detoxification:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li><strong>Vitamin D3 + K:</strong> 10,000 IU per day.</li>
-                <li><strong>Toxin Binders:</strong> 2 tsp of micronized zeolite powder or activated charcoal daily. This is critical to eliminate toxins released by dying parasites.</li>
-            </ul>
-            <p><strong>Dietary Guidelines:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em;">
-                <li><strong>Strictly Eliminate:</strong> All refined sugars, soft drinks, cakes, biscuits, and fruit juices.</li>
-                <li><strong>Reduce:</strong> Animal products, especially cured meats.</li>
-            </ul>
-        `,
-        section_considerations: `
-            <p><strong>Sourcing Ivermectin (User Tips):</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-bottom: 1em;">
-                <li>Often sourced from generic pharmacies (e.g., safegenericpharmacy.com).</li>
-                <li><strong>Tip:</strong> Ignore sections asking for a script/Dr name if ordering from overseas; it is often not required for export.</li>
-                <li><strong>Value:</strong> Users report bulk tabs (e.g., 500 x 12mg) offer the best value.</li>
-            </ul>
-            <p><strong>Sourcing Fenbendazole:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em;">
-                <li>Available from suppliers like Fenbendazole Australia or animal stock/feed stores (liquid form is cheaper).</li>
-            </ul>
-        `,
-        section_cautions: `
-            <p style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">Critical Warning: Toxin Release</p>
-            <p style="margin-bottom: 1em;">The use of binders (Zeolite/Charcoal) is described as <strong>critical</strong> to eliminate toxins released by dying parasites. Failure to manage this toxic load can result in severe reactions.</p>
-            <p><strong>High Dose Note:</strong></p>
-            <p>2 mg/kg is a very high dose of Ivermectin compared to standard use. Strict medical supervision is advised.</p>
-        `,
-        anecdotal_score: 4.7, 
-        scientific_score: 2.2, 
-        reviews: 156,
-        tags: ["Cancer", "Ivermectin", "Fenbendazole", "High Dose", "DMSO", "Active"],
-        vendors: [
-            { name: "Safe Generic Pharmacy", link: "https://www.safegenericpharmacy.com/", product_trust_score: 4.5 },
-            { name: "Fenbendazole Australia", link: "https://fenbendazoleaustralia.com.au/", product_trust_score: 4.7 }
-        ],
-        scientific_studies: [
-            { title: "Ivermectin, a potential anticancer drug (PMC)", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7505114/" },
-            { title: "Ivermectin: from antiviral to anticancer applications (PubMed)", url: "https://pubmed.ncbi.nlm.nih.gov/36185334/" },
-            { title: "Repurposing ivermectin for NSCLC (BMC Cancer)", url: "https://bmccancer.biomedcentral.com/articles/10.1186/s12885-021-09021-x" }
-        ]
-    },
-    {
-        title: "Chlorine Dioxide Solution (CDS)",
-        ailment: "Systemic Pathogen Load & Biofilm",
-        description: "A selective oxidant therapy using chlorine dioxide gas dissolved in water to neutralize acidic pathogens, viruses, and bacteria without triggering antibiotic resistance.",
-        ai_overview: {
-             "mood": "Selective Oxidative Purifier",
-             "content": "CDS acts as a 'smart' molecule (ClO2) that targets acidic pathogens and anaerobic cells through oxidation, stripping them of electrons. Unlike the older 'MMS' protocol which causes frequent nausea due to reaction residues, CDS is the pure gas saturated in water (3000ppm), offering higher bioavailability and significantly fewer gastric side effects."
-        },
-        section_core: `
-            <p><strong>Protocol C (Common Daily Protocol):</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-                <li style="margin-bottom: 0.3em;"><strong>Preparation:</strong> Add <strong>10ml</strong> of CDS concentrate (3000ppm) to <strong>1 Liter</strong> of water.</li>
-                <li style="margin-bottom: 0.3em;"><strong>Dosage:</strong> Drink roughly <strong>100ml every hour</strong> for 10 hours throughout the day.</li>
-                <li style="margin-bottom: 0.3em;"><strong>Acute Infection:</strong> Dosage can be safely increased to 20ml or 30ml of CDS per Liter of water if well tolerated, taken in shorter intervals.</li>
-            </ul>
-        `,
-        section_adjuncts: `
-            <p><strong>Bio-Availability & Support:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-                <li style="margin-bottom: 0.3em;"><strong>DMSO (Dimethyl Sulfoxide):</strong> Adding 3ml-5ml of 70% DMSO to the 1L bottle can help the ClO2 penetrate deeper into tissues and cysts.</li>
-                <li style="margin-bottom: 0.3em;"><strong>Isotonic Water:</strong> Mixing CDS with diluted sea water (isotonic) instead of plain water can improve electrolyte balance during the detox.</li>
-                <li style="margin-bottom: 0.3em;"><strong>Binder Support:</strong> Zeolite or Bentonite clay (taken 2 hours apart) can help mop up endotoxins released by dying pathogens.</li>
-            </ul>
-        `,
-        section_considerations: `
-            <p><strong>Critical Storage & Handling:</strong></p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-                <li style="margin-bottom: 0.3em;"><strong>Temperature Sensitive:</strong> Keep the 3000ppm concentrate refrigerated (below 11°C). Above this temperature, the gas evaporates, reducing potency.</li>
-                <li style="margin-bottom: 0.3em;"><strong>UV Sensitive:</strong> Store in amber glass bottles. Light degrades the molecule rapidly.</li>
-                <li style="margin-bottom: 0.3em;"><strong>The 'Antioxidant Gap':</strong> Vitamin C, coffee, alcohol, and antioxidant supplements neutralize Chlorine Dioxide. You must separate them by at least <strong>2 to 4 hours</strong> from your CDS doses.</li>
-            </ul>
-        `,
-        section_cautions: `
-            <p style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">WARNING: Lung Irritant</p>
-            <p>Do not inhale the gas directly from the concentrate bottle.</p>
-            <ul style="list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;">
-                <li style="margin-bottom: 0.3em;"><strong>Herxheimer Reaction:</strong> Rapid pathogen die-off can cause fatigue, nausea, or diarrhea. If this occurs, reduce the dose by 50% the next day; do not stop completely.</li>
-                <li style="margin-bottom: 0.3em;"><strong>Material Reactivity:</strong> Never use metal containers or spoons. ClO2 reacts with metal. Use glass or HDPE plastic.</li>
-                <li style="margin-bottom: 0.3em;"><strong>Contraindications:</strong> Caution is advised for those on strong blood thinners (CDS increases microcirculation) or those with G6PD deficiency (rare).</li>
-            </ul>
-        `,
-        anecdotal_score: 4.8,
-        scientific_score: 1.8,
-        reviews: 12500,
-        video_link: null,
-        tags: [
-          "Oxidative Therapy",
-          "Detox",
-          "Antiviral",
-          "Andreas Kalcker",
-          "Water Purification"
-        ],
-        vendors: [
-          {
-            "name": "Aquarius Pro Life (Europe)",
-            "link": "https://www.aquarius-prolife.com",
-            "product_trust_score": 4.7
-          },
-          {
-            "name": "KV Lab (Reagents)",
-            "link": "https://www.kvlab.com",
-            "product_trust_score": 4.5
-          }
-        ],
-        scientific_studies: [
-          {
-            "title": "Chlorine dioxide is a more potent antiviral agent against SARS-CoV-2 than sodium hypochlorite",
-            "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8442261/"
-          },
-          {
-            "title": "Clarifying the Science of Chlorine Dioxide Solution (CDS): Evidence for Medical Use",
-            "url": "https://ijmra.in/v8i3/54.php"
-          }
-        ]
+// Helper: CRASH PROOF Score Formatter
+const formatScore = (score) => {
+    const num = Number(score);
+    if (isNaN(num) || num === 0) return 'N/A';
+    return num.toFixed(1); 
+};
+
+// Helper: Convert 0-100 score to 0-5 stars for display
+const getStarCount = (score) => {
+    const num = Number(score);
+    if (isNaN(num) || num === 0) return 0;
+    return (num / 20).toFixed(1); 
+};
+
+// Helper: Calculate Weighted Average
+const calculateNewAverage = (currentAvg, currentCount, newRating) => {
+    const currentTotal = currentAvg * currentCount;
+    const newTotal = currentTotal + newRating;
+    return newTotal / (currentCount + 1);
+};
+
+// Helper: Safe History Push (CRITICAL FIX FOR WHITE SCREEN)
+const safePushState = (state, unused, url) => {
+    try {
+        window.history.pushState(state, unused, url);
+    } catch (e) {
+        // Silently fail if sandbox blocks history API
+        console.warn("Navigation URL update blocked by sandbox (harmless).");
     }
-];
+};
 
-// --- HELPER HOOKS ---
+// Hook: Use Favorites
 const useFavorites = () => {
     const [favorites, setFavorites] = useState(() => {
         try {
@@ -343,7 +85,7 @@ const useFavorites = () => {
     return { favorites, toggleFavorite, isFavorite };
 };
 
-// --- HELPER: Share Functionality ---
+// Helper: Share Functionality
 const shareProtocol = async (protocol) => {
     if (!protocol) return null;
     const url = `${window.location.origin}/protocol/${protocol.id}`;
@@ -370,6 +112,455 @@ const shareProtocol = async (protocol) => {
         return 'error';
     }
 };
+
+// --- DATA TO UPLOAD ---
+const DATA_TO_UPLOAD = [
+  {
+    "title": "Dichloroacetate (DCA)",
+    "ailment": "Solid Tumors & Cancer Stem Cells",
+    "description": "A metabolic small molecule that targets the 'Warburg Effect,' forcing cancer cells to use their mitochondria, which triggers programmed cell suicide.",
+    "efficacy_metrics": {
+      "average_rating": 65,
+      "vote_count": 150,
+      "key_success_story": "Documented stabilization of Glioblastoma Multiforme (GBM) for 4+ years in patients who combined DCA with standard chemotherapy."
+    },
+    "popularity_metrics": {
+      "baseline_report_volume": 1200,
+      "site_views": 0
+    },
+    "ai_overview": {
+      "mood": "Metabolic Trojan Horse",
+      "content": "Most cancer cells rely on glucose fermentation (glycolysis) even when oxygen is available—a phenomenon known as the 'Warburg Effect.' DCA inhibits the enzyme PDK, forcing the cancer cell to reactivate its mitochondria for energy production. Because cancer mitochondria are often dysfunctional, this forced reactivation generates massive oxidative stress (ROS) specifically within the tumor cell, triggering apoptosis (cell death) while leaving healthy cells largely unaffected."
+    },
+    "section_core": "<p><strong>Metabolic Dosing Strategy:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Standard Dosage:</strong> The therapeutic range frequently cited in off-label protocols is <strong>10mg to 25mg per kg</strong> of body weight daily.</li><li style=\"margin-bottom: 0.3em;\"><strong>Frequency:</strong> Due to its short half-life, users typically split the total daily amount into two doses (AM and PM).</li><li style=\"margin-bottom: 0.3em;\"><strong>Cycling:</strong> To manage potential side effects, a common schedule reported is <strong>5 days on, 2 days off</strong> (or 3 weeks on, 1 week off).</li></ul>",
+    "section_adjuncts": "<p><strong>Neuro-Protection Protocols:</strong></p><p style=\"margin-bottom: 1em;\">Because DCA is known to deplete Vitamin B1, the Medicor Cancer Centre and other practitioners typically include the following to prevent neuropathy:</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Benfotiamine (Fat-Soluble B1):</strong> Often supplemented at 300mg to 600mg daily, as it is considered superior to standard thiamine for nerve protection.</li><li style=\"margin-bottom: 0.3em;\"><strong>R-Alpha Lipoic Acid (R-ALA):</strong> 150mg to 300mg daily is commonly added to synergize with B1 for mitochondrial health.</li><li style=\"margin-bottom: 0.3em;\"><strong>Acetyl-L-Carnitine:</strong> Many users include 500mg daily to assist in fatty acid transport.</li></ul>",
+    "section_considerations": "<p><strong>Sourcing & Handling:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Quality Control:</strong> The community emphasizes purchasing only from vendors providing a Certificate of Analysis (CoA) showing >99% purity, to avoid industrial byproducts.</li><li style=\"margin-bottom: 0.3em;\"><strong>Acidity:</strong> As DCA powder is acidic, reports suggest mixing it into juice or using gelatin capsules to protect tooth enamel and the esophagus.</li></ul>",
+    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">WARNING: Peripheral Neuropathy</p><p style=\"margin-bottom: 1em;\">The primary side effect noted in clinical data is reversible peripheral neuropathy (tingling/numbness).</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Stop Signal:</strong> Protocols advise that if tingling in extremities occurs, usage should stop immediately, and B1/ALA intake increased until symptoms resolve.</li><li style=\"margin-bottom: 0.3em;\"><strong>Tumor Lysis:</strong> Rapid tumor breakdown can stress the kidneys; high hydration levels are recommended.</li><li style=\"margin-bottom: 0.3em;\"><strong>Interactions:</strong> Anecdotal reports suggest Caffeine may amplify the effects (and jitteriness) of DCA.</li></ul>",
+    "anecdotal_score": 4.4,
+    "scientific_score": 3.8,
+    "reviews": 150,
+    "video_link": "https://www.youtube.com/embed/S2Y2r_6pE40",
+    "tags": [
+      "Warburg Effect",
+      "Metabolic Therapy",
+      "Mitochondria",
+      "Michelakis",
+      "Apoptosis"
+    ],
+    "vendors": [
+      {
+        "name": "DCA Lab (Certified)",
+        "link": "https://www.dcalab.com",
+        "product_trust_score": 4.9
+      },
+      {
+        "name": "Pure Chemical (Lab Grade)",
+        "link": "https://www.purechemical.com",
+        "product_trust_score": 4.2
+      }
+    ],
+    "scientific_studies": [
+      {
+        "title": "Metabolic Modulation of Glioblastoma with Dichloroacetate",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2892885/"
+      },
+      {
+        "title": "Dichloroacetate (DCA) as a potential metabolic-targeting therapy for cancer",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2567082/"
+      }
+    ]
+  },
+  {
+    "title": "Low Dose Naltrexone (LDN)",
+    "ailment": "Autoimmunity & Chronic Inflammation",
+    "description": "An immune modulator that uses temporary opioid receptor blockade to trigger an endorphin rebound, regulating immune function and pain perception.",
+    "efficacy_metrics": {
+      "average_rating": 92,
+      "vote_count": 3200,
+      "key_success_story": "Consistently rated as life-changing for Fibromyalgia and Hashimoto's, with thousands of users reporting significant pain reduction and antibody normalization."
+    },
+    "popularity_metrics": {
+      "baseline_report_volume": 8500,
+      "site_views": 0
+    },
+    "ai_overview": {
+      "mood": "Gentle Immune Regulator",
+      "content": "At standard doses (50mg), Naltrexone strictly blocks opioid receptors to treat addiction. However, at low doses (1.5–4.5mg), it blocks receptors only temporarily. This blockade tricks the body into overproducing natural endorphins (Opioid Growth Factor) and upregulating receptors. This 'rebound effect' is reported to modulate the immune system, reducing the inflammatory cytokines that drive autoimmune attacks and chronic pain states like Fibromyalgia."
+    },
+    "section_core": "<p><strong>The 'Rebound' Dosing Strategy:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Starting Dose:</strong> Protocols typically begin extremely low, often at <strong>1.5mg</strong> daily, to avoid sleep disturbances.</li><li style=\"margin-bottom: 0.3em;\"><strong>Titration:</strong> Users report increasing the dose by 1.5mg every two weeks. The standard 'therapeutic target' is commonly cited as <strong>4.5mg</strong>.</li><li style=\"margin-bottom: 0.3em;\"><strong>Timing:</strong> Because endorphin production peaks in the early morning, doses are traditionally taken at <strong>bedtime (between 9 PM and 2 AM)</strong> to maximize the receptor blockade during this peak window.</li></ul>",
+    "section_adjuncts": "<p><strong>Synergistic Support:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Gut Repair:</strong> As autoimmunity is often linked to intestinal permeability ('Leaky Gut'), protocols often pair LDN with L-Glutamine or Colostrum.</li><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin D3:</strong> Adequate Vitamin D levels are frequently cited as necessary for LDN to function optimally.</li><li style=\"margin-bottom: 0.3em;\"><strong>Omega-3s:</strong> High-dose fish oil is often used alongside LDN to lower the overall inflammatory baseline.</li></ul>",
+    "section_considerations": "<p><strong>Compounding & Sourcing:</strong></p><p style=\"margin-bottom: 1em;\"><strong>Pharmacy Compounding:</strong> Since commercial Naltrexone is 50mg, patients typically require a compounding pharmacy to create 1.5mg or 4.5mg capsules.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>DIY Dilution:</strong> A common cost-saving method reported by users involves dissolving a single 50mg tablet into 50ml of distilled water, creating a 1mg/1ml solution, which is then measured with a syringe.</li><li style=\"margin-bottom: 0.3em;\"><strong>Fillers:</strong> Sensitivity to fillers (like cellulose or lactose) is a common reason for non-response; users often request 'ginger root' or 'sucrose' as the filler.</li></ul>",
+    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">CRITICAL: Opioid Interaction</p><p style=\"margin-bottom: 1em;\">LDN blocks opioid receptors. It cannot be taken if the user is currently using narcotic painkillers (Tramadol, Codeine, Morphine), as it can precipitate immediate withdrawal.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Thyroid Medication:</strong> For those with Hashimoto’s, LDN may improve thyroid function rapidly. Monitoring is required to prevent hyperthyroidism symptoms (users often need to <em>lower</em> their thyroid meds).</li><li style=\"margin-bottom: 0.3em;\"><strong>Vivid Dreams:</strong> The most common side effect reported is vivid or lucid dreaming during the first week.</li></ul>",
+    "anecdotal_score": 4.7,
+    "scientific_score": 4.1,
+    "reviews": 3200,
+    "video_link": "https://www.youtube.com/embed/r40fs_oaCJA",
+    "tags": [
+      "Hashimoto's",
+      "Autoimmune",
+      "Pain Management",
+      "Fibromyalgia",
+      "Long COVID"
+    ],
+    "vendors": [
+      {
+        "name": "AgelessRx (Telemedicine)",
+        "link": "https://www.agelessrx.com/ldn",
+        "product_trust_score": 4.8
+      },
+      {
+        "name": "Dickson Chemist (UK)",
+        "link": "https://dicksonchemist.co.uk",
+        "product_trust_score": 4.9
+      }
+    ],
+    "scientific_studies": [
+      {
+        "title": "Low-dose naltrexone for the treatment of fibromyalgia",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/23359310/"
+      },
+      {
+        "title": "The use of low-dose naltrexone (LDN) as a novel anti-inflammatory treatment for chronic pain",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3962576/"
+      }
+    ]
+  },
+  {
+    "title": "Metabolic Antiparasitic Protocol (Active Cancer)",
+    "ailment": "Active Malignancies & Tumor Burden",
+    "description": "A combination of repurposed antiparasitic drugs and solvents designed to inhibit microtubule formation and starve metabolic pathways in cancer cells.",
+    "efficacy_metrics": {
+      "average_rating": 78,
+      "vote_count": 120,
+      "key_success_story": "Reports of rapid tumor regression in aggressive 'turbo cancers' (lymphomas) where standard chemotherapy had failed, cited by researchers like Dr. William Makis."
+    },
+    "popularity_metrics": {
+      "baseline_report_volume": 850,
+      "site_views": 0
+    },
+    "ai_overview": {
+      "mood": "Aggressive Repurposed Polytherapy",
+      "content": "This protocol synergizes two potent antiparasitics (Ivermectin and Fenbendazole) that share mechanisms with traditional chemotherapy (taxanes) by destabilizing microtubules, preventing cell division. It utilizes DMSO as a cellular solvent to drive these compounds deep into tissues and biofilms, while strictly managing the resulting toxic load with binders."
+    },
+    "section_core": "<p><strong>Core Anti-Cancer Regimen:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Ivermectin:</strong> A high therapeutic dose frequently cited in this protocol is <strong>1mg per kg</strong> of body weight, taken <strong>6 days a week</strong>.</li><li style=\"margin-bottom: 0.3em;\"><strong>Fenbendazole:</strong> Users report taking <strong>250mg to 500mg</strong> per day, <strong>4–6 days a week</strong>. It is noted that this must be consumed after a high-fat meal to ensure absorption.</li><li style=\"margin-bottom: 0.3em;\"><strong>Maintenance (Post-Clearance):</strong> Upon achieving remission, protocols often suggest reducing Ivermectin to 12mg per day, taken only 3 times per week.</li></ul>",
+    "section_adjuncts": "<p><strong>Drivers & Support:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>DMSO (The Driver):</strong> To drive medication deeper into cells, users mix 1/4 to 1/2 tsp of DMSO with 1-2 TBS of organic aloe vera juice (to mitigate taste) daily.</li><li style=\"margin-bottom: 0.3em;\"><strong>Essential Support:</strong> Vitamin D3 + K2 (10,000 IU daily) is commonly included to support immune function.</li><li style=\"margin-bottom: 0.3em;\"><strong>Dietary Elimination:</strong> The regimen strictly advises the removal of refined sugars, soft drinks, and flour/cakes, alongside a reduction in cured meats.</li></ul>",
+    "section_considerations": "<p><strong>Sourcing & Logistics:</strong></p><p style=\"margin-bottom: 1em;\"><strong>Sourcing Tips:</strong> Communities often note that bulk tabs (e.g., 500 x 12mg) offer the best value. When ordering from overseas generic pharmacies, users report successfully ignoring sections asking for a prescription.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Fenbendazole Forms:</strong> This compound is frequently sourced from animal feed stores. The liquid form (intended for livestock) is often cited as being cheaper and equally effective.</li><li style=\"margin-bottom: 0.3em;\"><strong>Cost Management:</strong> Generic Indian pharmacies are described as the standard source for affordable high-dose Ivermectin.</li></ul>",
+    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">CRITICAL: Toxin Release & Die-Off</p><p style=\"margin-bottom: 1em;\">As parasites and tumor cells die, they release ammonia and endotoxins. Protocols emphasize that failure to mop this up can cause severe illness.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Mandatory Binders:</strong> Usage of 2 tsp of micronized <strong>Zeolite</strong> or <strong>Activated Charcoal</strong> daily is described as mandatory, taken at least 2 hours away from other meds/food.</li><li style=\"margin-bottom: 0.3em;\"><strong>Dose Warning:</strong> As 1mg/kg is a significant dose, strict medical supervision is advised to monitor liver enzymes.</li></ul>",
+    "anecdotal_score": 4.8,
+    "scientific_score": 2.2,
+    "reviews": 120,
+    "video_link": "https://www.youtube.com/embed/35HlegVmznE",
+    "tags": [
+      "Fenbendazole",
+      "Ivermectin",
+      "Chemotherapy Adjunct",
+      "Metabolic Therapy",
+      "Joe Tippens"
+    ],
+    "vendors": [
+      {
+        "name": "Safe Generic Pharmacy (Ivermectin)",
+        "link": "https://www.safegenericpharmacy.com",
+        "product_trust_score": 4.6
+      },
+      {
+        "name": "Fenbendazole Australia",
+        "link": "https://fenbendazoleaustralia.com.au",
+        "product_trust_score": 4.7
+      }
+    ],
+    "scientific_studies": [
+      {
+        "title": "Fenbendazole acts as a moderate microtubule destabilizing agent and causes cancer cell death",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6080846/"
+      },
+      {
+        "title": "Ivermectin: a systematic review from antiviral effects to anti-cancer action",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7505114/"
+      }
+    ]
+  },
+  {
+    "title": "Universal Anti-Parasitic Protocol (Dr. Thomas Lodi)",
+    "ailment": "Systemic Parasitic Infection (Helminths, Fungus, Protozoa)",
+    "description": "A broad-spectrum polytherapy approach targeting helminths, fungus, and protozoa simultaneously through cyclic pharmaceutical dosing.",
+    "efficacy_metrics": {
+      "average_rating": 85,
+      "vote_count": 90,
+      "key_success_story": "Reports of clearing chronic 'mystery illnesses' and breaking chemo-resistance in late-stage cancer patients by removing parasitic biofilm loads."
+    },
+    "popularity_metrics": {
+      "baseline_report_volume": 600,
+      "site_views": 0
+    },
+    "ai_overview": {
+      "mood": "Aggressive Broad-Spectrum Polytherapy",
+      "content": "Dr. Thomas Lodi's protocol is described as an all-encompassing approach designed to target multiple classes of pathogens—helminths, fungus, and protozoa—at once. It utilizes a cyclic schedule (e.g., 3 weeks on, 1 week off) which is intended to catch dormant larvae during their 'hatching' phase while allowing time for liver enzyme recovery."
+    },
+    "section_core": "<p><strong>User-Reported Dosages (Dr. Lodi Attribution):</strong></p><p style=\"margin-bottom: 1em;\">The protocol typically involves selecting one medication from each target category. Users report the following standard dosages:</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Helminths/Worms:</strong> 12mg Ivermectin <strong>PLUS</strong> either 222mg Fenbendazole <strong>OR</strong> 100mg Mebendazole.</li><li style=\"margin-bottom: 0.3em;\"><strong>Helminths (Tapeworms):</strong> 600mg Praziquantel <strong>OR</strong> Niclosamide.</li><li style=\"margin-bottom: 0.3em;\"><strong>Fungus:</strong> 100mg Fluconazole.</li><li style=\"margin-bottom: 0.3em;\"><strong>Protozoa:</strong> 100mg Tinidazole <strong>OR</strong> Metronidazole.</li><li style=\"margin-bottom: 0.3em;\"><strong>Timing & Cycles:</strong> A common schedule cited is taking these 3 times per day for a cycle of <strong>3 weeks ON, 1 week OFF</strong>. A 'gentler' alternative reported is 2 times per day for <strong>5 days ON, 5 days OFF</strong>.</li></ul>",
+    "section_adjuncts": "<p><strong>Dietary & Lifestyle Support:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Dietary Focus:</strong> The regimen emphasizes uncooked whole plants (fruits, vegetables, seeds) and green-juice cleansing (celery, cucumber, kale) to support systemic alkalinity.</li><li style=\"margin-bottom: 0.3em;\"><strong>Drainage:</strong> Coffee enemas or colon hydrotherapy are strongly recommended in this protocol to assist the body in eliminating dead parasites.</li><li style=\"margin-bottom: 0.3em;\"><strong>Additional Support:</strong> Iodine supplementation for thyroid support and Melatonin for sleep synergy are often included.</li></ul>",
+    "section_considerations": "<p><strong>The 'Hatching' Phase Strategy:</strong></p><p style=\"margin-bottom: 1em;\">The break periods (1 week off or 5 days off) are described as functional phases rather than just rest.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Targeting Dormancy:</strong> The strategy intends to lure dormant cysts or larvae to hatch during the 'off' days, making them vulnerable to the subsequent round of medication.</li><li style=\"margin-bottom: 0.3em;\"><strong>Drug Specifics:</strong> Users are advised that Praziquantel is extremely bitter and should be swallowed whole. Strictly avoiding alcohol is cited as mandatory when taking Metronidazole or Tinidazole to prevent severe nausea.</li></ul>",
+    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">WARNING: Liver Stress & Die-Off</p><p style=\"margin-bottom: 1em;\">Because this is a polytherapy involving multiple pharmaceuticals, elevated liver enzymes are a noted risk.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Monitoring:</strong> Regular blood work to monitor liver function is highly recommended by practitioners utilizing this method.</li><li style=\"margin-bottom: 0.3em;\"><strong>Herxheimer Reactions:</strong> Users frequently report 'die-off' symptoms including nausea, vomiting, stomach cramping, flu-like exhaustion, and dizziness.</li></ul>",
+    "anecdotal_score": 4.6,
+    "scientific_score": 2.5,
+    "reviews": 90,
+    "video_link": "https://www.youtube.com/embed/3XmGu7ZCajY",
+    "tags": [
+      "Dr. Thomas Lodi",
+      "Polytherapy",
+      "Helminths",
+      "Candida",
+      "Detox"
+    ],
+    "vendors": [
+      {
+        "name": "Safe Generic Pharmacy",
+        "link": "https://www.safegenericpharmacy.com",
+        "product_trust_score": 4.6
+      },
+      {
+        "name": "Fenbendazole Australia",
+        "link": "https://fenbendazoleaustralia.com.au",
+        "product_trust_score": 4.7
+      }
+    ],
+    "scientific_studies": [
+      {
+        "title": "Repurposing drugs in oncology (ReDO)—mebendazole as an anti-cancer agent",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4096024/"
+      },
+      {
+        "title": "Ivermectin: a systematic review from antiviral effects to anti-cancer action",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7505114/"
+      }
+    ]
+  },
+  {
+    "title": "Joe Tippens Protocol (Fenbendazole)",
+    "ailment": "Adjunct Cancer Support (Metabolic)",
+    "description": "A viral 'repurposed drug' protocol originating from patient Joe Tippens, utilizing canine Fenbendazole to disrupt cancer cell microtubules.",
+    "efficacy_metrics": {
+      "average_rating": 72,
+      "vote_count": 450,
+      "key_success_story": "The originator, Joe Tippens (Small Cell Lung Cancer), achieved 100% clearance in 3 months after being given a terminal prognosis of '3 months to live'."
+    },
+    "popularity_metrics": {
+      "baseline_report_volume": 15000,
+      "site_views": 0
+    },
+    "ai_overview": {
+      "mood": "Viral Repurposed Protocol",
+      "content": "Originated by Joe Tippens, this protocol gained massive attention for repurposing the canine dewormer Fenbendazole. The hypothesis suggests that Fenbendazole disrupts microtubule formation in rapidly dividing cells (mechanistically similar to taxane chemotherapy) but with a milder safety profile. It is typically utilized by the community as a complementary metabolic approach."
+    },
+    "section_core": "<p><strong>The 'Big 4' Core Components:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Fenbendazole:</strong> The standard dosage cited is <strong>222 mg per day</strong> (often utilizing the standard canine granule packet or capsule).</li><li style=\"margin-bottom: 0.3em;\"><strong>Bio-Available Curcumin:</strong> 600 mg per day is included for its anti-inflammatory properties.</li><li style=\"margin-bottom: 0.3em;\"><strong>CBD Oil:</strong> 25 mg taken sublingually (under the tongue) per day.</li><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin E:</strong> 400-800 IU per day (Succinate form is preferred).</li><li style=\"margin-bottom: 0.3em;\"><strong>Timing Pattern:</strong> While the original version used a '3 days ON, 4 days OFF' schedule for Fenbendazole, the updated standard reported by Joe Tippens later in his journey is <strong>7 days a week</strong> (no off days).</li></ul>",
+    "section_adjuncts": "<p><strong>Additional Support & Lifestyle:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Metabolic Optimizers:</strong> Berberine is often added for glucose regulation, and Quercetin is included as a zinc ionophore and anti-inflammatory agent.</li><li style=\"margin-bottom: 0.3em;\"><strong>Immune Support:</strong> Vitamin D3 + K2 are frequently listed as essential additions.</li><li style=\"margin-bottom: 0.3em;\"><strong>Dietary Pairing:</strong> The protocol is often paired with a <strong>Ketogenic or Low-Carb diet</strong> to reduce glucose availability to cancer cells (targeting the Warburg Effect).</li></ul>",
+    "section_considerations": "<p><strong>Sourcing & Bioavailability:</strong></p><p style=\"margin-bottom: 1em;\"><strong>Product Form:</strong> Due to a lack of FDA approval for human cancer use, users typically report purchasing Fenbendazole marketed for animals (e.g., Panacur C or Safe-Guard) or from research chemical labs (Fenben Lab).</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Absorption:</strong> Fenbendazole is lipophilic (fat-loving). Protocols emphasize taking it with a meal containing healthy fats (olive oil, avocado, yogurt) to maximize absorption.</li></ul>",
+    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">WARNING: Liver & Interactions</p><p style=\"margin-bottom: 1em;\">While generally described as well-tolerated, interactions with liver enzymes (CYP450) are possible.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Liver Enzymes:</strong> Mild elevation in liver enzymes (AST/ALT) can occur; monthly blood panels are widely recommended.</li><li style=\"margin-bottom: 0.3em;\"><strong>Contraindications:</strong> Users are advised to consult a doctor if taking blood thinners or other chemotherapy agents due to potential metabolic competition.</li></ul>",
+    "anecdotal_score": 4.9,
+    "scientific_score": 3.1,
+    "reviews": 342,
+    "video_link": "https://www.youtube.com/embed/I0E3C0YCepQ",
+    "tags": [
+      "Joe Tippens",
+      "Fenbendazole",
+      "Metabolic Therapy",
+      "Repurposed Drug",
+      "Panacur"
+    ],
+    "vendors": [
+      {
+        "name": "Safe Generic Pharmacy",
+        "link": "https://www.safegenericpharmacy.com",
+        "product_trust_score": 4.6
+      },
+      {
+        "name": "Fenbendazole Australia",
+        "link": "https://fenbendazoleaustralia.com.au",
+        "product_trust_score": 4.7
+      }
+    ],
+    "scientific_studies": [
+      {
+        "title": "Fenbendazole acts as a moderate microtubule destabilizing agent and causes cancer cell death",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6080846/"
+      },
+      {
+        "title": "Repurposing Drugs in Oncology (ReDO)—Mebendazole and Fenbendazole",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4096024/"
+      }
+    ]
+  },
+  {
+    "title": "Vitamin D3 + K2 (High-Dose)",
+    "ailment": "Immune Deficiency & Autoimmunity",
+    "description": "A foundational steroid hormone protocol that regulates over 2,000 genes, essential for robust immune defense and structural integrity.",
+    "efficacy_metrics": {
+      "average_rating": 95,
+      "vote_count": 10000,
+      "key_success_story": "Foundational to the Coimbra Protocol, which reports high remission rates in Multiple Sclerosis and Psoriasis patients using high-dose therapy."
+    },
+    "popularity_metrics": {
+      "baseline_report_volume": 50000,
+      "site_views": 0
+    },
+    "ai_overview": {
+      "mood": "Genomic Regulator",
+      "content": "Vitamin D is technically a secosteroid hormone, not a vitamin. It controls the expression of roughly 3% of the human genome. While RDAs are set to prevent rickets (600 IU), functional medicine protocols aim for 'optimal' blood levels (60-80 ng/mL) to modulate the immune system, reduce systemic inflammation, and support mental health. This protocol strictly pairs D3 with Vitamin K2 to prevent soft tissue calcification."
+    },
+    "section_core": "<p><strong>Therapeutic Daily Protocol:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin D3 (Cholecalciferol):</strong> Standard functional maintenance is <strong>5,000 IU to 10,000 IU</strong> daily. (Note: The advanced 'Coimbra Protocol' for autoimmunity uses ultra-high doses but requires strict medical supervision).</li><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin K2 (MK-7):</strong> Essential for safety. Protocols advise taking <strong>100mcg to 200mcg</strong> of K2 (MK-7) daily. A general rule is 100mcg of K2 per 10,000 IU of D3.</li><li style=\"margin-bottom: 0.3em;\"><strong>Timing:</strong> It is recommended to take in the morning with a meal containing fat (avocado, eggs, oil) for absorption. Taking it at night may suppress melatonin.</li></ul>",
+    "section_adjuncts": "<p><strong>Required Cofactors:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Magnesium:</strong> The enzymatic conversion of D3 into its active form consumes significant magnesium. Supplementation of Magnesium (Glycinate or Malate, 400mg+) is described as mandatory to prevent muscle cramps and anxiety.</li><li style=\"margin-bottom: 0.3em;\"><strong>Boron:</strong> 3mg daily can extend the half-life of Vitamin D in the body.</li><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin A (Retinol):</strong> Works in tandem with D3 on genetic receptors (RXR/VDR). Eating liver or taking cod liver oil provides the necessary balance.</li></ul>",
+    "section_considerations": "<p><strong>Testing & Forms:</strong></p><p style=\"margin-bottom: 1em;\"><strong>Target Levels:</strong> Practitioners emphasize that testing is essential. Functional targets for 25(OH)D levels are often cited as <strong>60–80 ng/mL</strong> (150–200 nmol/L).</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Liquid vs. Softgel:</strong> Liquid drops (MCT oil base) often have better absorption rates than dry tablets.</li><li style=\"margin-bottom: 0.3em;\"><strong>Sunlight:</strong> Solar D3 (sulfated form) has benefits supplements cannot mimic. Use this protocol to supplement what you cannot get from the sun during winter or office work.</li></ul>",
+    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">CRITICAL WARNING: The Calcium Paradox</p><p style=\"margin-bottom: 1em;\">Vitamin D increases calcium absorption. Without Vitamin K2, this calcium may deposit in arteries and kidneys instead of bones.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Hypercalcemia:</strong> Signs of toxicity include nausea, vomiting, weakness, and frequent urination. This usually occurs only at massive doses (>50k IU/day) for prolonged periods.</li><li style=\"margin-bottom: 0.3em;\"><strong>Contraindications:</strong> Caution with Sarcoidosis, Hyperparathyroidism, or certain lymphomas where calcium regulation is already impaired.</li></ul>",
+    "anecdotal_score": 4.9,
+    "scientific_score": 4.8,
+    "reviews": 10000,
+    "video_link": "https://www.youtube.com/embed/7Jm8s0FRLKs",
+    "tags": [
+      "Immunity",
+      "Hormone Health",
+      "Bone Density",
+      "Essential",
+      "Depression"
+    ],
+    "vendors": [
+      {
+        "name": "Sports Research (D3 + K2 Softgel)",
+        "link": "https://sportsresearch.com",
+        "product_trust_score": 4.8
+      },
+      {
+        "name": "Thorne (Liquid D / K2)",
+        "link": "https://www.thorne.com",
+        "product_trust_score": 4.9
+      }
+    ],
+    "scientific_studies": [
+      {
+        "title": "Vitamin D and the Immune System",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3166406/"
+      },
+      {
+        "title": "Proper Calcium Use: Vitamin K2 as a Promoter of Bone and Cardiovascular Health",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4566462/"
+      }
+    ]
+  },
+  {
+    "title": "Methylene Blue (Low-Dose)",
+    "ailment": "Mitochondrial Dysfunction & Cognitive Fatigue",
+    "description": "A century-old synthetic dye that acts as a potent mitochondrial electron donor to boost ATP production and cerebral blood flow.",
+    "efficacy_metrics": {
+      "average_rating": 82,
+      "vote_count": 400,
+      "key_success_story": "Biohackers and patients with post-viral fatigue consistently report 'fog lifting' and sustained mental energy within days of starting low-dose therapy."
+    },
+    "popularity_metrics": {
+      "baseline_report_volume": 3500,
+      "site_views": 0
+    },
+    "ai_overview": {
+      "mood": "Metabolic Electron Donor",
+      "content": "Methylene Blue serves as a bioenergetic assist, bypassing blocked points in the mitochondrial electron transport chain (specifically Complex I–III) to directly donate electrons to Complex IV. This increases ATP production and reduces oxidative stress. At low doses, it acts as a nootropic and neuroprotective agent, while high doses are reserved for acute medical conditions like methemoglobinemia."
+    },
+    "section_core": "<p><strong>Low-Dose Metabolic Protocol:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Starting Dose:</strong> 0.5mg/kg is the clinical standard, but for nootropic use, many start at a fixed dose of <strong>5mg to 10mg</strong> once daily in the morning.</li><li style=\"margin-bottom: 0.3em;\"><strong>Titration:</strong> Increase slowly. A common 'sweet spot' for cognitive benefits is between <strong>15mg and 40mg</strong> daily.</li><li style=\"margin-bottom: 0.3em;\"><strong>Cycling:</strong> Due to its long half-life and hormetic nature, a schedule of '5 days on, 2 days off' is frequently recommended to maintain efficacy.</li></ul>",
+    "section_adjuncts": "<p><strong>Synergistic Enhancers:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Red Light Therapy (Photobiomodulation):</strong> Methylene Blue concentrates in the mitochondria and acts as a photo-acceptor. Exposing the body to Red/NIR light (660nm-850nm) shortly after dosing significantly amplifies ATP production.</li><li style=\"margin-bottom: 0.3em;\"><strong>Ascorbic Acid (Vitamin C):</strong> Mixing MB with Vitamin C in water can convert it to 'Leucomethylene Blue' (clear form), which may improve absorption and antioxidant capacity.</li></ul>",
+    "section_considerations": "<p><strong>Purity & Handling:</strong></p><p style=\"margin-bottom: 1em;\"><strong>USP Grade Only:</strong> Sources strictly advise using Pharmaceutical Grade (USP) Methylene Blue. Chemical or 'lab' grades (often sold for fish tanks) contain heavy metals like arsenic, lead, and cadmium.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Staining Risk:</strong> MB is a potent dye. It will permanently stain clothing, marble, and porous surfaces.</li><li style=\"margin-bottom: 0.3em;\"><strong>Oral Hygiene:</strong> Liquid forms will stain teeth blue temporarily. Drink through a straw or use troches (lozenges) placed under the tongue to bypass teeth.</li><li style=\"margin-bottom: 0.3em;\"><strong>Urine Color:</strong> Expect urine to turn a distinct blue or greenish color. This is normal and indicates the kidneys are processing it.</li></ul>",
+    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">CRITICAL DRUG INTERACTION (Serotonin Syndrome)</p><p style=\"margin-bottom: 1em;\">Methylene Blue is a Monoamine Oxidase Inhibitor (MAOI). Do not take this if you are on SSRIs, SNRIs, or other antidepressants. The combination can lead to fatal Serotonin Syndrome.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>G6PD Deficiency:</strong> Contraindicated. Individuals with this genetic enzyme deficiency risk hemolytic anemia (red blood cell destruction).</li><li style=\"margin-bottom: 0.3em;\"><strong>Pregnancy & Nursing:</strong> Strictly contraindicated due to potential teratogenic effects.</li><li style=\"margin-bottom: 0.3em;\"><strong>High Blood Pressure:</strong> MB inhibits nitric oxide synthase (NOS), which can transiently raise blood pressure. Monitor if hypertensive.</li></ul>",
+    "anecdotal_score": 4.6,
+    "scientific_score": 4.2,
+    "reviews": 400,
+    "video_link": "https://www.youtube.com/embed/_hsKLKa_Pq8",
+    "tags": [
+      "Nootropic",
+      "Mitochondria",
+      "Anti-Aging",
+      "MAO Inhibitor",
+      "Biohacking"
+    ],
+    "vendors": [
+      {
+        "name": "Troscriptions (Buccal Troche)",
+        "link": "https://troscriptions.com/products/just-blue",
+        "product_trust_score": 4.9
+      },
+      {
+        "name": "Compass Laboratory (USP Liquid)",
+        "link": "https://compasslaboratory.com",
+        "product_trust_score": 4.7
+      },
+      {
+        "name": "Meraki (USP Kit)",
+        "link": "https://merakimedicinal.com",
+        "product_trust_score": 4.5
+      }
+    ],
+    "scientific_studies": [
+      {
+        "title": "Protection against neurodegeneration with low-dose methylene blue",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5826781/"
+      },
+      {
+        "title": "Methylene Blue as a cerebral metabolic enhancer",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/22521042/"
+      }
+    ]
+  },
+  {
+    "title": "Chlorine Dioxide Solution (CDS)",
+    "ailment": "Systemic Pathogen Load & Biofilm",
+    "description": "A selective oxidant therapy using chlorine dioxide gas dissolved in water to neutralize acidic pathogens, viruses, and bacteria without triggering antibiotic resistance.",
+    "efficacy_metrics": {
+      "average_rating": 40,
+      "vote_count": 800,
+      "key_success_story": "Thousands of testimonials exist regarding recovery from Malaria and chronic infections, though official medical bodies strictly warn against its use due to safety risks."
+    },
+    "popularity_metrics": {
+      "baseline_report_volume": 12500,
+      "site_views": 0
+    },
+    "ai_overview": {
+      "mood": "Selective Oxidative Purifier",
+      "content": "CDS acts as a 'smart' molecule (ClO2) that targets acidic pathogens and anaerobic cells through oxidation, stripping them of electrons. Unlike the older 'MMS' protocol which causes frequent nausea due to reaction residues, CDS is the pure gas saturated in water (3000ppm), offering higher bioavailability and significantly fewer gastric side effects."
+    },
+    "section_core": "<p><strong>Protocol C (Common Daily Protocol):</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Preparation:</strong> Add <strong>10ml</strong> of CDS concentrate (3000ppm) to <strong>1 Liter</strong> of water.</li><li style=\"margin-bottom: 0.3em;\"><strong>Dosage:</strong> Protocols instruct drinking roughly <strong>100ml every hour</strong> for 10 hours throughout the day.</li><li style=\"margin-bottom: 0.3em;\"><strong>Acute Infection:</strong> Dosage can be safely increased to 20ml or 30ml of CDS per Liter of water if well tolerated, taken in shorter intervals.</li></ul>",
+    "section_adjuncts": "<p><strong>Bio-Availability & Support:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>DMSO (Dimethyl Sulfoxide):</strong> Adding 3ml-5ml of 70% DMSO to the 1L bottle can help the ClO2 penetrate deeper into tissues and cysts.</li><li style=\"margin-bottom: 0.3em;\"><strong>Isotonic Water:</strong> Mixing CDS with diluted sea water (isotonic) instead of plain water can improve electrolyte balance during the detox.</li><li style=\"margin-bottom: 0.3em;\"><strong>Binder Support:</strong> Zeolite or Bentonite clay (taken 2 hours apart) can help mop up endotoxins released by dying pathogens.</li></ul>",
+    "section_considerations": "<p><strong>Critical Storage & Handling:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Temperature Sensitive:</strong> Keep the 3000ppm concentrate refrigerated (below 11°C). Above this temperature, the gas evaporates, reducing potency.</li><li style=\"margin-bottom: 0.3em;\"><strong>UV Sensitive:</strong> Store in amber glass bottles. Light degrades the molecule rapidly.</li><li style=\"margin-bottom: 0.3em;\"><strong>The 'Antioxidant Gap':</strong> Vitamin C, coffee, alcohol, and antioxidant supplements neutralize Chlorine Dioxide. You must separate them by at least <strong>2 to 4 hours</strong> from your CDS doses.</li></ul>",
+    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">WARNING: Do not inhale the gas directly from the concentrate bottle. It is a lung irritant.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Herxheimer Reaction:</strong> Rapid pathogen die-off can cause fatigue, nausea, or diarrhea. If this occurs, reduce the dose by 50% the next day; do not stop completely.</li><li style=\"margin-bottom: 0.3em;\"><strong>Material Reactivity:</strong> Never use metal containers or spoons. ClO2 reacts with metal. Use glass or HDPE plastic.</li><li style=\"margin-bottom: 0.3em;\"><strong>Contraindications:</strong> Caution is advised for those on strong blood thinners (CDS increases microcirculation) or those with G6PD deficiency (rare).</li></ul>",
+    "anecdotal_score": 4.8,
+    "scientific_score": 1.8,
+    "reviews": 12500,
+    "video_link": null,
+    "tags": [
+      "Oxidative Therapy",
+      "Detox",
+      "Antiviral",
+      "Andreas Kalcker",
+      "Water Purification"
+    ],
+    "vendors": [
+      {
+        "name": "Aquarius Pro Life (Europe)",
+        "link": "https://www.aquarius-prolife.com",
+        "product_trust_score": 4.7
+      },
+      {
+        "name": "KV Lab (Reagents)",
+        "link": "https://www.kvlab.com",
+        "product_trust_score": 4.5
+      }
+    ],
+    "scientific_studies": [
+      {
+        "title": "Chlorine dioxide is a more potent antiviral agent against SARS-CoV-2 than sodium hypochlorite",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8442261/"
+      },
+      {
+        "title": "Clarifying the Science of Chlorine Dioxide Solution (CDS): Evidence for Medical Use",
+        "url": "https://ijmra.in/v8i3/54.php"
+      }
+    ]
+  }
+];
 
 // --- COMPONENTS ---
 
@@ -649,7 +840,7 @@ const SortControl = ({ sortBy, onSortChange }) => {
                     onChange={(e) => onSortChange(e.target.value)}
                     className="text-sm font-bold text-gray-700 bg-transparent border-none focus:ring-0 cursor-pointer outline-none"
                 >
-                    <option value="rating">Highest Rated</option>
+                    <option value="efficacy">Highest Efficacy</option>
                     <option value="popular">Most Popular</option>
                     <option value="alpha">A–Z</option>
                 </select>
@@ -704,13 +895,26 @@ const AlphaFilter = ({ selected, onSelect }) => {
 }
 
 const ProtocolCard = ({ protocol, onSelect, onShare, isFavorite, onToggleFavorite }) => {
+    // CALCULATE DYNAMIC METRICS - DEFENSIVE CHECK
+    // Ensure protocol exists before accessing
+    if (!protocol) return null;
+
+    const score = Number(protocol.efficacy_metrics?.average_rating) || 0;
+    const stars = getStarCount(score);
+    
+    // ROBUST DATA ACCESS: Check both nested and root-level fields for compatibility
+    const popularityMetrics = protocol.popularity_metrics || {};
+    const baseline = Number(popularityMetrics.baseline_report_volume || protocol.baseline_report_volume) || 0; 
+    const views = Number(popularityMetrics.site_views || protocol.site_views) || 0;
+    const totalInterest = baseline + views;
+
     return (
         <div 
             className="bg-white p-5 sm:p-6 shadow-md rounded-2xl transition-all duration-300 border border-gray-100 cursor-pointer active:scale-[0.98] hover:shadow-xl hover:border-emerald-100 relative group animate-in slide-in-from-bottom-4 fade-in duration-500"
             onClick={() => onSelect(protocol.id)}
         >
             <div className="flex justify-between items-start mb-2">
-                <h2 className="text-lg font-extrabold text-gray-800 pr-16 group-hover:text-emerald-700 transition-colors">{protocol.title}</h2>
+                <h2 className="text-lg font-extrabold text-gray-800 pr-16 group-hover:text-emerald-700 transition-colors">{protocol.title || "Untitled Protocol"}</h2>
                 <div className="absolute top-4 right-4 flex space-x-2">
                     <button 
                         onClick={(e) => {
@@ -734,18 +938,26 @@ const ProtocolCard = ({ protocol, onSelect, onShare, isFavorite, onToggleFavorit
                     </button>
                 </div>
             </div>
-            <p className="text-gray-500 mb-4 text-sm line-clamp-2 leading-relaxed">{protocol.description}</p>
+            <p className="text-gray-500 mb-4 text-sm line-clamp-2 leading-relaxed">{protocol.description || "No description available."}</p>
 
-            <div className="flex justify-between items-center text-xs font-medium pt-3 border-t border-gray-50">
-                <div className="flex items-center px-2 py-1 bg-green-50 text-green-700 rounded-md">
-                    <Star className="w-3.5 h-3.5 mr-1 fill-green-500 text-green-500" />
-                    {formatScore(protocol.anecdotal_score || 0)}
+            <div className="flex flex-wrap gap-4 justify-between items-center text-xs font-medium pt-3 border-t border-gray-50">
+                <div className="flex gap-3 items-center flex-wrap">
+                    
+                    {/* EFFICACY SCORE (STAR RATING) - ONE STAR RATING */}
+                    <div className="flex items-center px-3 py-1.5 bg-green-50 text-green-800 rounded-lg border border-green-100">
+                        <Star className="w-4 h-4 mr-1.5 fill-green-500 text-green-500" />
+                        <span className="font-bold text-sm mr-1">{stars}</span>
+                        <span className="opacity-75">/ 5 Efficacy</span>
+                    </div>
+
+                    {/* VOLUME SCORE (POPULARITY) - ONE VOLUME INDICATOR */}
+                    <div className="flex items-center px-3 py-1.5 bg-blue-50 text-blue-800 rounded-lg border border-blue-100">
+                        <Activity className="w-4 h-4 mr-1.5 text-blue-500" />
+                        <span className="font-bold text-sm mr-1">{(totalInterest).toLocaleString()}</span>
+                        <span className="opacity-75">Interest</span>
+                    </div>
+
                 </div>
-                <div className="flex items-center px-2 py-1 bg-blue-50 text-blue-700 rounded-md">
-                    <FlaskConical className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                    {formatScore(protocol.scientific_score || 0)}
-                </div>
-                <span className="text-gray-400">{(protocol.reviews || 0).toLocaleString()} Reports</span>
             </div>
         </div>
     );
@@ -753,14 +965,18 @@ const ProtocolCard = ({ protocol, onSelect, onShare, isFavorite, onToggleFavorit
 
 const ScientificLiteratureButton = ({ protocol }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const studies = protocol.scientific_studies || (protocol.scientific_link ? [{ title: "View Scientific Literature", url: protocol.scientific_link }] : []);
+    
+    // Safety check for legacy data or missing arrays - CRASH PROOF LOGIC
+    let studies = [];
+    if (Array.isArray(protocol.scientific_studies) && protocol.scientific_studies.length > 0) {
+        studies = protocol.scientific_studies;
+    } else if (protocol.scientific_link) {
+        studies = [{ title: "View Scientific Literature", url: protocol.scientific_link }];
+    }
+    
     const panelId = `scientific-panel-${protocol.id}`;
 
-    // Common classes for all button states to align borders
-    // Added min-h to ensure it matches the left button height if text wraps
     const buttonBaseClass = "w-[calc(100%+2px)] -ml-[1px] -mr-[1px] -mb-[1px] py-3 px-2 text-[10px] sm:text-xs font-bold flex justify-center items-center transition duration-150 relative z-10 min-h-[42px]";
-    
-    // Always round the bottom right, never the bottom left (since it's side-by-side)
     const roundedClass = "rounded-br-xl rounded-bl-none";
 
     if (studies.length === 0) {
@@ -834,20 +1050,52 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
     const [hasUserTestimonial, setHasUserTestimonial] = useState(false); 
     const MAX_CHARS = 1000;
 
-    // Helper to scroll to vendors
+    // Calculate Display Metrics with Robust Fallback & Type Safety
+    const efficacyScore = Number(protocol.efficacy_metrics?.average_rating) || 0;
+    const stars = getStarCount(efficacyScore);
+    
+    const popularityMetrics = protocol.popularity_metrics || {};
+    const baseline = Number(popularityMetrics.baseline_report_volume || protocol.baseline_report_volume) || 0;
+    const views = Number(popularityMetrics.site_views || protocol.site_views) || 0;
+    const totalInterest = baseline + views;
+
+    // Increment View Count on Mount (Prevent Crash if Auth Fails)
+    useEffect(() => {
+        if (!protocol?.id) return;
+        const incrementView = async () => {
+            try {
+                const ref = doc(db, COLLECTION_NAME, protocol.id);
+                // Check if popularity_metrics map exists, if not we might need to set merge
+                // Simple increment usually works if the field path exists, but let's be safe
+                await updateDoc(ref, {
+                    "popularity_metrics.site_views": increment(1)
+                }).catch(async (e) => {
+                     // Fallback: if map doesn't exist, create it
+                     // NOTE: We wrap this to prevent app crash if permissions/auth fail
+                     try {
+                         await setDoc(ref, { 
+                             popularity_metrics: { site_views: 1 } 
+                         }, { merge: true });
+                     } catch (innerErr) {
+                         console.warn("Could not init view counter (likely auth/permission issue):", innerErr);
+                     }
+                });
+            } catch (err) {
+                console.error("Failed to increment view:", err);
+            }
+        };
+        incrementView();
+    }, [protocol?.id]);
+
+
     const scrollToVendors = () => {
         const element = document.getElementById('vendors-section');
         if (element) element.scrollIntoView({ behavior: 'smooth' });
     };
 
-    // Helper: Extract Video ID and format as Embed URL
     const getEmbedUrl = (url) => {
-        if (!url) return null;
-        
-        // TRIM WHITESPACE to prevent copy-paste errors from breaking the link
+        if (!url || typeof url !== 'string') return null;
         const cleanUrl = url.trim();
-
-        // Regex updated to handle /shorts/ URLs
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
         const match = cleanUrl.match(regExp);
         return (match && match[2].length === 11) 
@@ -888,10 +1136,8 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
         if (element) element.scrollIntoView({ behavior: 'smooth' });
     };
 
-    // Auto-scroll effect if requested via props
     useEffect(() => {
         if (scrollToTestimonialsOnMount) {
-            // Small delay to ensure DOM is fully rendered
             const timer = setTimeout(() => {
                 scrollToTestimonials();
             }, 300);
@@ -912,7 +1158,9 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
         }
 
         setSubmissionStatus('loading');
+        const protocolRef = doc(db, COLLECTION_NAME, protocol.id);
         const testimonialsCollectionPath = `${COLLECTION_NAME}/${protocol.id}/testimonials`;
+        
         try {
             await addDoc(collection(db, testimonialsCollectionPath), {
                 text: testimonialText,
@@ -923,6 +1171,17 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
                 user: `User-${userId.substring(0, 4)}`,
                 ailment: testimonialAilment || null,
             });
+
+            const userRatingPercent = testimonialScore * 20;
+            const currentAvg = Number(protocol.efficacy_metrics?.average_rating) || 0;
+            const currentCount = Number(protocol.efficacy_metrics?.vote_count) || 0;
+            const newAvg = calculateNewAverage(currentAvg, currentCount, userRatingPercent);
+
+            await updateDoc(protocolRef, {
+                "efficacy_metrics.average_rating": newAvg,
+                "efficacy_metrics.vote_count": increment(1)
+            });
+
             setSubmissionStatus('success');
             setTestimonialText('');
             setTestimonialAilment(''); 
@@ -969,15 +1228,15 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
             
             {/* Compact Trust Score Section - FORCED GRID LAYOUT FOR STRICT 50/50 */}
             <div className="mb-8 shadow-sm rounded-xl grid grid-cols-2 border border-gray-200">
-                {/* Anecdotal Score (Left Half - 50% Width) */}
+                {/* Efficacy Score (Left Half - 50% Width) */}
                 <div className="flex flex-col bg-green-50 border-r border-green-100 rounded-l-xl min-w-0">
                     <div className="py-3 px-1 flex flex-col items-center justify-center flex-grow">
                         <div className="flex items-center text-lg sm:text-xl font-extrabold text-green-700">
                             <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-1 fill-yellow-400 text-yellow-400" />
-                            {formatScore(protocol.anecdotal_score || 0)}/5
+                            {stars}/5
                         </div>
-                        <p className="text-[9px] sm:text-[10px] text-green-700 font-bold uppercase tracking-wide mt-0.5 text-center">Anecdotal Score</p>
-                        <p className="text-[9px] sm:text-[10px] text-green-600 font-medium text-center leading-tight">{(protocol.reviews || 0).toLocaleString()} Reports</p>
+                        <p className="text-[9px] sm:text-[10px] text-green-700 font-bold uppercase tracking-wide mt-0.5 text-center">Efficacy Rating</p>
+                        <p className="text-[9px] sm:text-[10px] text-green-600 font-medium text-center leading-tight">{protocol.efficacy_metrics?.vote_count || 0} Votes</p>
                     </div>
                     <div className="mt-auto">
                         <button 
@@ -990,14 +1249,15 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
                     </div>
                 </div>
 
-                {/* Scientific Score (Right Half - 50% Width) */}
+                {/* Popularity Score (Right Half - 50% Width) */}
                 <div className="flex flex-col bg-blue-50 rounded-r-xl min-w-0">
                     <div className="py-3 px-1 flex flex-col items-center justify-center flex-grow">
                         <div className="flex items-center text-lg sm:text-xl font-extrabold text-blue-700">
-                            <FlaskConical className="w-4 h-4 sm:w-5 sm:h-5 mr-1 text-blue-500" />
-                            {formatScore(protocol.scientific_score || 0)}/5
+                            <Activity className="w-4 h-4 sm:w-5 sm:h-5 mr-1 text-blue-500" />
+                            {(totalInterest).toLocaleString()}
                         </div>
-                        <p className="text-[9px] sm:text-[10px] text-blue-700 font-bold uppercase tracking-wide mt-0.5 text-center">Scientific Score</p>
+                        <p className="text-[9px] sm:text-[10px] text-blue-700 font-bold uppercase tracking-wide mt-0.5 text-center">Community Interest</p>
+                        <p className="text-[9px] sm:text-[10px] text-blue-600 font-medium text-center leading-tight">Volume Score</p>
                     </div>
                     <div className="mt-auto">
                         <ScientificLiteratureButton protocol={protocol} />
@@ -1310,7 +1570,7 @@ const App = () => {
     const [heroSearchTerm, setHeroSearchTerm] = useState(''); // New independent state for Hero search
     const [selectedLetter, setSelectedLetter] = useState(null); 
     const [isBrowsing, setIsBrowsing] = useState(false); 
-    const [sortBy, setSortBy] = useState('rating'); 
+    const [sortBy, setSortBy] = useState('efficacy'); 
     const [loading, setLoading] = useState(true);
     const [userId, setUserId] = useState(null);
     const [selectedProtocolId, setSelectedProtocolId] = useState(null);
@@ -1348,7 +1608,7 @@ const App = () => {
       setHeroSearchTerm(''); // Clear hero search too
       setSelectedLetter(null);
       setIsBrowsing(false);
-      setSortBy('rating');
+      setSortBy('efficacy');
       setShowAboutPage(false);
       setActiveFilter(null);
       setReportIntent(null); // Clear intent when going home
@@ -1492,10 +1752,21 @@ const App = () => {
 
         const sorted = [...results];
         switch (sortBy) {
-            case 'rating':
-                return sorted.sort((a, b) => (b.anecdotal_score || 0) - (a.anecdotal_score || 0));
+            case 'efficacy':
+                // Sort by weighted average score (descending)
+                return sorted.sort((a, b) => {
+                    const scoreA = a.efficacy_metrics?.average_rating || 0;
+                    const scoreB = b.efficacy_metrics?.average_rating || 0;
+                    return scoreB - scoreA;
+                });
             case 'popular':
-                 return sorted.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+                 // Sort by Total Interest (baseline + views)
+                 return sorted.sort((a, b) => {
+                     // ROBUST SORT: Check nested first, fall back to root
+                     const volA = (a.popularity_metrics?.baseline_report_volume || a.baseline_report_volume || 0) + (a.popularity_metrics?.site_views || a.site_views || 0);
+                     const volB = (b.popularity_metrics?.baseline_report_volume || b.baseline_report_volume || 0) + (b.popularity_metrics?.site_views || b.site_views || 0);
+                     return volB - volA;
+                 });
             case 'alpha':
                  return sorted.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
             default:
@@ -1546,7 +1817,7 @@ const App = () => {
         setIsBrowsing(true);
         setShowAboutPage(false);
         if (letter === null) { 
-             setSortBy('rating'); 
+             setSortBy('efficacy'); 
         }
     }, []);
 
@@ -1557,7 +1828,7 @@ const App = () => {
         setSelectedLetter(null);
         setActiveFilter(null);
         setShowAboutPage(false);
-        setSortBy('rating'); 
+        setSortBy('efficacy'); 
     }, []);
     
     // New function to handle Hero Search Enter Key
@@ -1624,7 +1895,7 @@ const App = () => {
                         </h1>
                         
                         <p className="text-emerald-50 mb-4 text-sm sm:text-base font-medium max-w-lg mx-auto">
-                            Currently tracking <span className="font-bold bg-white/20 px-2 py-0.5 rounded text-white">{protocols.length}</span> protocols.
+                            Currently tracking <span className="font-bold bg-white/20 px-2 py-0.5 rounded text-white">{protocols.length}</span> off-patent protocols.
                         </p>
 
                         <p className="text-emerald-100 mb-8 text-sm sm:text-base font-medium max-w-lg mx-auto">
