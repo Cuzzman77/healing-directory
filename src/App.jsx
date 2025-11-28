@@ -568,6 +568,8 @@ const AccordionSection = ({ title, content, icon: Icon, defaultOpen = false, isW
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
     if (!content) return null;
+    // Safety check for content type
+    if (typeof content !== 'string') return null;
 
     return (
         <div className={`border rounded-xl overflow-hidden shadow-sm transition-all duration-300 ${isWarning ? 'border-red-100 bg-red-50/30' : 'border-gray-200 bg-white'}`}>
@@ -629,8 +631,21 @@ const BulkUploaderModal = ({ isOpen, onClose }) => {
             if (!Array.isArray(data)) throw new Error("Data must be an array []");
             const batch = writeBatch(db);
             data.forEach(item => {
-                const docRef = doc(collection(db, COLLECTION_NAME));
+                // 1. Create a Readable ID (Slug) from the Title
+                let customId = item.title
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric chars with dashes
+                    .replace(/^-+|-+$/g, '');    // Remove leading/trailing dashes
+
+                // Fallback if title is missing or empty
+                if (!customId) customId = doc(collection(db, COLLECTION_NAME)).id;
+
+                // 2. Use setDoc with the specific ID instead of addDoc
+                const docRef = doc(db, COLLECTION_NAME, customId);
+                
                 const { id, testimonials, ...cleanData } = item; 
+                
                 batch.set(docRef, cleanData);
             });
             await batch.commit();
@@ -833,12 +848,13 @@ const SortControl = ({ sortBy, onSortChange }) => {
         // Removed mb-4 to ensure vertical alignment with the button next to it
         <div className="flex items-center justify-end">
             <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2">
-                <ArrowUpDown className="w-4 h-4 text-gray-500 mr-2" />
-                <span className="text-xs font-medium text-gray-500 mr-2">Sort by:</span>
+                {/* Removed ArrowUpDown icon as requested to fix height alignment */}
+                <span className="text-xs font-medium text-gray-500 mr-2 whitespace-nowrap">Sort by:</span>
                 <select 
                     value={sortBy} 
                     onChange={(e) => onSortChange(e.target.value)}
-                    className="text-sm font-bold text-gray-700 bg-transparent border-none focus:ring-0 cursor-pointer outline-none"
+                    // Added py-0 my-0 to prevent select element from adding extra height
+                    className="text-sm font-bold text-gray-700 bg-transparent border-none focus:ring-0 cursor-pointer outline-none py-0 my-0"
                 >
                     <option value="efficacy">Highest Efficacy</option>
                     <option value="popular">Most Popular</option>
@@ -1886,8 +1902,13 @@ const App = () => {
                     
                     <div className="relative z-10 max-w-2xl mx-auto text-center">
                         <div className="flex justify-center mb-4">
-                            <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm border border-white/20">
-                                <HeartPulse className="w-8 h-8 text-white" />
+                            {/* Changed bg-emerald-600 to bg-white so the Green Logo pops */}
+                            <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm border border-white/40">
+                                <img 
+                                    src="/logo.png" 
+                                    alt="Healing Directory Logo" 
+                                    className="w-12 h-12 object-contain" 
+                                />
                             </div>
                         </div>
                         <h1 className="text-3xl sm:text-4xl font-extrabold mb-3 tracking-tight font-serif">
@@ -2129,8 +2150,12 @@ const App = () => {
                     onClick={handleGoHome}
                     className="inline-flex items-center space-x-2 mb-1 hover:opacity-80 transition-opacity"
                 >
-                    <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-md">
-                         <HeartPulse className="w-5 h-5 text-white" />
+                    <div className="w-8 h-8 bg-teal-700 rounded-lg flex items-center justify-center shadow-md">
+                         <img 
+                             src="/logo.png" 
+                             alt="Healing Directory Logo" 
+                             className="w-5 h-5 object-contain" 
+                         />
                     </div>
                     <span className="text-xl font-bold text-gray-900 tracking-tight font-serif">Healing Directory</span>
                 </button>
