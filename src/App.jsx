@@ -1136,9 +1136,9 @@ const App = () => {
         <div className="min-h-screen bg-gray-50 font-sans p-4 sm:p-6 relative">
             <header className="max-w-xl mx-auto pb-4 mb-2 text-center">
                 <button onClick={handleGoHome} className="inline-flex items-center space-x-2 mb-1 hover:opacity-80 transition-opacity">
-                    <div className="bg-white/20 p-1.5 rounded-full backdrop-blur-sm border border-gray-200 shadow-sm">
-                        <img src="/logo.png" alt="Healing Directory Logo" className="w-8 h-8 object-contain" />
-                    </div>
+                <div className="bg-emerald-600 p-1.5 rounded-full shadow-md">
+    <img src="/logo.png" alt="Healing Directory Logo" className="w-8 h-8 object-contain" />
+</div>
                     <span className="text-xl font-bold text-gray-900 tracking-tight font-serif">Healing Directory</span>
                 </button>
             </header>
