@@ -113,453 +113,118 @@ const shareProtocol = async (protocol) => {
     }
 };
 
-// --- DATA TO UPLOAD ---
+// --- DATA TO UPLOAD (Sample data used by Bulk Uploader and for initial empty state) ---
 const DATA_TO_UPLOAD = [
   {
     "title": "Dichloroacetate (DCA)",
     "ailment": "Solid Tumors & Cancer Stem Cells",
     "description": "A metabolic small molecule that targets the 'Warburg Effect,' forcing cancer cells to use their mitochondria, which triggers programmed cell suicide.",
-    "efficacy_metrics": {
-      "average_rating": 65,
-      "vote_count": 150,
-      "key_success_story": "Documented stabilization of Glioblastoma Multiforme (GBM) for 4+ years in patients who combined DCA with standard chemotherapy."
-    },
-    "popularity_metrics": {
-      "baseline_report_volume": 1200,
-      "site_views": 0
-    },
-    "ai_overview": {
-      "mood": "Metabolic Trojan Horse",
-      "content": "Most cancer cells rely on glucose fermentation (glycolysis) even when oxygen is available—a phenomenon known as the 'Warburg Effect.' DCA inhibits the enzyme PDK, forcing the cancer cell to reactivate its mitochondria for energy production. Because cancer mitochondria are often dysfunctional, this forced reactivation generates massive oxidative stress (ROS) specifically within the tumor cell, triggering apoptosis (cell death) while leaving healthy cells largely unaffected."
-    },
+    "efficacy_metrics": { "average_rating": 65, "vote_count": 150, "key_success_story": "Documented stabilization of Glioblastoma Multiforme (GBM) for 4+ years in patients who combined DCA with standard chemotherapy." },
+    "popularity_metrics": { "baseline_report_volume": 1200, "site_views": 0 },
+    "ai_overview": { "mood": "Metabolic Trojan Horse", "content": "Most cancer cells rely on glucose fermentation (glycolysis) even when oxygen is available—a phenomenon known as the 'Warburg Effect.' DCA inhibits the enzyme PDK, forcing the cancer cell to reactivate its mitochondria for energy production. Because cancer mitochondria are often dysfunctional, this forced reactivation generates massive oxidative stress (ROS) specifically within the tumor cell, triggering apoptosis (cell death) while leaving healthy cells largely unaffected." },
     "section_core": "<p><strong>Metabolic Dosing Strategy:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Standard Dosage:</strong> The therapeutic range frequently cited in off-label protocols is <strong>10mg to 25mg per kg</strong> of body weight daily.</li><li style=\"margin-bottom: 0.3em;\"><strong>Frequency:</strong> Due to its short half-life, users typically split the total daily amount into two doses (AM and PM).</li><li style=\"margin-bottom: 0.3em;\"><strong>Cycling:</strong> To manage potential side effects, a common schedule reported is <strong>5 days on, 2 days off</strong> (or 3 weeks on, 1 week off).</li></ul>",
     "section_adjuncts": "<p><strong>Neuro-Protection Protocols:</strong></p><p style=\"margin-bottom: 1em;\">Because DCA is known to deplete Vitamin B1, the Medicor Cancer Centre and other practitioners typically include the following to prevent neuropathy:</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Benfotiamine (Fat-Soluble B1):</strong> Often supplemented at 300mg to 600mg daily, as it is considered superior to standard thiamine for nerve protection.</li><li style=\"margin-bottom: 0.3em;\"><strong>R-Alpha Lipoic Acid (R-ALA):</strong> 150mg to 300mg daily is commonly added to synergize with B1 for mitochondrial health.</li><li style=\"margin-bottom: 0.3em;\"><strong>Acetyl-L-Carnitine:</strong> Many users include 500mg daily to assist in fatty acid transport.</li></ul>",
     "section_considerations": "<p><strong>Sourcing & Handling:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Quality Control:</strong> The community emphasizes purchasing only from vendors providing a Certificate of Analysis (CoA) showing >99% purity, to avoid industrial byproducts.</li><li style=\"margin-bottom: 0.3em;\"><strong>Acidity:</strong> As DCA powder is acidic, reports suggest mixing it into juice or using gelatin capsules to protect tooth enamel and the esophagus.</li></ul>",
     "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">WARNING: Peripheral Neuropathy</p><p style=\"margin-bottom: 1em;\">The primary side effect noted in clinical data is reversible peripheral neuropathy (tingling/numbness).</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Stop Signal:</strong> Protocols advise that if tingling in extremities occurs, usage should stop immediately, and B1/ALA intake increased until symptoms resolve.</li><li style=\"margin-bottom: 0.3em;\"><strong>Tumor Lysis:</strong> Rapid tumor breakdown can stress the kidneys; high hydration levels are recommended.</li><li style=\"margin-bottom: 0.3em;\"><strong>Interactions:</strong> Anecdotal reports suggest Caffeine may amplify the effects (and jitteriness) of DCA.</li></ul>",
-    "anecdotal_score": 4.4,
-    "scientific_score": 3.8,
-    "reviews": 150,
-    "video_link": "https://www.youtube.com/embed/S2Y2r_6pE40",
-    "tags": [
-      "Warburg Effect",
-      "Metabolic Therapy",
-      "Mitochondria",
-      "Michelakis",
-      "Apoptosis"
-    ],
+    "anecdotal_score": 4.4, "scientific_score": 3.8, "reviews": 150, "video_link": "https://www.youtube.com/embed/S2Y2r_6pE40",
+    "tags": ["Warburg Effect", "Metabolic Therapy", "Mitochondria", "Michelakis", "Apoptosis"],
     "vendors": [
-      {
-        "name": "DCA Lab (Certified)",
-        "link": "https://www.dcalab.com",
-        "product_trust_score": 4.9
-      },
-      {
-        "name": "Pure Chemical (Lab Grade)",
-        "link": "https://www.purechemical.com",
-        "product_trust_score": 4.2
-      }
+      { "name": "DCA Lab (Certified)", "link": "https://www.dcalab.com", "product_trust_score": 4.9 },
+      { "name": "Pure Chemical (Lab Grade)", "link": "https://www.purechemical.com", "product_trust_score": 4.2 }
     ],
     "scientific_studies": [
-      {
-        "title": "Metabolic Modulation of Glioblastoma with Dichloroacetate",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2892885/"
-      },
-      {
-        "title": "Dichloroacetate (DCA) as a potential metabolic-targeting therapy for cancer",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2567082/"
-      }
+      { "title": "Metabolic Modulation of Glioblastoma with Dichloroacetate", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2892885/" },
+      { "title": "Dichloroacetate (DCA) as a potential metabolic-targeting therapy for cancer", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2567082/" }
     ]
   },
   {
     "title": "Low Dose Naltrexone (LDN)",
     "ailment": "Autoimmunity & Chronic Inflammation",
     "description": "An immune modulator that uses temporary opioid receptor blockade to trigger an endorphin rebound, regulating immune function and pain perception.",
-    "efficacy_metrics": {
-      "average_rating": 92,
-      "vote_count": 3200,
-      "key_success_story": "Consistently rated as life-changing for Fibromyalgia and Hashimoto's, with thousands of users reporting significant pain reduction and antibody normalization."
-    },
-    "popularity_metrics": {
-      "baseline_report_volume": 8500,
-      "site_views": 0
-    },
-    "ai_overview": {
-      "mood": "Gentle Immune Regulator",
-      "content": "At standard doses (50mg), Naltrexone strictly blocks opioid receptors to treat addiction. However, at low doses (1.5–4.5mg), it blocks receptors only temporarily. This blockade tricks the body into overproducing natural endorphins (Opioid Growth Factor) and upregulating receptors. This 'rebound effect' is reported to modulate the immune system, reducing the inflammatory cytokines that drive autoimmune attacks and chronic pain states like Fibromyalgia."
-    },
+    "efficacy_metrics": { "average_rating": 92, "vote_count": 3200, "key_success_story": "Consistently rated as life-changing for Fibromyalgia and Hashimoto's, with thousands of users reporting significant pain reduction and antibody normalization." },
+    "popularity_metrics": { "baseline_report_volume": 8500, "site_views": 0 },
+    "ai_overview": { "mood": "Gentle Immune Regulator", "content": "At standard doses (50mg), Naltrexone strictly blocks opioid receptors to treat addiction. However, at low doses (1.5–4.5mg), it blocks receptors only temporarily. This blockade tricks the body into overproducing natural endorphins (Opioid Growth Factor) and upregulating receptors. This 'rebound effect' is reported to modulate the immune system, reducing the inflammatory cytokines that drive autoimmune attacks and chronic pain states like Fibromyalgia." },
     "section_core": "<p><strong>The 'Rebound' Dosing Strategy:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Starting Dose:</strong> Protocols typically begin extremely low, often at <strong>1.5mg</strong> daily, to avoid sleep disturbances.</li><li style=\"margin-bottom: 0.3em;\"><strong>Titration:</strong> Users report increasing the dose by 1.5mg every two weeks. The standard 'therapeutic target' is commonly cited as <strong>4.5mg</strong>.</li><li style=\"margin-bottom: 0.3em;\"><strong>Timing:</strong> Because endorphin production peaks in the early morning, doses are traditionally taken at <strong>bedtime (between 9 PM and 2 AM)</strong> to maximize the receptor blockade during this peak window.</li></ul>",
     "section_adjuncts": "<p><strong>Synergistic Support:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Gut Repair:</strong> As autoimmunity is often linked to intestinal permeability ('Leaky Gut'), protocols often pair LDN with L-Glutamine or Colostrum.</li><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin D3:</strong> Adequate Vitamin D levels are frequently cited as necessary for LDN to function optimally.</li><li style=\"margin-bottom: 0.3em;\"><strong>Omega-3s:</strong> High-dose fish oil is often used alongside LDN to lower the overall inflammatory baseline.</li></ul>",
     "section_considerations": "<p><strong>Compounding & Sourcing:</strong></p><p style=\"margin-bottom: 1em;\"><strong>Pharmacy Compounding:</strong> Since commercial Naltrexone is 50mg, patients typically require a compounding pharmacy to create 1.5mg or 4.5mg capsules.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>DIY Dilution:</strong> A common cost-saving method reported by users involves dissolving a single 50mg tablet into 50ml of distilled water, creating a 1mg/1ml solution, which is then measured with a syringe.</li><li style=\"margin-bottom: 0.3em;\"><strong>Fillers:</strong> Sensitivity to fillers (like cellulose or lactose) is a common reason for non-response; users often request 'ginger root' or 'sucrose' as the filler.</li></ul>",
     "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">CRITICAL: Opioid Interaction</p><p style=\"margin-bottom: 1em;\">LDN blocks opioid receptors. It cannot be taken if the user is currently using narcotic painkillers (Tramadol, Codeine, Morphine), as it can precipitate immediate withdrawal.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Thyroid Medication:</strong> For those with Hashimoto’s, LDN may improve thyroid function rapidly. Monitoring is required to prevent hyperthyroidism symptoms (users often need to <em>lower</em> their thyroid meds).</li><li style=\"margin-bottom: 0.3em;\"><strong>Vivid Dreams:</strong> The most common side effect reported is vivid or lucid dreaming during the first week.</li></ul>",
-    "anecdotal_score": 4.7,
-    "scientific_score": 4.1,
-    "reviews": 3200,
-    "video_link": "https://www.youtube.com/embed/r40fs_oaCJA",
-    "tags": [
-      "Hashimoto's",
-      "Autoimmune",
-      "Pain Management",
-      "Fibromyalgia",
-      "Long COVID"
-    ],
+    "anecdotal_score": 4.7, "scientific_score": 4.1, "reviews": 3200, "video_link": "https://www.youtube.com/embed/r40fs_oaCJA",
+    "tags": ["Hashimoto's", "Autoimmune", "Pain Management", "Fibromyalgia", "Long COVID"],
     "vendors": [
-      {
-        "name": "AgelessRx (Telemedicine)",
-        "link": "https://www.agelessrx.com/ldn",
-        "product_trust_score": 4.8
-      },
-      {
-        "name": "Dickson Chemist (UK)",
-        "link": "https://dicksonchemist.co.uk",
-        "product_trust_score": 4.9
-      }
+      { "name": "AgelessRx (Telemedicine)", "link": "https://www.agelessrx.com/ldn", "product_trust_score": 4.8 },
+      { "name": "Dickson Chemist (UK)", "link": "https://dicksonchemist.co.uk", "product_trust_score": 4.9 }
     ],
     "scientific_studies": [
-      {
-        "title": "Low-dose naltrexone for the treatment of fibromyalgia",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC23359310/"
-      },
-      {
-        "title": "The use of low-dose naltrexone (LDN) as a novel anti-inflammatory treatment for chronic pain",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3962576/"
-      }
+      { "title": "Low-dose naltrexone for the treatment of fibromyalgia", "url": "https://pubmed.ncbi.nlm.nih.gov/23359310/" },
+      { "title": "The use of low-dose naltrexone (LDN) as a novel anti-inflammatory treatment for chronic pain", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3962576/" }
     ]
   },
   {
     "title": "Metabolic Antiparasitic Protocol (Active Cancer)",
     "ailment": "Active Malignancies & Tumor Burden",
     "description": "A combination of repurposed antiparasitic drugs and solvents designed to inhibit microtubule formation and starve metabolic pathways in cancer cells.",
-    "efficacy_metrics": {
-      "average_rating": 78,
-      "vote_count": 120,
-      "key_success_story": "Reports of rapid tumor regression in aggressive 'turbo cancers' (lymphomas) where standard chemotherapy had failed, cited by researchers like Dr. William Makis."
-    },
-    "popularity_metrics": {
-      "baseline_report_volume": 850,
-      "site_views": 0
-    },
-    "ai_overview": {
-      "mood": "Aggressive Repurposed Polytherapy",
-      "content": "This protocol synergizes two potent antiparasitics (Ivermectin and Fenbendazole) that share mechanisms with traditional chemotherapy (taxanes) by destabilizing microtubules, preventing cell division. It utilizes DMSO as a cellular solvent to drive these compounds deep into tissues and biofilms, while strictly managing the resulting toxic load with binders."
-    },
+    "efficacy_metrics": { "average_rating": 78, "vote_count": 120, "key_success_story": "Reports of rapid tumor regression in aggressive 'turbo cancers' (lymphomas) where standard chemotherapy had failed, cited by researchers like Dr. William Makis." },
+    "popularity_metrics": { "baseline_report_volume": 850, "site_views": 0 },
+    "ai_overview": { "mood": "Aggressive Repurposed Polytherapy", "content": "This protocol synergizes two potent antiparasitics (Ivermectin and Fenbendazole) that share mechanisms with traditional chemotherapy (taxanes) by destabilizing microtubules, preventing cell division. It utilizes DMSO as a cellular solvent to drive these compounds deep into tissues and biofilms, while strictly managing the resulting toxic load with binders." },
     "section_core": "<p><strong>Core Anti-Cancer Regimen:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Ivermectin:</strong> A high therapeutic dose frequently cited in this protocol is <strong>1mg per kg</strong> of body weight, taken <strong>6 days a week</strong>.</li><li style=\"margin-bottom: 0.3em;\"><strong>Fenbendazole:</strong> Users report taking <strong>250mg to 500mg</strong> per day, <strong>4–6 days a week</strong>. It is noted that this must be consumed after a high-fat meal to ensure absorption.</li><li style=\"margin-bottom: 0.3em;\"><strong>Maintenance (Post-Clearance):</strong> Upon achieving remission, protocols often suggest reducing Ivermectin to 12mg per day, taken only 3 times per week.</li></ul>",
     "section_adjuncts": "<p><strong>Drivers & Support:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>DMSO (The Driver):</strong> To drive medication deeper into cells, users mix 1/4 to 1/2 tsp of DMSO with 1-2 TBS of organic aloe vera juice (to mitigate taste) daily.</li><li style=\"margin-bottom: 0.3em;\"><strong>Essential Support:</strong> Vitamin D3 + K2 (10,000 IU daily) is commonly included to support immune function.</li><li style=\"margin-bottom: 0.3em;\"><strong>Dietary Elimination:</strong> The regimen strictly advises the removal of refined sugars, soft drinks, and flour/cakes, alongside a reduction in cured meats.</li></ul>",
     "section_considerations": "<p><strong>Sourcing & Logistics:</strong></p><p style=\"margin-bottom: 1em;\"><strong>Sourcing Tips:</strong> Communities often note that bulk tabs (e.g., 500 x 12mg) offer the best value. When ordering from overseas generic pharmacies, users report successfully ignoring sections asking for a prescription.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Fenbendazole Forms:</strong> This compound is frequently sourced from animal feed stores. The liquid form (intended for livestock) is often cited as being cheaper and equally effective.</li><li style=\"margin-bottom: 0.3em;\"><strong>Cost Management:</strong> Generic Indian pharmacies are described as the standard source for affordable high-dose Ivermectin.</li></ul>",
     "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">CRITICAL: Toxin Release & Die-Off</p><p style=\"margin-bottom: 1em;\">As parasites and tumor cells die, they release ammonia and endotoxins. Protocols emphasize that failure to mop this up can cause severe illness.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Mandatory Binders:</strong> Usage of 2 tsp of micronized <strong>Zeolite</strong> or <strong>Activated Charcoal</strong> daily is described as mandatory, taken at least 2 hours away from other meds/food.</li><li style=\"margin-bottom: 0.3em;\"><strong>Dose Warning:</strong> As 1mg/kg is a significant dose, strict medical supervision is advised to monitor liver enzymes.</li></ul>",
-    "anecdotal_score": 4.8,
-    "scientific_score": 2.2,
-    "reviews": 120,
-    "video_link": "https://www.youtube.com/embed/35HlegVmznE",
-    "tags": [
-      "Fenbendazole",
-      "Ivermectin",
-      "Chemotherapy Adjunct",
-      "Metabolic Therapy",
-      "Joe Tippens"
-    ],
+    "anecdotal_score": 4.8, "scientific_score": 2.2, "reviews": 120, "video_link": "https://www.youtube.com/embed/35HlegVmznE",
+    "tags": ["Fenbendazole", "Ivermectin", "Chemotherapy Adjunct", "Metabolic Therapy", "Joe Tippens"],
     "vendors": [
-      {
-        "name": "Safe Generic Pharmacy (Ivermectin)",
-        "link": "https://www.safegenericpharmacy.com",
-        "product_trust_score": 4.6
-      },
-      {
-        "name": "Fenbendazole Australia",
-        "link": "https://fenbendazoleaustralia.com.au",
-        "product_trust_score": 4.7
-      }
+      { "name": "Safe Generic Pharmacy (Ivermectin)", "link": "https://www.safegenericpharmacy.com", "product_trust_score": 4.6 },
+      { "name": "Fenbendazole Australia", "link": "https://fenbendazoleaustralia.com.au", "product_trust_score": 4.7 }
     ],
     "scientific_studies": [
-      {
-        "title": "Fenbendazole acts as a moderate microtubule destabilizing agent and causes cancer cell death",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6080846/"
-      },
-      {
-        "title": "Ivermectin: a systematic review from antiviral effects to anti-cancer action",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7505114/"
-      }
+      { "title": "Fenbendazole acts as a moderate microtubule destabilizing agent and causes cancer cell death", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6080846/" },
+      { "title": "Ivermectin: a systematic review from antiviral effects to anti-cancer action", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7505114/" }
     ]
   },
   {
     "title": "Universal Anti-Parasitic Protocol (Dr. Thomas Lodi)",
     "ailment": "Systemic Parasitic Infection (Helminths, Fungus, Protozoa)",
     "description": "A broad-spectrum polytherapy approach targeting helminths, fungus, and protozoa simultaneously through cyclic pharmaceutical dosing.",
-    "efficacy_metrics": {
-      "average_rating": 85,
-      "vote_count": 90,
-      "key_success_story": "Reports of clearing chronic 'mystery illnesses' and breaking chemo-resistance in late-stage cancer patients by removing parasitic biofilm loads."
-    },
-    "popularity_metrics": {
-      "baseline_report_volume": 600,
-      "site_views": 0
-    },
-    "ai_overview": {
-      "mood": "Aggressive Broad-Spectrum Polytherapy",
-      "content": "Dr. Thomas Lodi's protocol is described as an all-encompassing approach designed to target multiple classes of pathogens—helminths, fungus, and protozoa—at once. It utilizes a cyclic schedule (e.g., 3 weeks on, 1 week off) which is intended to catch dormant larvae during their 'hatching' phase while allowing time for liver enzyme recovery."
-    },
+    "efficacy_metrics": { "average_rating": 85, "vote_count": 90, "key_success_story": "Reports of clearing chronic 'mystery illnesses' and breaking chemo-resistance in late-stage cancer patients by removing parasitic biofilm loads." },
+    "popularity_metrics": { "baseline_report_volume": 600, "site_views": 0 },
+    "ai_overview": { "mood": "Aggressive Broad-Spectrum Polytherapy", "content": "Dr. Thomas Lodi's protocol is described as an all-encompassing approach designed to target multiple classes of pathogens—helminths, fungus, and protozoa—at once. It utilizes a cyclic schedule (e.g., 3 weeks on, 1 week off) which is intended to catch dormant larvae during their 'hatching' phase while allowing time for liver enzyme recovery." },
     "section_core": "<p><strong>User-Reported Dosages (Dr. Lodi Attribution):</strong></p><p style=\"margin-bottom: 1em;\">The protocol typically involves selecting one medication from each target category. Users report the following standard dosages:</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Helminths/Worms:</strong> 12mg Ivermectin <strong>PLUS</strong> either 222mg Fenbendazole <strong>OR</strong> 100mg Mebendazole.</li><li style=\"margin-bottom: 0.3em;\"><strong>Helminths (Tapeworms):</strong> 600mg Praziquantel <strong>OR</strong> Niclosamide.</li><li style=\"margin-bottom: 0.3em;\"><strong>Fungus:</strong> 100mg Fluconazole.</li><li style=\"margin-bottom: 0.3em;\"><strong>Protozoa:</strong> 100mg Tinidazole <strong>OR</strong> Metronidazole.</li><li style=\"margin-bottom: 0.3em;\"><strong>Timing & Cycles:</strong> A common schedule cited is taking these 3 times per day for a cycle of <strong>3 weeks ON, 1 week OFF</strong>. A 'gentler' alternative reported is 2 times per day for <strong>5 days ON, 5 days OFF</strong>.</li></ul>",
     "section_adjuncts": "<p><strong>Dietary & Lifestyle Support:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Dietary Focus:</strong> The regimen emphasizes uncooked whole plants (fruits, vegetables, seeds) and green-juice cleansing (celery, cucumber, kale) to support systemic alkalinity.</li><li style=\"margin-bottom: 0.3em;\"><strong>Drainage:</strong> Coffee enemas or colon hydrotherapy are strongly recommended in this protocol to assist the body in eliminating dead parasites.</li><li style=\"margin-bottom: 0.3em;\"><strong>Additional Support:</strong> Iodine supplementation for thyroid support and Melatonin for sleep synergy are often included.</li></ul>",
     "section_considerations": "<p><strong>The 'Hatching' Phase Strategy:</strong></p><p style=\"margin-bottom: 1em;\">The break periods (1 week off or 5 days off) are described as functional phases rather than just rest.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Targeting Dormancy:</strong> The strategy intends to lure dormant cysts or larvae to hatch during the 'off' days, making them vulnerable to the subsequent round of medication.</li><li style=\"margin-bottom: 0.3em;\"><strong>Drug Specifics:</strong> Users are advised that Praziquantel is extremely bitter and should be swallowed whole. Strictly avoiding alcohol is cited as mandatory when taking Metronidazole or Tinidazole to prevent severe nausea.</li></ul>",
     "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">WARNING: Liver Stress & Die-Off</p><p style=\"margin-bottom: 1em;\">Because this is a polytherapy involving multiple pharmaceuticals, elevated liver enzymes are a noted risk.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Monitoring:</strong> Regular blood work to monitor liver function is highly recommended by practitioners utilizing this method.</li><li style=\"margin-bottom: 0.3em;\"><strong>Herxheimer Reactions:</strong> Users frequently report 'die-off' symptoms including nausea, vomiting, stomach cramping, flu-like exhaustion, and dizziness.</li></ul>",
-    "anecdotal_score": 4.6,
-    "scientific_score": 2.5,
-    "reviews": 90,
-    "video_link": "https://www.youtube.com/embed/3XmGu7ZCajY",
-    "tags": [
-      "Dr. Thomas Lodi",
-      "Polytherapy",
-      "Helminths",
-      "Candida",
-      "Detox"
-    ],
+    "anecdotal_score": 4.6, "scientific_score": 2.5, "reviews": 90, "video_link": "https://www.youtube.com/embed/3XmGu7ZCajY",
+    "tags": ["Dr. Thomas Lodi", "Polytherapy", "Helminths", "Candida", "Detox"],
     "vendors": [
-      {
-        "name": "Safe Generic Pharmacy",
-        "link": "https://www.safegenericpharmacy.com",
-        "product_trust_score": 4.6
-      },
-      {
-        "name": "Fenbendazole Australia",
-        "link": "https://fenbendazoleaustralia.com.au",
-        "product_trust_score": 4.7
-      }
+      { "name": "Safe Generic Pharmacy", "link": "https://www.safegenericpharmacy.com", "product_trust_score": 4.6 },
+      { "name": "Fenbendazole Australia", "link": "https://fenbendazoleaustralia.com.au", "product_trust_score": 4.7 }
     ],
     "scientific_studies": [
-      {
-        "title": "Repurposing drugs in oncology (ReDO)—mebendazole as an anti-cancer agent",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4096024/"
-      },
-      {
-        "title": "Ivermectin: a systematic review from antiviral effects to anti-cancer action",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7505114/"
-      }
+      { "title": "Repurposing drugs in oncology (ReDO)—mebendazole as an anti-cancer agent", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4096024/" },
+      { "title": "Ivermectin: a systematic review from antiviral effects to anti-cancer action", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7505114/" }
     ]
   },
   {
-    "title": "Joe Tippens Protocol (Fenbendazole)",
-    "ailment": "Adjunct Cancer Support (Metabolic)",
-    "description": "A viral 'repurposed drug' protocol originating from patient Joe Tippens, utilizing canine Fenbendazole to disrupt cancer cell microtubules.",
-    "efficacy_metrics": {
-      "average_rating": 72,
-      "vote_count": 450,
-      "key_success_story": "The originator, Joe Tippens (Small Cell Lung Cancer), achieved 100% clearance in 3 months after being given a terminal prognosis of '3 months to live'."
-    },
-    "popularity_metrics": {
-      "baseline_report_volume": 15000,
-      "site_views": 0
-    },
-    "ai_overview": {
-      "mood": "Viral Repurposed Protocol",
-      "content": "Originated by Joe Tippens, this protocol gained massive attention for repurposing the canine dewormer Fenbendazole. The hypothesis suggests that Fenbendazole disrupts microtubule formation in rapidly dividing cells (mechanistically similar to taxane chemotherapy) but with a milder safety profile. It is typically utilized by the community as a complementary metabolic approach."
-    },
-    "section_core": "<p><strong>The 'Big 4' Core Components:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Fenbendazole:</strong> The standard dosage cited is <strong>222 mg per day</strong> (often utilizing the standard canine granule packet or capsule).</li><li style=\"margin-bottom: 0.3em;\"><strong>Bio-Available Curcumin:</strong> 600 mg per day is included for its anti-inflammatory properties.</li><li style=\"margin-bottom: 0.3em;\"><strong>CBD Oil:</strong> 25 mg taken sublingually (under the tongue) per day.</li><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin E:</strong> 400-800 IU per day (Succinate form is preferred).</li><li style=\"margin-bottom: 0.3em;\"><strong>Timing Pattern:</strong> While the original version used a '3 days ON, 4 days OFF' schedule for Fenbendazole, the updated standard reported by Joe Tippens later in his journey is <strong>7 days a week</strong> (no off days).</li></ul>",
-    "section_adjuncts": "<p><strong>Additional Support & Lifestyle:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Metabolic Optimizers:</strong> Berberine is often added for glucose regulation, and Quercetin is included as a zinc ionophore and anti-inflammatory agent.</li><li style=\"margin-bottom: 0.3em;\"><strong>Immune Support:</strong> Vitamin D3 + K2 are frequently listed as essential additions.</li><li style=\"margin-bottom: 0.3em;\"><strong>Dietary Pairing:</strong> The protocol is often paired with a <strong>Ketogenic or Low-Carb diet</strong> to reduce glucose availability to cancer cells (targeting the Warburg Effect).</li></ul>",
-    "section_considerations": "<p><strong>Sourcing & Bioavailability:</strong></p><p style=\"margin-bottom: 1em;\"><strong>Product Form:</strong> Due to a lack of FDA approval for human cancer use, users typically report purchasing Fenbendazole marketed for animals (e.g., Panacur C or Safe-Guard) or from research chemical labs (Fenben Lab).</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Absorption:</strong> Fenbendazole is lipophilic (fat-loving). Protocols emphasize taking it with a meal containing healthy fats (olive oil, avocado, yogurt) to maximize absorption.</li></ul>",
-    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">WARNING: Liver & Interactions</p><p style=\"margin-bottom: 1em;\">While generally described as well-tolerated, interactions with liver enzymes (CYP450) are possible.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Liver Enzymes:</strong> Mild elevation in liver enzymes (AST/ALT) can occur; monthly blood panels are widely recommended.</li><li style=\"margin-bottom: 0.3em;\"><strong>Contraindications:</strong> Users are advised to consult a doctor if taking blood thinners or other chemotherapy agents due to potential metabolic competition.</li></ul>",
-    "anecdotal_score": 4.9,
-    "scientific_score": 3.1,
-    "reviews": 342,
-    "video_link": "https://www.youtube.com/embed/I0E3C0YCepQ",
-    "tags": [
-      "Joe Tippens",
-      "Fenbendazole",
-      "Metabolic Therapy",
-      "Repurposed Drug",
-      "Panacur"
-    ],
+    "title": "Borax (Sodium Borate)",
+    "ailment": "Joint Health, Osteoporosis & Candida",
+    "description": "A traditional, controversial remedy used to correct boron deficiency, utilizing strict dilution to support bone density and joint health.",
+    "efficacy_metrics": { "average_rating": 80, "vote_count": 3500, "key_success_story": "Long-standing anecdotal reports from the 'Earth Clinic' community cite rapid relief from osteoarthritic pain and candida overgrowth when adhering to the specific dilution protocol." },
+    "popularity_metrics": { "baseline_report_volume": 12000, "site_views": 0 },
+    "ai_overview": { "mood": "Precise Mineral Supplementation", "content": "Borax is a naturally occurring mineral (sodium tetraborate) that acts as a potent source of boron. While controversial due to its classification as a laundry additive, proponents argue that when used in minute, strictly diluted doses, it corrects widespread boron deficiency. The protocol emphasizes that Borax is chemically unstable in heat and corrosive in high concentrations, requiring exact adherence to cold-water dilution for safety." },
+    "section_core": "<p><strong>Correct Traditional Use Protocol:</strong></p><p style=\"margin-bottom: 1em;\">The protocol emphasizes that Borax acts as a short-term therapeutic intervention, not a daily supplement.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Preparation:</strong> Standard instructions involve dissolving <strong>1/8 to 1/4 teaspoon</strong> of Borax in <strong>1 Liter</strong> of cold or room-temperature water to create the required safe dilution.</li><li style=\"margin-bottom: 0.3em;\"><strong>The Cycle:</strong> The regimen describes drinking this solution for <strong>5 days</strong>, followed by a mandatory rest period of <strong>3 days</strong>.</li><li style=\"margin-bottom: 0.3em;\"><strong>Duration:</strong> This '5 days on, 3 days off' cycle is typically repeated for a second week, after which users are advised to <strong>discontinue for approximately 6 months</strong>.</li></ul>",
+    "section_adjuncts": "<p><strong>Chemistry & Temperature:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>NO Hot Beverages:</strong> Protocols strictly warn that Borax must never be mixed into hot drinks. At ~32°C, it loses water of crystallization and converts into a pentahydrate or anhydrous glass-like compound, fundamentally altering its weight and structure.</li><li style=\"margin-bottom: 0.3em;\"><strong>Stomach Acidity:</strong> The specific dilution (1L water) is described as necessary to prevent the alkaline powder from neutralizing stomach acid, which would otherwise impair digestion and cause fermentation or reflux.</li></ul>",
+    "section_considerations": "<p><strong>Mechanism of Accumulation:</strong></p><p style=\"margin-bottom: 1em;\">High daily intake creates 'Functional Accumulation,' where daily intake exceeds the body's elimination rate. This causes boron to gradually distribute into the liver, kidneys, brain, and reproductive organs.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Renal Recovery:</strong> The '3-Day Off' window is included to allow blood boron levels to drop (normalization usually occurs within 24–48 hours in healthy kidneys).</li></ul>",
+    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">WARNING: Reproductive & Renal Toxicity</p><p style=\"margin-bottom: 1em;\">Deviating from the protocol by using high doses or continuous use significantly increases the risk of toxicity.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Reproductive Harm:</strong> Continuous use is associated with fertility issues, testicular damage, and menstrual disruption. It is <strong>strictly contraindicated</strong> during pregnancy due to fetal harm.</li><li style=\"margin-bottom: 0.3em;\"><strong>Kidney Overload:</strong> Chronic overload can lead to fatigue, nausea, electrolyte disturbances, and kidney irritation.</li><li style=\"margin-bottom: 0.3em;\"><strong>Gastric Erosion:</strong> Undiluted or high doses are corrosive and can damage the stomach lining, leading to ulcers or GERD.</li></ul>",
+    "anecdotal_score": 4.7, "scientific_score": 1.5, "reviews": 3500, "video_link": "https://www.youtube.com/embed/pQk0k8c4mCg",
+    "tags": ["Boron", "Arthritis", "Osteoporosis", "Candida", "Joint Pain"],
     "vendors": [
-      {
-        "name": "Safe Generic Pharmacy",
-        "link": "https://www.safegenericpharmacy.com",
-        "product_trust_score": 4.6
-      },
-      {
-        "name": "Fenbendazole Australia",
-        "link": "https://fenbendazoleaustralia.com.au",
-        "product_trust_score": 4.7
-      }
+      { "name": "Mule Team (Standard Source)", "link": "https://www.20muleteamlaundry.com/", "product_trust_score": 4.5 },
+      { "name": "Prescribed For Life (Pure Powder)", "link": "https://prescribedforlife.com", "product_trust_score": 4.8 }
     ],
     "scientific_studies": [
-      {
-        "title": "Fenbendazole acts as a moderate microtubule destabilizing agent and causes cancer cell death",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6080846/"
-      },
-      {
-        "title": "Repurposing Drugs in Oncology (ReDO)—Mebendazole and Fenbendazole",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4096024/"
-      }
+      { "title": "Essentiality of Boron for Healthy Bones and Joints", "url": "https://pubmed.ncbi.nlm.nih.gov/7889887/" },
+      { "title": "Nothing Boring About Boron", "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4712861/" }
     ]
   },
-  {
-    "title": "Vitamin D3 + K2 (High-Dose)",
-    "ailment": "Immune Deficiency & Autoimmunity",
-    "description": "A foundational steroid hormone protocol that regulates over 2,000 genes, essential for robust immune defense and structural integrity.",
-    "efficacy_metrics": {
-      "average_rating": 95,
-      "vote_count": 10000,
-      "key_success_story": "Foundational to the Coimbra Protocol, which reports high remission rates in Multiple Sclerosis and Psoriasis patients using high-dose therapy."
-    },
-    "popularity_metrics": {
-      "baseline_report_volume": 50000,
-      "site_views": 0
-    },
-    "ai_overview": {
-      "mood": "Genomic Regulator",
-      "content": "Vitamin D is technically a secosteroid hormone, not a vitamin. It controls the expression of roughly 3% of the human genome. While RDAs are set to prevent rickets (600 IU), functional medicine protocols aim for 'optimal' blood levels (60-80 ng/mL) to modulate the immune system, reduce systemic inflammation, and support mental health. This protocol strictly pairs D3 with Vitamin K2 to prevent soft tissue calcification."
-    },
-    "section_core": "<p><strong>Therapeutic Daily Protocol:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin D3 (Cholecalciferol):</strong> Standard functional maintenance is <strong>5,000 IU to 10,000 IU</strong> daily. (Note: The advanced 'Coimbra Protocol' for autoimmunity uses ultra-high doses but requires strict medical supervision).</li><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin K2 (MK-7):</strong> Essential for safety. Protocols advise taking <strong>100mcg to 200mcg</strong> of K2 (MK-7) daily. A general rule is 100mcg of K2 per 10,000 IU of D3.</li><li style=\"margin-bottom: 0.3em;\"><strong>Timing:</strong> It is recommended to take in the morning with a meal containing fat (avocado, eggs, oil) for absorption. Taking it at night may suppress melatonin.</li></ul>",
-    "section_adjuncts": "<p><strong>Required Cofactors:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Magnesium:</strong> The enzymatic conversion of D3 into its active form consumes significant magnesium. Supplementation of Magnesium (Glycinate or Malate, 400mg+) is described as mandatory to prevent muscle cramps and anxiety.</li><li style=\"margin-bottom: 0.3em;\"><strong>Boron:</strong> 3mg daily can extend the half-life of Vitamin D in the body.</li><li style=\"margin-bottom: 0.3em;\"><strong>Vitamin A (Retinol):</strong> Works in tandem with D3 on genetic receptors (RXR/VDR). Eating liver or taking cod liver oil provides the necessary balance.</li></ul>",
-    "section_considerations": "<p><strong>Testing & Forms:</strong></p><p style=\"margin-bottom: 1em;\"><strong>Target Levels:</strong> Practitioners emphasize that testing is essential. Functional targets for 25(OH)D levels are often cited as <strong>60–80 ng/mL</strong> (150–200 nmol/L).</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Liquid vs. Softgel:</strong> Liquid drops (MCT oil base) often have better absorption rates than dry tablets.</li><li style=\"margin-bottom: 0.3em;\"><strong>Sunlight:</strong> Solar D3 (sulfated form) has benefits supplements cannot mimic. Use this protocol to supplement what you cannot get from the sun during winter or office work.</li></ul>",
-    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">CRITICAL WARNING: The Calcium Paradox</p><p style=\"margin-bottom: 1em;\">Vitamin D increases calcium absorption. Without Vitamin K2, this calcium may deposit in arteries and kidneys instead of bones.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Hypercalcemia:</strong> Signs of toxicity include nausea, vomiting, weakness, and frequent urination. This usually occurs only at massive doses (>50k IU/day) for prolonged periods.</li><li style=\"margin-bottom: 0.3em;\"><strong>Contraindications:</strong> Caution with Sarcoidosis, Hyperparathyroidism, or certain lymphomas where calcium regulation is already impaired.</li></ul>",
-    "anecdotal_score": 4.9,
-    "scientific_score": 4.8,
-    "reviews": 10000,
-    "video_link": "https://www.youtube.com/embed/7Jm8s0FRLKs",
-    "tags": [
-      "Immunity",
-      "Hormone Health",
-      "Bone Density",
-      "Essential",
-      "Depression"
-    ],
-    "vendors": [
-      {
-        "name": "Sports Research (D3 + K2 Softgel)",
-        "link": "https://sportsresearch.com",
-        "product_trust_score": 4.8
-      },
-      {
-        "name": "Thorne (Liquid D / K2)",
-        "link": "https://www.thorne.com",
-        "product_trust_score": 4.9
-      }
-    ],
-    "scientific_studies": [
-      {
-        "title": "Vitamin D and the Immune System",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3166406/"
-      },
-      {
-        "title": "Proper Calcium Use: Vitamin K2 as a Promoter of Bone and Cardiovascular Health",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4566462/"
-      }
-    ]
-  },
-  {
-    "title": "Methylene Blue (Low-Dose)",
-    "ailment": "Mitochondrial Dysfunction & Cognitive Fatigue",
-    "description": "A century-old synthetic dye that acts as a potent mitochondrial electron donor to boost ATP production and cerebral blood flow.",
-    "efficacy_metrics": {
-      "average_rating": 82,
-      "vote_count": 400,
-      "key_success_story": "Biohackers and patients with post-viral fatigue consistently report 'fog lifting' and sustained mental energy within days of starting low-dose therapy."
-    },
-    "popularity_metrics": {
-      "baseline_report_volume": 3500,
-      "site_views": 0
-    },
-    "ai_overview": {
-      "mood": "Metabolic Electron Donor",
-      "content": "Methylene Blue serves as a bioenergetic assist, bypassing blocked points in the mitochondrial electron transport chain (specifically Complex I–III) to directly donate electrons to Complex IV. This increases ATP production and reduces oxidative stress. At low doses, it acts as a nootropic and neuroprotective agent, while high doses are reserved for acute medical conditions like methemoglobinemia."
-    },
-    "section_core": "<p><strong>Low-Dose Metabolic Protocol:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Starting Dose:</strong> 0.5mg/kg is the clinical standard, but for nootropic use, many start at a fixed dose of <strong>5mg to 10mg</strong> once daily in the morning.</li><li style=\"margin-bottom: 0.3em;\"><strong>Titration:</strong> Increase slowly. A common 'sweet spot' for cognitive benefits is between <strong>15mg and 40mg</strong> daily.</li><li style=\"margin-bottom: 0.3em;\"><strong>Cycling:</strong> Due to its long half-life and hormetic nature, a schedule of '5 days on, 2 days off' is frequently recommended to maintain efficacy.</li></ul>",
-    "section_adjuncts": "<p><strong>Synergistic Enhancers:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Red Light Therapy (Photobiomodulation):</strong> Methylene Blue concentrates in the mitochondria and acts as a photo-acceptor. Exposing the body to Red/NIR light (660nm-850nm) shortly after dosing significantly amplifies ATP production.</li><li style=\"margin-bottom: 0.3em;\"><strong>Ascorbic Acid (Vitamin C):</strong> Mixing MB with Vitamin C in water can convert it to 'Leucomethylene Blue' (clear form), which may improve absorption and antioxidant capacity.</li></ul>",
-    "section_considerations": "<p><strong>Purity & Handling:</strong></p><p style=\"margin-bottom: 1em;\"><strong>USP Grade Only:</strong> Sources strictly advise using Pharmaceutical Grade (USP) Methylene Blue. Chemical or 'lab' grades (often sold for fish tanks) contain heavy metals like arsenic, lead, and cadmium.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Staining Risk:</strong> MB is a potent dye. It will permanently stain clothing, marble, and porous surfaces.</li><li style=\"margin-bottom: 0.3em;\"><strong>Oral Hygiene:</strong> Liquid forms will stain teeth blue temporarily. Drink through a straw or use troches (lozenges) placed under the tongue to bypass teeth.</li><li style=\"margin-bottom: 0.3em;\"><strong>Urine Color:</strong> Expect urine to turn a distinct blue or greenish color. This is normal and indicates the kidneys are processing it.</li></ul>",
-    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">CRITICAL DRUG INTERACTION (Serotonin Syndrome)</p><p style=\"margin-bottom: 1em;\">Methylene Blue is a Monoamine Oxidase Inhibitor (MAOI). Do not take this if you are on SSRIs, SNRIs, or other antidepressants. The combination can lead to fatal Serotonin Syndrome.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>G6PD Deficiency:</strong> Contraindicated. Individuals with this genetic enzyme deficiency risk hemolytic anemia (red blood cell destruction).</li><li style=\"margin-bottom: 0.3em;\"><strong>Pregnancy & Nursing:</strong> Strictly contraindicated due to potential teratogenic effects.</li><li style=\"margin-bottom: 0.3em;\"><strong>High Blood Pressure:</strong> MB inhibits nitric oxide synthase (NOS), which can transiently raise blood pressure. Monitor if hypertensive.</li></ul>",
-    "anecdotal_score": 4.6,
-    "scientific_score": 4.2,
-    "reviews": 400,
-    "video_link": "https://www.youtube.com/embed/_hsKLKa_Pq8",
-    "tags": [
-      "Nootropic",
-      "Mitochondria",
-      "Anti-Aging",
-      "MAO Inhibitor",
-      "Biohacking"
-    ],
-    "vendors": [
-      {
-        "name": "Troscriptions (Buccal Troche)",
-        "link": "https://troscriptions.com/products/just-blue",
-        "product_trust_score": 4.9
-      },
-      {
-        "name": "Compass Laboratory (USP Liquid)",
-        "link": "https://compasslaboratory.com",
-        "product_trust_score": 4.7
-      },
-      {
-        "name": "Meraki (USP Kit)",
-        "link": "https://merakimedicinal.com",
-        "product_trust_score": 4.5
-      }
-    ],
-    "scientific_studies": [
-      {
-        "title": "Protection against neurodegeneration with low-dose methylene blue",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5826781/"
-      },
-      {
-        "title": "Methylene Blue as a cerebral metabolic enhancer",
-        "url": "https://pubmed.ncbi.nlm.nih.gov/22521042/"
-      }
-    ]
-  },
-  {
-    "title": "Chlorine Dioxide Solution (CDS)",
-    "ailment": "Systemic Pathogen Load & Biofilm",
-    "description": "A selective oxidant therapy using chlorine dioxide gas dissolved in water to neutralize acidic pathogens, viruses, and bacteria without triggering antibiotic resistance.",
-    "efficacy_metrics": {
-      "average_rating": 40,
-      "vote_count": 800,
-      "key_success_story": "Thousands of testimonials exist regarding recovery from Malaria and chronic infections, though official medical bodies strictly warn against its use due to safety risks."
-    },
-    "popularity_metrics": {
-      "baseline_report_volume": 12500,
-      "site_views": 0
-    },
-    "ai_overview": {
-      "mood": "Selective Oxidative Purifier",
-      "content": "CDS acts as a 'smart' molecule (ClO2) that targets acidic pathogens and anaerobic cells through oxidation, stripping them of electrons. Unlike the older 'MMS' protocol which causes frequent nausea due to reaction residues, CDS is the pure gas saturated in water (3000ppm), offering higher bioavailability and significantly fewer gastric side effects."
-    },
-    "section_core": "<p><strong>Protocol C (Common Daily Protocol):</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Preparation:</strong> Add <strong>10ml</strong> of CDS concentrate (3000ppm) to <strong>1 Liter</strong> of water.</li><li style=\"margin-bottom: 0.3em;\"><strong>Dosage:</strong> Protocols instruct drinking roughly <strong>100ml every hour</strong> for 10 hours throughout the day.</li><li style=\"margin-bottom: 0.3em;\"><strong>Acute Infection:</strong> Dosage can be safely increased to 20ml or 30ml of CDS per Liter of water if well tolerated, taken in shorter intervals.</li></ul>",
-    "section_adjuncts": "<p><strong>Bio-Availability & Support:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>DMSO (Dimethyl Sulfoxide):</strong> Adding 3ml-5ml of 70% DMSO to the 1L bottle can help the ClO2 penetrate deeper into tissues and cysts.</li><li style=\"margin-bottom: 0.3em;\"><strong>Isotonic Water:</strong> Mixing CDS with diluted sea water (isotonic) instead of plain water can improve electrolyte balance during the detox.</li><li style=\"margin-bottom: 0.3em;\"><strong>Binder Support:</strong> Zeolite or Bentonite clay (taken 2 hours apart) can help mop up endotoxins released by dying pathogens.</li></ul>",
-    "section_considerations": "<p><strong>Critical Storage & Handling:</strong></p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Temperature Sensitive:</strong> Keep the 3000ppm concentrate refrigerated (below 11°C). Above this temperature, the gas evaporates, reducing potency.</li><li style=\"margin-bottom: 0.3em;\"><strong>UV Sensitive:</strong> Store in amber glass bottles. Light degrades the molecule rapidly.</li><li style=\"margin-bottom: 0.3em;\"><strong>The 'Antioxidant Gap':</strong> Vitamin C, coffee, alcohol, and antioxidant supplements neutralize Chlorine Dioxide. You must separate them by at least <strong>2 to 4 hours</strong> from your CDS doses.</li></ul>",
-    "section_cautions": "<p style=\"color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;\">WARNING: Do not inhale the gas directly from the concentrate bottle. It is a lung irritant.</p><ul style=\"list-style: disc; margin-left: 1.5em; padding-left: 0.5em; margin-top: 0.5em; margin-bottom: 1em; line-height: 1.4;\"><li style=\"margin-bottom: 0.3em;\"><strong>Herxheimer Reaction:</strong> Rapid pathogen die-off can cause fatigue, nausea, or diarrhea. If this occurs, reduce the dose by 50% the next day; do not stop completely.</li><li style=\"margin-bottom: 0.3em;\"><strong>Material Reactivity:</strong> Never use metal containers or spoons. ClO2 reacts with metal. Use glass or HDPE plastic.</li><li style=\"margin-bottom: 0.3em;\"><strong>Contraindications:</strong> Caution is advised for those on strong blood thinners (CDS increases microcirculation) or those with G6PD deficiency (rare).</li></ul>",
-    "anecdotal_score": 4.8,
-    "scientific_score": 1.8,
-    "reviews": 12500,
-    "video_link": null,
-    "tags": [
-      "Oxidative Therapy",
-      "Detox",
-      "Antiviral",
-      "Andreas Kalcker",
-      "Water Purification"
-    ],
-    "vendors": [
-      {
-        "name": "Aquarius Pro Life (Europe)",
-        "link": "https://www.aquarius-prolife.com",
-        "product_trust_score": 4.7
-      },
-      {
-        "name": "KV Lab (Reagents)",
-        "link": "https://www.kvlab.com",
-        "product_trust_score": 4.5
-      }
-    ],
-    "scientific_studies": [
-      {
-        "title": "Chlorine dioxide is a more potent antiviral agent against SARS-CoV-2 than sodium hypochlorite",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8442261/"
-      },
-      {
-        "title": "Clarifying the Science of Chlorine Dioxide Solution (CDS): Evidence for Medical Use",
-        "url": "https://ijmra.in/v8i3/54.php"
-      }
-    ]
-  }
 ];
 
 // --- COMPONENTS ---
@@ -865,7 +530,6 @@ const SortControl = ({ sortBy, onSortChange }) => {
     );
 };
 
-// --- UPDATED: AlphaFilter with Drug/Ailment Toggle ---
 const AlphaFilter = ({ selected, onSelect, browseMode, onBrowseModeChange }) => {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     const [isOpen, setIsOpen] = useState(false);
@@ -873,10 +537,10 @@ const AlphaFilter = ({ selected, onSelect, browseMode, onBrowseModeChange }) => 
     return (
         <div className="w-full mb-4">
             <div className={`border rounded-xl shadow-sm bg-white overflow-hidden`}>
-                {/* Top Toggle Bar */}
+                {/* Top Toggle Bar: Protocol vs Ailment */}
                 <div className="flex border-b border-gray-100">
                     <button 
-                        onClick={() => onBrowseModeChange('title')}
+                        onClick={() => { onBrowseModeChange('title'); onSelect(null); }} // Reset letter when switching modes
                         className={`flex-1 py-3 text-xs font-bold flex items-center justify-center transition-colors ${browseMode === 'title' ? 'bg-emerald-50 text-emerald-700' : 'text-gray-500 hover:bg-gray-50'}`}
                     >
                         <Pill className={`w-3.5 h-3.5 mr-1.5 ${browseMode === 'title' ? 'text-emerald-600' : 'text-gray-400'}`} />
@@ -884,7 +548,7 @@ const AlphaFilter = ({ selected, onSelect, browseMode, onBrowseModeChange }) => 
                     </button>
                     <div className="w-px bg-gray-100"></div>
                     <button 
-                        onClick={() => onBrowseModeChange('ailment')}
+                        onClick={() => { onBrowseModeChange('ailment'); onSelect(null); }} // Reset letter when switching modes
                         className={`flex-1 py-3 text-xs font-bold flex items-center justify-center transition-colors ${browseMode === 'ailment' ? 'bg-emerald-50 text-emerald-700' : 'text-gray-500 hover:bg-gray-50'}`}
                     >
                         <LayoutList className={`w-3.5 h-3.5 mr-1.5 ${browseMode === 'ailment' ? 'text-emerald-600' : 'text-gray-400'}`} />
@@ -1077,6 +741,7 @@ const ScientificLiteratureButton = ({ protocol }) => {
     );
 };
 
+
 const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite, onToggleFavorite, scrollToTestimonialsOnMount }) => {
     const [testimonialAilment, setTestimonialAilment] = useState("");
     const [testimonialText, setTestimonialText] = useState('');
@@ -1235,7 +900,7 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
             case 'loading': return <p className="text-emerald-600 font-semibold flex items-center">Submitting...</p>;
             case 'success': return <p className="text-green-600 font-semibold">Thank you for your review!</p>;
             case 'error': return <p className="text-red-600 font-semibold">Submission failed.</p>;
-            case 'already': return <p className="text-gray-600 font-semibold">You’ve already shared your experience on this protocol. Thank you for contributing to the community data.</p>;
+            case 'already': return <p className="text-gray-600 font-semibold">You’ve already shared your experience on this protocol. Thank thank you for contributing to the community data.</p>;
             default: return null;
         }
     };
@@ -1604,7 +1269,7 @@ const App = () => {
     const [protocols, setProtocols] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [heroSearchTerm, setHeroSearchTerm] = useState(''); // New independent state for Hero search
-    const [selectedLetter, setSelectedLetter] = useState(null);
+    const [selectedLetter, setSelectedLetter] = useState(null); 
     const [browseMode, setBrowseMode] = useState('title'); // 'title' (Protocol) or 'ailment'
     const [isBrowsing, setIsBrowsing] = useState(false); 
     const [sortBy, setSortBy] = useState('efficacy'); 
@@ -1613,8 +1278,7 @@ const App = () => {
     const [selectedProtocolId, setSelectedProtocolId] = useState(null);
     const [notification, setNotification] = useState(null);
     const [showUploader, setShowUploader] = useState(false); 
-    const [heroInputRef, setHeroInputRef] = useState(null); // Ref for hero input to manage focus
-
+    
     const [showTrustScoreInfo, setShowTrustScoreInfo] = useState(false);
     const [showAboutPage, setShowAboutPage] = useState(false);
     const [reportIntent, setReportIntent] = useState(null); 
@@ -1623,6 +1287,7 @@ const App = () => {
 
     // Custom Hook
     const { favorites, toggleFavorite, isFavorite } = useFavorites();
+
 
     const handleShare = useCallback(async (protocol) => {
         const result = await shareProtocol(protocol);
@@ -1634,22 +1299,22 @@ const App = () => {
 
     const handleBack = useCallback(() => {
       setSelectedProtocolId(null);
-      setReportIntent(null);
-      window.history.pushState(null, '', '/');
+      setReportIntent(null); // Clear intent when going back
+      safePushState(null, '', '/');
       window.scrollTo(0, 0);
     }, []);
     
     const handleGoHome = useCallback(() => {
       setSelectedProtocolId(null);
       setSearchTerm('');
-      setHeroSearchTerm('');
+      setHeroSearchTerm(''); // Clear hero search too
       setSelectedLetter(null);
       setIsBrowsing(false);
       setSortBy('efficacy');
       setShowAboutPage(false);
       setActiveFilter(null);
-      setReportIntent(null);
-      window.history.pushState(null, '', '/');
+      setReportIntent(null); // Clear intent when going home
+      safePushState(null, '', '/');
       window.scrollTo(0, 0);
     }, []);
     
@@ -1661,8 +1326,8 @@ const App = () => {
       setHeroSearchTerm('');
       setSelectedLetter(null);
       setActiveFilter(null);
-      setReportIntent(null);
-      window.history.pushState(null, '', '/about');
+      setReportIntent(null); // Clear intent
+      safePushState(null, '', '/about');
       window.scrollTo(0, 0);
     }, []);
     
@@ -1670,7 +1335,8 @@ const App = () => {
     const handleProtocolReportSelect = useCallback((id) => {
         setSelectedProtocolId(id);
         setIsFindingProtocolForReport(false);
-        window.history.pushState(null, '', `/protocol/${id}`);
+        // Don't clear reportIntent here so we can use it to scroll in ProtocolDetailPage
+        safePushState(null, '', `/protocol/${id}`);
         window.scrollTo(0, 0);
     }, []);
 
@@ -1705,8 +1371,18 @@ const App = () => {
         return protocols.find(p => p.id === selectedProtocolId);
     }, [protocols, selectedProtocolId]);
 
-    // ... (Title and Popstate effects remain the same) ...
-    
+    useEffect(() => {
+        let title = "Healing Directory";
+        if (showAboutPage) {
+            title = "About – Healing Directory";
+        } else if (selectedProtocolId && currentProtocol) {
+            const protocolTitle = currentProtocol.title || "Loading Protocol";
+            title = `${protocolTitle} – Healing Directory`;
+        }
+        document.title = title;
+    }, [showAboutPage, selectedProtocolId, currentProtocol]);
+
+
     useEffect(() => {
         const q = query(collection(db, COLLECTION_NAME));
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -1717,8 +1393,42 @@ const App = () => {
         });
         return () => unsubscribe();
     }, []);
-    
-    // ... (Popstate effect) ...
+
+    useEffect(() => {
+      const path = window.location.pathname;
+      const match = path.match(/^\/protocol\/([^/]+)/);
+
+      if (match) {
+        const idFromUrl = match[1];
+        setSelectedProtocolId(idFromUrl);
+        setIsBrowsing(false);
+        setShowAboutPage(false);
+      }
+    }, []);
+
+    useEffect(() => {
+      const handlePopState = () => {
+        const path = window.location.pathname;
+        const protocolMatch = path.match(/^\/protocol\/([^/]+)/);
+      
+        if (protocolMatch) {
+          setSelectedProtocolId(protocolMatch[1]);
+          setIsBrowsing(false);
+          setShowAboutPage(false);
+        } else if (path === '/about') {
+          setShowAboutPage(true);
+          setSelectedProtocolId(null);
+        } else {
+          setSelectedProtocolId(null);
+          setShowAboutPage(false);
+          setReportIntent(null); // Clear intent on history navigation to home
+        }
+      };
+      
+
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
 
     const filteredProtocols = useMemo(() => {
         let results = [];
@@ -1752,13 +1462,16 @@ const App = () => {
         const sorted = [...results];
         switch (sortBy) {
             case 'efficacy':
+                // Sort by weighted average score (descending)
                 return sorted.sort((a, b) => {
                     const scoreA = a.efficacy_metrics?.average_rating || 0;
                     const scoreB = b.efficacy_metrics?.average_rating || 0;
                     return scoreB - scoreA;
                 });
             case 'popular':
+                 // Sort by Total Interest (baseline + views)
                  return sorted.sort((a, b) => {
+                     // ROBUST SORT: Check nested first, fall back to root
                      const volA = (a.popularity_metrics?.baseline_report_volume || a.baseline_report_volume || 0) + (a.popularity_metrics?.site_views || a.site_views || 0);
                      const volB = (b.popularity_metrics?.baseline_report_volume || b.baseline_report_volume || 0) + (b.popularity_metrics?.site_views || b.site_views || 0);
                      return volB - volA;
@@ -1770,8 +1483,39 @@ const App = () => {
         }
     }, [protocols, searchTerm, selectedLetter, isBrowsing, sortBy, activeFilter, favorites, browseMode]);
 
-    // ... (handleSelectProtocol, handleFilter, handleLetterSelect, startBrowsing remain same) ...
+    const handleSelectProtocol = useCallback((id) => {
+      setSelectedProtocolId(id);
+      safePushState(null, '', `/protocol/${id}`);
+      window.scrollTo(0, 0);
+    }, []);
     
+
+    const handleFilter = useCallback((tag) => {
+        if (activeFilter === tag) {
+            setActiveFilter(null);
+            setSearchTerm('');
+            setHeroSearchTerm('');
+            if (tag === 'favorites') {
+                setIsBrowsing(true); // fall back to browsing all if unclicking favorites
+            }
+        } else {
+            setActiveFilter(tag);
+            if (tag === 'favorites') {
+                setSearchTerm('');
+                setHeroSearchTerm('');
+                setSelectedLetter(null);
+                setIsBrowsing(true);
+                setShowAboutPage(false);
+            } else {
+                setSearchTerm(tag);
+                setHeroSearchTerm(tag); // Sync hero search so it feels connected
+                setSelectedLetter(null);
+                setIsBrowsing(true);
+                setShowAboutPage(false);
+            }
+        }
+    }, [activeFilter]);
+
     const handleLetterSelect = useCallback((letter) => {
         setSelectedLetter(letter);
         setSearchTerm('');
@@ -1784,33 +1528,6 @@ const App = () => {
         }
     }, []);
 
-    const handleFilter = useCallback((tag) => {
-        // ... same as before
-        if (activeFilter === tag) {
-            setActiveFilter(null);
-            setSearchTerm('');
-            setHeroSearchTerm('');
-            if (tag === 'favorites') {
-                setIsBrowsing(true); 
-            }
-        } else {
-            setActiveFilter(tag);
-            if (tag === 'favorites') {
-                setSearchTerm('');
-                setHeroSearchTerm('');
-                setSelectedLetter(null);
-                setIsBrowsing(true);
-                setShowAboutPage(false);
-            } else {
-                setSearchTerm(tag);
-                setHeroSearchTerm(tag);
-                setSelectedLetter(null);
-                setIsBrowsing(true);
-                setShowAboutPage(false);
-            }
-        }
-    }, [activeFilter]);
-
     const startBrowsing = useCallback(() => {
         setIsBrowsing(true);
         setSearchTerm('');
@@ -1820,28 +1537,24 @@ const App = () => {
         setShowAboutPage(false);
         setSortBy('efficacy'); 
     }, []);
-
-    // UPDATED: Handle Hero Search Enter Key -> Blurs to hide keyboard
-    const handleHeroSearchSubmit = (e) => {
-        if (e.key === 'Enter' && heroSearchTerm.trim()) {
-            setSearchTerm(heroSearchTerm);
-            setIsBrowsing(true);
-            setSelectedLetter(null);
-            setActiveFilter(null);
-            // Dismiss keyboard
-            if (e.target) e.target.blur();
-        }
-    };
-
-    // UPDATED: Manual Trigger for Search Icon Click
-    const triggerSearch = () => {
+    
+    // UPDATED: Handle Hero Search Enter Key + Icon Click Logic
+    const triggerSearch = useCallback((e) => {
+        // Handle both Enter keydown and Button click
+        if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== 'Go') return;
+        
+        // Only proceed if there is a search term
         if (heroSearchTerm.trim()) {
-            setSearchTerm(heroSearchTerm);
-            setIsBrowsing(true);
+            setSearchTerm(heroSearchTerm); // Pass term to main search
+            setIsBrowsing(true); // Switch view
             setSelectedLetter(null);
             setActiveFilter(null);
+            
+            // Dismiss keyboard on mobile
+            if (document.activeElement) document.activeElement.blur(); 
         }
-    };
+    }, [heroSearchTerm]);
+
 
     if (loading) {
         return (
@@ -1867,7 +1580,7 @@ const App = () => {
                 appId={firebaseConfig.appId} 
                 isFavorite={isFavorite(selectedProtocolId)} 
                 onToggleFavorite={toggleFavorite} 
-                scrollToTestimonialsOnMount={!!reportIntent} 
+                scrollToTestimonialsOnMount={!!reportIntent} // Trigger scroll if intent exists
             />;
         }
 
@@ -1882,10 +1595,12 @@ const App = () => {
                           backgroundPosition: 'center',
                       }}
                 >
+                    {/* Switched overlay back to Teal at 30% opacity */}
                     <div className="absolute inset-0 bg-teal-900/30 backdrop-blur-[1px] rounded-3xl"></div>
                     
                     <div className="relative z-10 max-w-2xl mx-auto text-center">
                         <div className="flex justify-center mb-4">
+                            {/* UPDATED: Soft white/glass background for the logo */}
                             <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm border border-white/40 shadow-sm">
                                 <img 
                                     src="/logo.png" 
@@ -1908,20 +1623,20 @@ const App = () => {
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto">
                             <div className="relative w-full shadow-2xl">
-                                {/* UPDATED: Search Icon acts as Button */}
+                                {/* UPDATED: Search Icon acts as Button/Enter key handler */}
                                 <button 
                                     onClick={triggerSearch}
-                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-white/10 active:scale-95 transition-all"
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-white/10 active:scale-95 transition-all z-20"
                                 >
                                     <Search className="w-5 h-5 text-gray-400 hover:text-emerald-500" />
                                 </button>
                                 <input 
-                                    type="text" 
+                                    type="search" // Use type search for better mobile behavior (Go/Search button)
                                     placeholder="Search for ailments, drugs, or protocols..." 
                                     className="w-full py-4 pl-12 pr-4 bg-white text-gray-800 rounded-xl shadow-lg focus:ring-4 focus:ring-teal-400/50 focus:outline-none transition-all font-medium" 
                                     value={heroSearchTerm}
                                     onChange={(e) => setHeroSearchTerm(e.target.value)}
-                                    onKeyDown={handleHeroSearchSubmit}
+                                    onKeyDown={triggerSearch} // Trigger search on Enter key press
                                 />
                             </div>
                         </div>
@@ -1944,7 +1659,7 @@ const App = () => {
                                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                  <input 
                                      autoFocus // Automatically focus this input when switching from Hero
-                                     type="text" 
+                                     type="search" // Use search type here too
                                      placeholder="Search..." 
                                      className="w-full py-2.5 pl-10 pr-4 bg-white border border-gray-200 text-gray-800 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium text-sm" 
                                      value={searchTerm}
