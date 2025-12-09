@@ -519,7 +519,7 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
     // Use the ID you see in the URL after navigating to the protocol page (e.g., metabolic-antiparasitic-protocol-active-cancer).
     const filters = [ 
         { name: "Cancer", icon: Dna, slug: "metabolic-antiparasitic-protocol-active-cancer" }, // Direct link
-        { name: "Skin Cancer", icon: Sun, slug: null }, // NO Direct link, removed DCA slug
+        { name: "Skin Cancer", icon: Sun, slug: null }, // NO Direct link, should fall back to exact phrase search
         { name: "CV19 Vax Detox", icon: Shield, slug: "spike-protein-detox-nicotine-enzyme-protocol" }, // Direct link
         { name: "Brain Health", icon: Brain, slug: "dichloroacetate-dca" }, // Direct link (DCA)
         { name: "Parasite cleans", icon: Microscope, slug: "universal-anti-parasitic-protocol-dr-thomas-lodi" }, // Direct link
@@ -535,7 +535,6 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
         } else {
             // Option 2: No action, as requested (If slug is null, it just toggles the visual active state)
             if (activeFilter !== filter.name) {
-                 // Note: Since we are not doing a generic search, this primarily changes the button color.
                  onFilter(filter.name); 
             } else {
                  onFilter(null); // Deselect if already active
@@ -652,7 +651,7 @@ const App = () => {
         setSelectedLetter(null);
         setIsBrowsing(true);
     }, []);
-    const handleLetterSelect = useCallback((letter) => { setSelectedLetter(letter); setSearchTerm(''); setHeroSearchTerm(''); setActiveFilter(null); setIsBrowsing(true); setShowAboutPage(false); }, []);
+    const handleLetterSelect = useCallback((letter) => { setSelectedProtocolId(null); setSearchTerm(''); setHeroSearchTerm(''); setActiveFilter(null); setIsBrowsing(true); setShowAboutPage(false); }, []);
     const startBrowsing = useCallback(() => { setIsBrowsing(true); setSearchTerm(''); setHeroSearchTerm(''); setSelectedLetter(null); setActiveFilter(null); setShowAboutPage(false); setSortBy('efficacy'); }, []);
     
     // UPDATED: Trigger search with AGGRESSIVE blur to close keyboard
@@ -759,7 +758,9 @@ const App = () => {
                     </div>
                 ) : (
                     <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in duration-700">
-                        <div className="text-center"><div className="mt-6"><QuickFilters onFilter={handleFilter} activeFilter={activeFilter} showSaved={false} handleSelectProtocol={handleSelectProtocol} /></div></div>
+                        <div className="text-center">
+                            <div className="mt-6"><QuickFilters onFilter={handleFilter} activeFilter={activeFilter} showSaved={false} handleSelectProtocol={handleSelectProtocol} /></div>
+                        </div>
                         {/* Explainer Video / Mission Section */}
                         <section className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
                             <div className="grid md:grid-cols-2">
@@ -769,9 +770,9 @@ const App = () => {
                         </section>
                         <section>
                             <div className="grid md:grid-cols-3 gap-6">
-                                <div onClick={() => setShowTrustScoreInfo(!showTrustScoreInfo)} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-all cursor-pointer relative overflow-hidden group"><div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4"><Shield className="w-6 h-6 text-blue-600" /></div><h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">Trust Scores <ChevronDown className={`w-4 h-4 ml-1 text-gray-400 transition-transform ${showTrustScoreInfo ? 'rotate-180' : ''}`} /></h3><p className="text-sm text-gray-500">We cut through the noise by separating anecdotal success from scientific validation.</p>{showTrustScoreInfo && (<div className="mt-4 pt-4 border-t border-gray-100 text-left bg-blue-50/50 -mx-6 -mb-6 p-6 animate-in slide-in-from-top-2"><p className="text-sm text-blue-900 font-medium italic mb-2">"Anecdote is the plural of hypothesis."</p><p className="xs text-gray-600">Our rating system aggregates real-world reports. While not clinical trials, these thousands of shared experiences form a powerful data set that can point the way to efficacy before science catches up.</p></div>)}</div>
+                                <div onClick={() => setShowTrustScoreInfo(prev => !prev)} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-all cursor-pointer relative overflow-hidden group"><div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4"><Shield className="w-6 h-6 text-blue-600" /></div><h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">Trust Scores <ChevronDown className={`w-4 h-4 ml-1 text-gray-400 transition-transform ${showTrustScoreInfo ? 'rotate-180' : ''}`} /></h3><p className="text-sm text-gray-500">We cut through the noise by separating anecdotal success from scientific validation.</p>{showTrustScoreInfo && (<div className="mt-4 pt-4 border-t border-gray-100 text-left bg-blue-50/50 -mx-6 -mb-6 p-6 animate-in slide-in-from-top-2"><p className="text-sm text-blue-900 font-medium italic mb-2">"Anecdote is the plural of hypothesis."</p><p className="xs text-gray-600">Our rating system aggregates real-world reports. While not clinical trials, these thousands of shared experiences form a powerful data set that can point the way to efficacy before science catches up.</p></div>)}</div>
                                 <div onClick={handleGoToAbout} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-all cursor-pointer group"><div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4"><Stethoscope className="w-6 h-6 text-green-600" /></div><h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">Off-Patent Focus<ChevronRight className="w-4 h-4 ml-1 text-gray-400 group-hover:translate-x-1 transition-transform" /></h3><p className="text-sm text-gray-500">We highlight repurposed drugs and natural compounds that the industry overlooks due to lack of patentability.</p></div>
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow"><div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4"><FileText className="w-6 h-6 text-purple-600" /></div><h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">Community Vetted</h3><p className="text-sm text-gray-500 mb-4">Real reports from real people. Our database grows smarter with every testimonial shared.</p><div className="relative"><select className="w-full p-2 text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-100 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer hover:bg-purple-100 transition-colors appearance-none text-center" defaultValue="" onChange={e => { if (e.target.value) { setReportIntent(e.target.value); setIsFindingProtocolForReport(true); } e.target.value = ""; }}><option value="success">Submit Success Story</option><option value="side-effect">Report Side Effect</option><option value="correction">Suggest an Edit</option></select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-700"><PlusCircle className="h-3 w-3" /></div></div></div>
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow"><div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4"><FileText className="w-6 h-6 text-purple-600" /></div><h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">Community Vetted</h3><p className="text-sm text-gray-500 mb-4">Real reports from real people. Our database grows smarter with every testimonial shared.</p><div className="relative"><select className="w-full p-2 text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-100 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer hover:bg-purple-100 transition-colors appearance-none text-center" defaultValue="" onChange={e => { if (e.target.value) { setReportIntent(e.target.value); setIsFindingProtocolForReport(true); } e.target.value = ""; }}><option value="" disabled selected>+ Add Your Report Here</option><option value="success">Submit Success Story</option><option value="side-effect">Report Side Effect</option><option value="correction">Suggest an Edit</option></select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-700"><PlusCircle className="h-3 w-3" /></div></div></div>
                             </div>
                         </section>
                     </div>
