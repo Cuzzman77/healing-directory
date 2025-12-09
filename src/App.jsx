@@ -515,12 +515,13 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
 };
 
 const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
-    // We are changing the Quick Filters to hold the protocol ID (slug) instead of just the name.
+    // You must manually update the slug property below to match the protocol ID in Firestore.
+    // Use the ID you see in the URL after navigating to the protocol page (e.g., metabolic-antiparasitic-protocol-active-cancer).
     const filters = [ 
         { name: "Cancer", icon: Dna, slug: "metabolic-antiparasitic-protocol-active-cancer" }, // Direct link
-        { name: "Skin Cancer", icon: Sun, slug: null }, // NO Direct link, should fall back to exact phrase search
+        { name: "Skin Cancer", icon: Sun, slug: "dichloroacetate-dca" }, // Direct link example (was incorrect, setting temporarily for example)
         { name: "CV19 Vax Detox", icon: Shield, slug: "Spike Protein Detox (Nicotine & Enzyme Protocol)" }, // Direct link
-        { name: "Brain Health", icon: Brain, slug: "Methylene Blue (Low-Dose)" }, // Example: Generic search for Brain Health
+        { name: "Brain Health", icon: Brain, slug: "Methylene Blue (Low-Dose)" }, // Direct link
         { name: "Parasite cleans", icon: Microscope, slug: "universal-anti-parasitic-protocol-dr-thomas-lodi" }, // Direct link
         { name: "Autism", icon: Puzzle, slug: null },
         { name: "ADHD", icon: Lightbulb, slug: null },
@@ -533,8 +534,6 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
             handleSelectProtocol(filter.slug);
         } else {
             // Option 2: No action, as requested (Prevents unwanted generic search)
-            // If the user wants a search fallback, they should use the main search bar.
-            // We just toggle the active state visually.
             if (activeFilter !== filter.name) {
                  onFilter(filter.name); 
             } else {
