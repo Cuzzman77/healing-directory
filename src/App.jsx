@@ -518,7 +518,7 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
     // We are changing the Quick Filters to hold the protocol ID (slug) instead of just the name.
     const filters = [ 
         { name: "Cancer", icon: Dna, slug: "metabolic-antiparasitic-protocol-active-cancer" }, // Direct link
-        { name: "Skin Cancer", icon: Sun, slug: "dichloroacetate-dca" }, // Direct link example
+        { name: "Skin Cancer", icon: Sun, slug: null }, // NO Direct link, should fall back to exact phrase search
         { name: "CV19 Vax Detox", icon: Shield, slug: null }, // Generic search (if null)
         { name: "Brain Health", icon: Brain, slug: null }, // Example: Generic search for Brain Health
         { name: "Parasite cleans", icon: Microscope, slug: "universal-anti-parasitic-protocol-dr-thomas-lodi" }, // Direct link
@@ -532,14 +532,14 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
             // Option 1: Direct Navigation (Go straight to protocol page using its ID/slug)
             handleSelectProtocol(filter.slug);
         } else {
-            // Option 2: Generic Search (Fall back to old search for broad categories)
+            // Option 2: Generic Search (Fall back to search term)
             onFilter(filter.name);
         }
     }
 
     return (
-        // FIX: Replaced px-4 with pl-4 and pr-1 to ensure the leftmost button (Cancer) is visible on smaller screens.
-        <div className="flex overflow-x-auto space-x-3 py-2 pl-4 pr-1 scrollbar-hide mb-4 justify-start md:justify-left md:pl-0">
+        // FIX: The quick filter buttons need to be set to justify-start and have padding on the left (pl-4)
+        <div className="flex overflow-x-auto space-x-3 py-2 pl-4 pr-1 scrollbar-hide mb-4 justify-start md:justify-start md:pl-0">
             {filters.map((f) => (
                 <button
                     key={f.name}
@@ -594,11 +594,14 @@ const App = () => {
         if (activeFilter === 'favorites') results = results.filter(p => favorites.includes(p.id));
         else if (searchTerm) {
             const lowerSearch = searchTerm.toLowerCase().trim();
+            // FIX: Ensure entire search term is found in title, ailment, or tags (exact phrase match)
             results = results.filter(p => {
-                const inTitle = (p.title || '').toLowerCase().includes(lowerSearch);
-                const inAilment = (p.ailment || '').toLowerCase().includes(lowerSearch);
-                const inTags = (p.tags || []).some(t => t.toLowerCase().includes(lowerSearch));
-                return inTitle || inAilment || inTags;
+                const searchableText = `
+                    ${p.title || ''} 
+                    ${p.ailment || ''} 
+                    ${(p.tags || []).join(' ')}
+                `.toLowerCase();
+                return searchableText.includes(lowerSearch);
             });
         } else if (selectedLetter) {
              results = results.filter(p => {
@@ -725,7 +728,6 @@ const App = () => {
                                     {filteredProtocols.map((protocol) => (
                                         <ProtocolCard 
                                             key={protocol.id} 
-                                            protocol={protocol} 
                                             onSelect={handleSelectProtocol} 
                                             onShare={handleShare}
                                             isFavorite={isFavorite(protocol.id)}
