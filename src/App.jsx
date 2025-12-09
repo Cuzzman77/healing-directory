@@ -372,7 +372,7 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
                 <AccordionSection title="Cautions & Red Flags" icon={AlertOctagon} content={protocol.section_cautions} isWarning={true} defaultOpen={true} />
             </div>
             <section className="mt-4 mb-8 text-sm text-gray-700 bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 leading-relaxed"><p className="font-bold text-lg text-yellow-900 mb-2">Important:</p><p>This protocol summary is for education and personal research only.</p><p>It is not medical advice, diagnosis, or a prescription.</p><p>Always work with a qualified healthcare professional before starting, stopping, or changing any treatment, drug, or supplement.</p></section>
-            <div className="mb-8 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-lg text-sm font-medium"><p className="font-bold">SPONSOR AD:</p><p>High-quality supplements vetted for purity. Use code HEAL20 for 20% off at PartnerStore.</p></div>
+            
             <section id="vendors-section" className="mt-8 pt-6 border-t border-gray-200"><h3 className="text-2xl font-bold text-gray-800 mb-4">Where to Buy</h3><div className="space-y-3">{protocol.vendors?.map((vendor, index) => (<div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all gap-4">
                             
                             {/* RESTORED LOGO/ICON ON LEFT */}
@@ -442,17 +442,17 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
                                 <div className="flex flex-col">
                                      <label className="text-sm font-bold text-gray-700 mb-1">Your Rating</label>
                                      <div className="flex space-x-1">
-                                        {[1, 2, 3, 4, 5].map((star) => (
-                                            <button
-                                                key={star}
-                                                type="button"
-                                                onClick={() => setTestimonialScore(star)}
-                                                disabled={submissionStatus === 'loading'}
-                                                className="focus:outline-none transition-transform hover:scale-110 active:scale-95 p-1"
-                                            >
-                                                <Star className={`w-6 h-6 ${star <= testimonialScore ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
-                                            </button>
-                                        ))}
+                                         {[1, 2, 3, 4, 5].map((star) => (
+                                             <button
+                                                 key={star}
+                                                 type="button"
+                                                 onClick={() => setTestimonialScore(star)}
+                                                 disabled={submissionStatus === 'loading'}
+                                                 className="focus:outline-none transition-transform hover:scale-110 active:scale-95 p-1"
+                                             >
+                                                 <Star className={`w-6 h-6 ${star <= testimonialScore ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                                             </button>
+                                         ))}
                                      </div>
                                 </div>
                                 <div className="flex flex-col items-end">
@@ -460,8 +460,8 @@ const ProtocolDetailPage = ({ protocol, onBack, onShare, db, userId, isFavorite,
                                           {submissionStatus === 'loading' ? 'Sending...' : 'Post Review'} <Send className="w-4 h-4 ml-2" />
                                      </button>
                                      <div className="mt-2 text-right">
-                                        <p className="text-gray-400 text-xs">{(testimonialText.length || 0)}/1000 characters</p>
-                                        <StatusMessage status={submissionStatus} />
+                                         <p className="text-gray-400 text-xs">{(testimonialText.length || 0)}/1000 characters</p>
+                                         <StatusMessage status={submissionStatus} />
                                      </div>
                                 </div>
                             </div>
