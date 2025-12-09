@@ -519,7 +519,7 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
     // Use the ID you see in the URL after navigating to the protocol page (e.g., metabolic-antiparasitic-protocol-active-cancer).
     const filters = [ 
         { name: "Cancer", icon: Dna, slug: "metabolic-antiparasitic-protocol-active-cancer" }, // Direct link
-        { name: "Skin Cancer", icon: Sun, slug: "dichloroacetate-dca" }, // Direct link example (was incorrect, setting temporarily for example)
+        { name: "Skin Cancer", icon: Sun, slug: null },
         { name: "CV19 Vax Detox", icon: Shield, slug: "Spike Protein Detox (Nicotine & Enzyme Protocol)" }, // Direct link
         { name: "Brain Health", icon: Brain, slug: "Methylene Blue (Low-Dose)" }, // Direct link
         { name: "Parasite cleans", icon: Microscope, slug: "universal-anti-parasitic-protocol-dr-thomas-lodi" }, // Direct link
