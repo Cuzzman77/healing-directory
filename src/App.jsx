@@ -253,7 +253,7 @@ const ProtocolCard = ({ protocol, onSelect, onShare, isFavorite, onToggleFavorit
     const totalInterest = (Number(popularityMetrics.baseline_report_volume || protocol.baseline_report_volume) || 0) + (Number(popularityMetrics.site_views || protocol.site_views) || 0);
     return (
         <div className="bg-white p-5 sm:p-6 shadow-md rounded-2xl transition-all duration-300 border border-gray-100 cursor-pointer active:scale-[0.98] hover:shadow-xl hover:border-emerald-100 relative group animate-in slide-in-from-bottom-4 fade-in duration-500" onClick={() => onSelect(protocol.id)}>
-            <div className="flex justify-between items-start mb-2"><h2 className="text-lg font-extrabold text-gray-800 pr-16 group-hover:text-emerald-700 transition-colors">{protocol.title || "Untitled Protocol"}</h2><div className="absolute top-4 right-4 flex space-x-2"><button onClick={(e) => { e.stopPropagation(); onToggleFavorite(protocol.id); }} className={`p-2 rounded-full transition-colors ${isFavorite ? 'bg-red-50 text-red-500' : 'bg-gray-300 hover:text-red-400 hover:bg-red-50'}`} title={isFavorite ? "Remove from Favorites" : "Add to Favorites"} > <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} /> </button><button onClick={(e) => { e.stopPropagation(); onShare(protocol); }} className="p-2 text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors"><Share2 className="w-5 h-5" /></button></div></div>
+            <div className="flex justify-between items-start mb-2"><h2 className="text-lg font-extrabold text-gray-800 pr-16 group-hover:text-emerald-700 transition-colors">{protocol.title || "Untitled Protocol"}</h2><div className="absolute top-4 right-4 flex space-x-2"><button onClick={(e) => { e.stopPropagation(); onToggleFavorite(protocol.id); }} className={`p-2 rounded-full transition-colors ${isFavorite ? 'bg-red-50 text-red-500' : 'bg-gray-300 hover:text-red-400 hover:bg-red-50'}`} title={isFavorite ? "Remove from Favorites" : "Add to Favorites"} > <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} /> </button><button onClick={() => onShare(protocol)} className="p-2 text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors"><Share2 className="w-5 h-5" /></button></div></div>
             <p className="text-gray-500 mb-4 text-sm line-clamp-2 leading-relaxed">{protocol.description || "No description available."}</p>
             <div className="flex flex-wrap gap-4 justify-between items-center text-xs font-medium pt-3 border-t border-gray-50"><div className="flex gap-3 items-center flex-wrap"><div className="flex items-center px-3 py-1.5 bg-green-50 text-green-800 rounded-lg border border-green-100"><Star className="w-4 h-4 mr-1.5 fill-green-500 text-green-500" /><span className="font-bold text-sm mr-1">{stars}</span><span className="opacity-75">/ 5 Efficacy</span></div><div className="flex items-center px-3 py-1.5 bg-blue-50 text-blue-800 rounded-lg border border-blue-100"><Activity className="w-4 h-4 mr-1.5 text-blue-500" /><span className="font-bold text-sm mr-1">{(totalInterest).toLocaleString()}</span><span className="opacity-75">Interest</span></div></div></div>
         </div>
@@ -532,8 +532,14 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
             // Option 1: Direct Navigation (Go straight to protocol page using its ID/slug)
             handleSelectProtocol(filter.slug);
         } else {
-            // Option 2: Generic Search (Fall back to search term)
-            onFilter(filter.name);
+            // Option 2: No action, as requested (Prevents unwanted generic search)
+            // If the user wants a search fallback, they should use the main search bar.
+            // We just toggle the active state visually.
+            if (activeFilter !== filter.name) {
+                 onFilter(filter.name); 
+            } else {
+                 onFilter(null); // Deselect if already active
+            }
         }
     }
 
@@ -544,7 +550,10 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
                 <button
                     key={f.name}
                     onClick={() => handleClick(f)}
-                    className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all flex-shrink-0 ${activeFilter === f.name ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-emerald-700 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-200'}`}
+                    // Added cursor-pointer to all actionable buttons, opacity reduction to non-actionable ones
+                    className={`flex items-center px-4 py-2 rounded-full shadow-sm text-sm font-semibold border whitespace-nowrap transition-all flex-shrink-0 cursor-pointer 
+                                ${activeFilter === f.name ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-emerald-700 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-200'} 
+                                ${!f.slug ? 'opacity-75 hover:opacity-100' : 'hover:shadow-md'}`}
                 >
                     <f.icon className={`w-4 h-4 mr-2 ${activeFilter === f.name ? 'text-white' : 'text-emerald-500'}`} />
                     {f.name}
@@ -635,10 +644,10 @@ const App = () => {
 
     const handleSelectProtocol = useCallback((id) => { setSelectedProtocolId(id); safePushState(null, '', `/protocol/${id}`); window.scrollTo(0, 0); }, []);
     const handleFilter = useCallback((tag) => {
-        // When Quick Filter is clicked, set the search term to the tag name 
+        // This function is now only called when a filter with slug=null is clicked.
+        // It sets the search term to trigger a general filter action.
         setSearchTerm(tag); 
         setHeroSearchTerm(tag); 
-
         setActiveFilter(prev => prev === tag ? null : tag);
         setSelectedLetter(null);
         setIsBrowsing(true);
@@ -728,6 +737,7 @@ const App = () => {
                                     {filteredProtocols.map((protocol) => (
                                         <ProtocolCard 
                                             key={protocol.id} 
+                                            protocol={protocol} 
                                             onSelect={handleSelectProtocol} 
                                             onShare={handleShare}
                                             isFavorite={isFavorite(protocol.id)}
@@ -761,7 +771,7 @@ const App = () => {
                             <div className="grid md:grid-cols-3 gap-6">
                                 <div onClick={() => setShowTrustScoreInfo(!showTrustScoreInfo)} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-all cursor-pointer relative overflow-hidden group"><div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4"><Shield className="w-6 h-6 text-blue-600" /></div><h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">Trust Scores <ChevronDown className={`w-4 h-4 ml-1 text-gray-400 transition-transform ${showTrustScoreInfo ? 'rotate-180' : ''}`} /></h3><p className="text-sm text-gray-500">We cut through the noise by separating anecdotal success from scientific validation.</p>{showTrustScoreInfo && (<div className="mt-4 pt-4 border-t border-gray-100 text-left bg-blue-50/50 -mx-6 -mb-6 p-6 animate-in slide-in-from-top-2"><p className="text-sm text-blue-900 font-medium italic mb-2">"Anecdote is the plural of hypothesis."</p><p className="xs text-gray-600">Our rating system aggregates real-world reports. While not clinical trials, these thousands of shared experiences form a powerful data set that can point the way to efficacy before science catches up.</p></div>)}</div>
                                 <div onClick={handleGoToAbout} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-all cursor-pointer group"><div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4"><Stethoscope className="w-6 h-6 text-green-600" /></div><h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">Off-Patent Focus<ChevronRight className="w-4 h-4 ml-1 text-gray-400 group-hover:translate-x-1 transition-transform" /></h3><p className="text-sm text-gray-500">We highlight repurposed drugs and natural compounds that the industry overlooks due to lack of patentability.</p></div>
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow"><div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4"><FileText className="w-6 h-6 text-purple-600" /></div><h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">Community Vetted</h3><p className="text-sm text-gray-500 mb-4">Real reports from real people. Our database grows smarter with every testimonial shared.</p><div className="relative"><select className="w-full p-2 text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-100 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer hover:bg-purple-100 transition-colors appearance-none text-center" defaultValue="" onChange={e => { if (e.target.value) { setReportIntent(e.target.value); setIsFindingProtocolForReport(true); } e.target.value = ""; }}><option value="" disabled>+ Add Your Report Here</option><option value="success">Submit Success Story</option><option value="side-effect">Report Side Effect</option><option value="correction">Suggest an Edit</option></select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-700"><PlusCircle className="h-3 w-3" /></div></div></div>
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow"><div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4"><FileText className="w-6 h-6 text-purple-600" /></div><h3 className="font-bold text-gray-900 mb-2 flex items-center justify-center">Community Vetted</h3><p className="text-sm text-gray-500 mb-4">Real reports from real people. Our database grows smarter with every testimonial shared.</p><div className="relative"><select className="w-full p-2 text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-100 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer hover:bg-purple-100 transition-colors appearance-none text-center" defaultValue="" onChange={e => { if (e.target.value) { setReportIntent(e.target.value); setIsFindingProtocolForReport(true); } e.target.value = ""; }}><option value="success">Submit Success Story</option><option value="side-effect">Report Side Effect</option><option value="correction">Suggest an Edit</option></select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-700"><PlusCircle className="h-3 w-3" /></div></div></div>
                             </div>
                         </section>
                     </div>
