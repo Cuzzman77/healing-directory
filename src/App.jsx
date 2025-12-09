@@ -519,9 +519,9 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
     // Use the ID you see in the URL after navigating to the protocol page (e.g., metabolic-antiparasitic-protocol-active-cancer).
     const filters = [ 
         { name: "Cancer", icon: Dna, slug: "metabolic-antiparasitic-protocol-active-cancer" }, // Direct link
-        { name: "Skin Cancer", icon: Sun, slug: null },
+        { name: "Skin Cancer", icon: Sun, slug: null }, // NO Direct link, removed DCA slug
         { name: "CV19 Vax Detox", icon: Shield, slug: "spike-protein-detox-nicotine-enzyme-protocol" }, // Direct link
-        { name: "Brain Health", icon: Brain, slug: "methylene-blue-low-dose" }, // Direct link
+        { name: "Brain Health", icon: Brain, slug: "dichloroacetate-dca" }, // Direct link (DCA)
         { name: "Parasite cleans", icon: Microscope, slug: "universal-anti-parasitic-protocol-dr-thomas-lodi" }, // Direct link
         { name: "Autism", icon: Puzzle, slug: null },
         { name: "ADHD", icon: Lightbulb, slug: null },
@@ -533,8 +533,9 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
             // Option 1: Direct Navigation (Go straight to protocol page using its ID/slug)
             handleSelectProtocol(filter.slug);
         } else {
-            // Option 2: No action, as requested (Prevents unwanted generic search)
+            // Option 2: No action, as requested (If slug is null, it just toggles the visual active state)
             if (activeFilter !== filter.name) {
+                 // Note: Since we are not doing a generic search, this primarily changes the button color.
                  onFilter(filter.name); 
             } else {
                  onFilter(null); // Deselect if already active
