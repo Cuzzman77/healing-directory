@@ -591,7 +591,46 @@ const App = () => {
     const handleGoToAbout = useCallback(() => { setShowAboutPage(true); setSelectedProtocolId(null); setIsBrowsing(false); safePushState(null, '', '/about'); window.scrollTo(0, 0); }, []);
     const handleProtocolReportSelect = useCallback((id) => { setSelectedProtocolId(id); setIsFindingProtocolForReport(false); safePushState(null, '', `/protocol/${id}`); window.scrollTo(0, 0); }, []);
 
-    useEffect(() => { const initAuth = async () => { if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { try { await signInWithCustomToken(auth, __initial_auth_token); } catch (e) { await signInAnonymously(auth); } } else { await signInAnonymously(auth); } }; initAuth(); const unsubscribe = onAuthStateChanged(auth, (u) => { if (u) setUserId(u.uid); else setUserId("guest-" + Math.random().toString(36).substr(2, 9)); setLoading(false); }); return () => unsubscribe(); }, []);
+    // FIX: Initial URL parsing logic for deep links
+    useEffect(() => {
+        const initAuth = async () => { 
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { 
+                try { 
+                    await signInWithCustomToken(auth, __initial_auth_token); 
+                } catch (e) { 
+                    await signInAnonymously(auth); 
+                } 
+            } else { 
+                await signInAnonymously(auth); 
+            } 
+        }; 
+        initAuth(); 
+        const unsubscribe = onAuthStateChanged(auth, (u) => { 
+            if (u) setUserId(u.uid); 
+            else setUserId("guest-" + Math.random().toString(36).substr(2, 9)); 
+            setLoading(false); 
+        });
+
+        // 1. Check URL path on load for a protocol ID
+        const path = window.location.pathname;
+        const protocolMatch = path.match(/^\/protocol\/([^/]+)/);
+        
+        if (protocolMatch) {
+             // 2. Set the selected protocol ID state directly from the URL slug
+             const idFromUrl = protocolMatch[1];
+             setSelectedProtocolId(idFromUrl);
+             setIsBrowsing(true); // Ensure list view is active if landing on detail page
+             safePushState(null, '', path); // Keep the clean URL in history
+        } else if (path === '/about') {
+             setShowAboutPage(true);
+        } else {
+             // If landing on /, ensure browsing is active to show content
+             setIsBrowsing(false);
+        }
+
+        return () => unsubscribe(); 
+    }, []);
+
     const currentProtocol = useMemo(() => protocols.find(p => p.id === selectedProtocolId), [protocols, selectedProtocolId]);
     useEffect(() => { const q = query(collection(db, COLLECTION_NAME)); const unsubscribe = onSnapshot(q, (snapshot) => { setProtocols(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))); }); return () => unsubscribe(); }, []);
 
