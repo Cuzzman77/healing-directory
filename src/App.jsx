@@ -520,8 +520,8 @@ const QuickFilters = ({ onFilter, activeFilter, handleSelectProtocol }) => {
     const filters = [ 
         { name: "Cancer", icon: Dna, slug: "metabolic-antiparasitic-protocol-active-cancer" }, // Direct link
         { name: "Skin Cancer", icon: Sun, slug: null },
-        { name: "CV19 Vax Detox", icon: Shield, slug: "Spike Protein Detox (Nicotine & Enzyme Protocol)" }, // Direct link
-        { name: "Brain Health", icon: Brain, slug: "Methylene Blue (Low-Dose)" }, // Direct link
+        { name: "CV19 Vax Detox", icon: Shield, slug: "spike-protein-detox-nicotine-enzyme-protocol" }, // Direct link
+        { name: "Brain Health", icon: Brain, slug: "methylene-blue-low-dose" }, // Direct link
         { name: "Parasite cleans", icon: Microscope, slug: "universal-anti-parasitic-protocol-dr-thomas-lodi" }, // Direct link
         { name: "Autism", icon: Puzzle, slug: null },
         { name: "ADHD", icon: Lightbulb, slug: null },
